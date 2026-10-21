@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F19" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- Layer 1 Gradient (Design Mockup) -->
+    <linearGradient id="mockupLayer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#1E40AF" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Layer 2 Gradient (Web DOM) -->
+    <linearGradient id="domLayer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#4338CA" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Perfect Match Accent -->
+    <linearGradient id="matchPixel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22D3EE" />
+      <stop offset="100%" stop-color="#0EA5E9" />
+    </linearGradient>
+
+    <filter id="glow2" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- App Icon Base -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad2)" stroke="#1E293B" stroke-width="3" />
+
+  <!-- Background Layer (Base Page) -->
+  <rect x="116" y="156" width="220" height="220" rx="28" fill="url(#domLayer)" stroke="#818CF8" stroke-width="2" stroke-opacity="0.5" />
+  
+  <!-- Subtle UI lines inside Base Layer -->
+  <rect x="144" y="196" width="100" height="12" rx="6" fill="#FFFFFF" fill-opacity="0.3" />
+  <rect x="144" y="224" width="160" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.2" />
+  <rect x="144" y="244" width="130" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.2" />
+
+  <!-- Foreground Overlay Layer (Mockup Layer - Offset by 60px) -->
+  <g style="mix-blend-mode: screen;">
+    <rect x="176" y="96" width="220" height="220" rx="28" fill="url(#mockupLayer)" stroke="#60A5FA" stroke-width="2.5" stroke-opacity="0.8" />
+    
+    <!-- Grid pattern on mockup -->
+    <line x1="231" y1="96" x2="231" y2="316" stroke="#FFFFFF" stroke-opacity="0.2" stroke-dasharray="3 3" />
+    <line x1="286" y1="96" x2="286" y2="316" stroke="#FFFFFF" stroke-opacity="0.2" stroke-dasharray="3 3" />
+    <line x1="341" y1="96" x2="341" y2="316" stroke="#FFFFFF" stroke-opacity="0.2" stroke-dasharray="3 3" />
+    <line x1="176" y1="151" x2="396" y2="151" stroke="#FFFFFF" stroke-opacity="0.2" stroke-dasharray="3 3" />
+    <line x1="176" y1="206" x2="396" y2="206" stroke="#FFFFFF" stroke-opacity="0.2" stroke-dasharray="3 3" />
+    <line x1="176" y1="261" x2="396" y2="261" stroke="#FFFFFF" stroke-opacity="0.2" stroke-dasharray="3 3" />
+  </g>
+
+  <!-- The Snapped Pixel Indicator at the Intersection Point -->
+  <g filter="url(#glow2)">
+    <rect x="176" y="156" width="60" height="60" rx="14" fill="url(#matchPixel)" stroke="#FFFFFF" stroke-width="3" />
+  </g>
+
+  <!-- Precision Crosshair in matching pixel -->
+  <line x1="194" y1="186" x2="218" y2="186" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="206" y1="174" x2="206" y2="198" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+</svg>

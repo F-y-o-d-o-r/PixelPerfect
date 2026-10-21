@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="squircleNew1">
+      <rect x="0" y="0" width="512" height="512" rx="114" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#squircleNew1)">
+    <!-- Deep Matte Slate -->
+    <rect width="512" height="512" fill="#0D0E12" />
+    <rect x="1.5" y="1.5" width="509" height="509" rx="113" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3" />
+
+    <!-- 4 Precision Viewfinder Corner Brackets -->
+    <g stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round" fill="none">
+      <!-- Top Left -->
+      <path d="M 80 120 L 80 80 L 120 80" />
+      <!-- Top Right -->
+      <path d="M 392 80 L 432 80 L 432 120" />
+      <!-- Bottom Left -->
+      <path d="M 80 392 L 80 432 L 120 432" />
+      <!-- Bottom Right -->
+      <path d="M 392 432 L 432 432 L 432 392" />
+    </g>
+
+    <!-- Center Precision Crosshairs -->
+    <line x1="256" y1="84" x2="256" y2="104" stroke="#64748B" stroke-width="2" />
+    <line x1="256" y1="408" x2="256" y2="428" stroke="#64748B" stroke-width="2" />
+    <line x1="84" y1="256" x2="104" y2="256" stroke="#64748B" stroke-width="2" />
+    <line x1="408" y1="256" x2="428" y2="256" stroke="#64748B" stroke-width="2" />
+
+    <!-- Pure Minimalist Bold Geometric P in Center -->
+    <g transform="translate(176, 146)">
+      <!-- Solid White Stem -->
+      <rect x="0" y="0" width="48" height="220" rx="12" fill="#FFFFFF" />
+      <!-- Electric Blue Loop -->
+      <path d="M 48 0 L 108 0 C 146 0 164 18 164 56 C 164 94 146 112 108 112 L 48 112 Z M 48 34 L 102 34 C 120 34 126 42 126 56 C 126 70 120 78 102 78 L 48 78 Z" fill="#3B82F6" />
+      <!-- Snapping Target Pixel -->
+      <rect x="136" y="84" width="28" height="28" rx="6" fill="#38BDF8" stroke="#0D0E12" stroke-width="3" />
+    </g>
+  </g>
+</svg>

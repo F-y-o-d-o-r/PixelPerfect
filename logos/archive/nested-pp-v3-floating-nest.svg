@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="iosSquircle3">
+      <rect x="0" y="0" width="512" height="512" rx="114" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#squircleClip3)">
+    <!-- Deep Matte Obsidian -->
+    <rect width="512" height="512" fill="#0F1015" />
+    <rect x="1.5" y="1.5" width="509" height="509" rx="113" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3" />
+
+    <g transform="translate(136, 106)">
+      <!-- OUTER CONTAINER: White P with a clean inner cutout -->
+      <path d="M 0 0 L 144 0 C 214 0 256 40 256 110 C 256 180 214 220 144 220 L 76 220 L 76 300 L 0 300 Z M 76 68 L 136 68 C 172 68 184 86 184 110 C 184 134 172 152 136 152 L 76 152 Z" 
+            fill="#FFFFFF" />
+
+      <!-- Gap / Background Cutout around inner P -->
+      <g transform="translate(18, 18) scale(0.86)">
+        <!-- Inner P: Electric Blue, identical shape, nested inside -->
+        <path d="M 0 0 L 144 0 C 214 0 256 40 256 110 C 256 180 214 220 144 220 L 76 220 L 76 300 L 0 300 Z M 76 68 L 136 68 C 172 68 184 86 184 110 C 184 134 172 152 136 152 L 76 152 Z" 
+              fill="#3B82F6" stroke="#0F1015" stroke-width="12" />
+        
+        <!-- Inner P counter hole -->
+        <path d="M 76 68 L 136 68 C 172 68 184 86 184 110 C 184 134 172 152 136 152 L 76 152 Z" 
+              fill="#0F1015" />
+      </g>
+    </g>
+  </g>
+</svg>

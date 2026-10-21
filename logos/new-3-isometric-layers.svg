@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="squircleNew3">
+      <rect x="0" y="0" width="512" height="512" rx="114" />
+    </clipPath>
+
+    <!-- Top Layer Gradient (Translucent Mockup) -->
+    <linearGradient id="topPlaneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.8" />
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#squircleNew3)">
+    <rect width="512" height="512" fill="#0E1015" />
+    <rect x="1.5" y="1.5" width="509" height="509" rx="113" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3" />
+
+    <!-- Two Floating Parallel Isometric Planes (Layers) -->
+    <g transform="translate(256, 256)">
+      <!-- 1. BOTTOM PLANE: Pure White Coded Page -->
+      <polygon points="0,-20 140,55 0,130 -140,55" fill="#FFFFFF" opacity="0.95" />
+      
+      <!-- Alignment Guide Ray connecting the layers -->
+      <line x1="0" y1="-100" x2="0" y2="55" stroke="#38BDF8" stroke-width="3" stroke-dasharray="6 6" />
+
+      <!-- 2. TOP PLANE: Electric Blue Semi-transparent Design Mockup (Offset upwards by 80px) -->
+      <g transform="translate(0, -80)">
+        <polygon points="0,-20 140,55 0,130 -140,55" fill="url(#topPlaneGrad)" stroke="#60A5FA" stroke-width="3" />
+        
+        <!-- Grid lines on mockup plane -->
+        <line x1="-70" y1="17" x2="70" y2="92" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="2" />
+        <line x1="70" y1="17" x2="-70" y2="92" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="2" />
+
+        <!-- Target Pinpoint at Center -->
+        <circle cx="0" cy="55" r="7" fill="#FFFFFF" />
+      </g>
+    </g>
+  </g>
+</svg>

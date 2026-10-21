@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="squircle10">
+      <rect x="0" y="0" width="512" height="512" rx="114" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#squircle10)">
+    <rect width="512" height="512" fill="#121316" />
+    <rect x="1.5" y="1.5" width="509" height="509" rx="113" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3" />
+
+    <g transform="translate(138, 116)">
+      <!-- Внешняя белая P -->
+      <path d="M 0 0 L 132 0 C 196 0 236 36 236 98 C 236 160 196 196 132 196 L 68 196 L 68 280 L 0 280 Z M 68 62 L 126 62 C 158 62 168 76 168 98 C 168 120 158 134 126 134 L 68 134 Z" 
+            fill="#FFFFFF" />
+
+      <!-- Внутренняя P (уменьшена ровно на 10%, отцентрована) -->
+      <g transform="translate(11.8, 14) scale(0.90)">
+        <path d="M 0 0 L 132 0 C 196 0 236 36 236 98 C 236 160 196 196 132 196 L 68 196 L 68 280 L 0 280 Z M 68 62 L 126 62 C 158 62 168 76 168 98 C 168 120 158 134 126 134 L 68 134 Z" 
+              fill="#3B82F6" />
+      </g>
+    </g>
+  </g>
+</svg>

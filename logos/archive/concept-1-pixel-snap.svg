@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- P Stem Gradient -->
+    <linearGradient id="pGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+
+    <!-- Snapping Pixel Gradient -->
+    <linearGradient id="pixelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="pixelGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Background App Icon (macOS squircle shape) -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad)" stroke="#1E293B" stroke-width="3" />
+
+  <!-- Subtle Pixel Grid Guide Lines in Background -->
+  <g stroke="#334155" stroke-opacity="0.25" stroke-width="1.5" stroke-dasharray="4 4">
+    <line x1="120" y1="96" x2="120" y2="416" />
+    <line x1="200" y1="96" x2="200" y2="416" />
+    <line x1="280" y1="96" x2="280" y2="416" />
+    <line x1="360" y1="96" x2="360" y2="416" />
+    <line x1="96" y1="120" x2="416" y2="120" />
+    <line x1="96" y1="200" x2="416" y2="200" />
+    <line x1="96" y1="280" x2="416" y2="280" />
+    <line x1="96" y1="360" x2="416" y2="360" />
+  </g>
+
+  <!-- Geometric P Body -->
+  <g filter="url(#subtleShadow)">
+    <!-- Vertical stem of P -->
+    <rect x="144" y="128" width="64" height="256" rx="14" fill="url(#pGrad)" />
+
+    <!-- Top loop of P (curved geometric band) -->
+    <path d="M 208 128 L 312 128 C 364 128 392 156 392 208 C 392 260 364 288 312 288 L 208 288 Z M 208 192 L 304 192 C 324 192 332 200 332 208 C 332 216 324 224 304 224 L 208 224 Z" fill="url(#pGrad)" />
+  </g>
+
+  <!-- Target Alignment Crosshairs for the Pixel -->
+  <g stroke="#38BDF8" stroke-opacity="0.6" stroke-width="2">
+    <line x1="316" y1="84" x2="316" y2="108" />
+    <line x1="388" y1="84" x2="388" y2="108" />
+    <line x1="396" y1="116" x2="420" y2="116" />
+    <line x1="396" y1="188" x2="420" y2="188" />
+  </g>
+
+  <!-- Snapping Accent Pixel (Top Right Corner) -->
+  <g filter="url(#pixelGlow)">
+    <rect x="328" y="104" width="72" height="72" rx="16" fill="url(#pixelGrad)" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="3" />
+  </g>
+
+  <!-- Center Target Dot inside the Snapping Pixel -->
+  <circle cx="364" cy="140" r="5" fill="#FFFFFF" opacity="0.9" />
+</svg>

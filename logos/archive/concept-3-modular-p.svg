@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#090D16" />
+    </linearGradient>
+
+    <!-- Block default gradient -->
+    <linearGradient id="blockBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+
+    <!-- Accent Block gradient -->
+    <linearGradient id="accentBlock" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <filter id="glow3" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- App Icon Base -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad3)" stroke="#1E293B" stroke-width="3" />
+
+  <!-- 4x5 Modular Pixel Grid for P (each pixel block is 56x56, gap 12) -->
+  <!-- Col 1 (x: 136) - Vertical Stem -->
+  <rect x="136" y="116" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+  <rect x="136" y="184" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+  <rect x="136" y="252" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+  <rect x="136" y="320" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+
+  <!-- Row 1 Top (y: 116) -->
+  <rect x="204" y="116" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+  <rect x="272" y="116" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+
+  <!-- Row 2 Right Column (y: 184) -->
+  <rect x="340" y="184" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+
+  <!-- Row 3 Middle Bar (y: 252) -->
+  <rect x="204" y="252" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+  <rect x="272" y="252" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+  <rect x="340" y="252" width="56" height="56" rx="14" fill="url(#blockBlue)" />
+
+  <!-- THE KEY HIGHLIGHT PIXEL (Top-right corner, snapping in at x: 340, y: 116) -->
+  <g filter="url(#glow3)">
+    <rect x="340" y="116" width="56" height="56" rx="16" fill="url(#accentBlock)" stroke="#FFFFFF" stroke-width="3" />
+    <!-- Inner Crosshair / Target -->
+    <circle cx="368" cy="144" r="5" fill="#FFFFFF" />
+  </g>
+
+  <!-- Precision alignment guides around the accent pixel -->
+  <path d="M 326 102 L 326 112 M 410 102 L 410 112 M 326 186 L 326 176 M 410 186 L 410 176" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+</svg>

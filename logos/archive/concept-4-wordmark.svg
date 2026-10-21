@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 200" width="760" height="200">
+  <defs>
+    <linearGradient id="wmBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <linearGradient id="wmPGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+
+    <linearGradient id="wmPixelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <filter id="wmGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Left Icon Mark (Square 150x150) -->
+  <g transform="translate(25, 25)">
+    <!-- Base Icon Container -->
+    <rect x="0" y="0" width="150" height="150" rx="36" fill="url(#wmBgGrad)" stroke="#1E293B" stroke-width="2" />
+    
+    <!-- P Stem -->
+    <rect x="40" y="38" width="20" height="74" rx="4" fill="url(#wmPGrad)" />
+    <!-- P Loop -->
+    <path d="M 60 38 L 92 38 C 108 38 116 46 116 62 C 116 78 108 86 92 86 L 60 86 Z M 60 58 L 90 58 C 96 58 98 60 98 62 C 98 64 96 66 90 66 L 60 66 Z" fill="url(#wmPGrad)" />
+    
+    <!-- Snapping Pixel -->
+    <g filter="url(#wmGlow)">
+      <rect x="96" y="30" width="26" height="26" rx="6" fill="url(#wmPixelGrad)" stroke="#FFFFFF" stroke-width="1.5" />
+      <circle cx="109" cy="43" r="2" fill="#FFFFFF" />
+    </g>
+  </g>
+
+  <!-- Typography: PIPE -->
+  <text x="210" y="112" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="82" font-weight="900" letter-spacing="-0.03em" fill="#FFFFFF">
+    PIP<tspan fill="#38BDF8">E</tspan>
+  </text>
+
+  <!-- Subtitle: by ITITI -->
+  <text x="215" y="152" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="700" letter-spacing="0.28em" fill="#64748B">
+    BY <tspan fill="#3B82F6">ITITI</tspan>
+  </text>
+
+  <!-- Badge: PIXEL PERFECT -->
+  <g transform="translate(450, 68)">
+    <rect x="0" y="0" width="168" height="30" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+    <text x="84" y="19" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.12em" fill="#94A3B8" text-anchor="middle">
+      PIXEL PERFECT
+    </text>
+  </g>
+</svg>
