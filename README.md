@@ -14,7 +14,7 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 
 ## ✨ Key Features
 
-- **No Ads, Ever:** Clean, distraction-free interface right next to DevTools.
+- **No Ads:** Clean, distraction-free interface right next to DevTools.
 - **Dark Mode Included:** Full dark theme support out of the box, 100% free.
 - **Instant Clipboard Paste (`Cmd + V` / `Ctrl + V`):** Paste mockups directly from Figma or the clipboard without saving intermediate PNG files to disk.
 - **Smart Retina / DPI Scaling:** Fixes the 0.5x / 2x display bug on high-DPI screens with automatic detection and an instant `[ 1x | 2x | Auto ]` toggle.
