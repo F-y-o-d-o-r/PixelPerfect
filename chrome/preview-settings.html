@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Perfect — Multi-Stream Glassmorphism Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            apple: {
+              blue: '#007AFF',
+              darkBg: '#1C1C1E',
+              darkSurface: '#2C2C2E',
+              darkBorder: 'rgba(255, 255, 255, 0.12)',
+              lightBg: '#F5F5F7',
+              lightSurface: '#FFFFFF',
+              lightBorder: 'rgba(0, 0, 0, 0.08)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Плавные физические кривые macOS */
+    :root {
+      --fluid-ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --speed-multiplier: 1;
+    }
+
+    /* Эффект матового стекла для потоков */
+    .glass-stream {
+      position: absolute;
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      transition: transform calc(0.44s * var(--speed-multiplier)) var(--fluid-ease),
+                  opacity calc(0.44s * var(--speed-multiplier)) var(--fluid-ease);
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+
+    /* Спекулярное световое ребро на гребнях потоков */
+    .rim-glow-right {
+      box-shadow: 10px 0 24px -2px rgba(255, 255, 255, 0.45), inset -2px 0 3px rgba(255, 255, 255, 0.6);
+      border-right: 1.5px solid rgba(255, 255, 255, 0.5);
+    }
+    .rim-glow-left {
+      box-shadow: -10px 0 24px -2px rgba(255, 255, 255, 0.45), inset 2px 0 3px rgba(255, 255, 255, 0.6);
+      border-left: 1.5px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* Монолитный финальный оверлей */
+    .glass-backdrop-final {
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      transition: opacity calc(0.28s * var(--speed-multiplier)) ease;
+    }
+
+    /* Диагональный световой блик по застывшему стеклу */
+    @keyframes specularSheen {
+      0% {
+        transform: translate(-100%, -100%) rotate(35deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(200%, 200%) rotate(35deg);
+        opacity: 0;
+      }
+    }
+    .sheen-active {
+      animation: specularSheen calc(0.65s * var(--speed-multiplier)) cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    /* Анимация кристаллизации контента (де-блюр) */
+    .content-crystallize {
+      transition: opacity calc(0.35s * var(--speed-multiplier)) var(--fluid-ease),
+                  transform calc(0.35s * var(--speed-multiplier)) var(--fluid-ease),
+                  filter calc(0.35s * var(--speed-multiplier)) var(--fluid-ease);
+    }
+  </style>
+</head>
+<body class="bg-neutral-900 text-neutral-100 min-h-screen flex flex-col items-center justify-center p-4 antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Панель управления демо -->
+  <div class="mb-6 flex flex-wrap items-center justify-center gap-3 bg-neutral-800/90 backdrop-blur-md px-5 py-3 rounded-2xl border border-neutral-700/60 shadow-2xl">
+    <span class="text-xs uppercase tracking-wider text-neutral-400 font-semibold mr-1">Тест прототипа:</span>
+    
+    <button onclick="triggerSettings(1)" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/25 transition">
+      ▶️ Открыть (1x Normal)
+    </button>
+    <button onclick="triggerSettings(3)" class="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 transition">
+      🐌 Открыть (Slow-Motion 0.3x)
+    </button>
+    
+    <div class="h-4 w-px bg-neutral-700 mx-1"></div>
+
+    <button onclick="setSystemTheme('dark')" id="btn-theme-dark" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-700 text-neutral-200 hover:bg-neutral-600 transition">
+      🌙 Dark Mode
+    </button>
+    <button onclick="setSystemTheme('light')" id="btn-theme-light" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-700 text-neutral-200 hover:bg-neutral-600 transition">
+      ☀️ Light Mode
+    </button>
+    <button onclick="setSystemTheme('system')" id="btn-theme-system" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition">
+      💻 macOS Auto
+    </button>
+  </div>
+
+  <!-- Макет окна Chrome Side Panel (точный размер боковой панели 380 x 660 px) -->
+  <div id="sidepanel-shell" class="relative w-[390px] h-[680px] rounded-3xl overflow-hidden shadow-2xl border transition-colors duration-300 dark:bg-[#1C1C1E] dark:border-white/10 dark:text-white bg-[#F5F5F7] border-black/10 text-neutral-900 flex flex-col">
+    
+    <!-- Шапка macOS с кнопками и заголовком -->
+    <div class="h-12 border-b flex items-center justify-between px-4 transition-colors dark:border-white/10 dark:bg-[#2C2C2E]/60 bg-white/70 backdrop-blur-md z-10">
+      <div class="flex items-center space-x-2">
+        <div class="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]"></div>
+        <div class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]"></div>
+        <div class="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]"></div>
+        <span class="ml-2 text-xs font-semibold tracking-tight opacity-80">Pixel Perfect by ITITI</span>
+      </div>
+      <button onclick="openSettings()" title="Открыть настройки" class="w-8 h-8 rounded-full flex items-center justify-center transition-colors dark:hover:bg-white/10 hover:bg-black/5 active:scale-95">
+        <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Основное содержимое Side Panel (слои, управление) -->
+    <div class="flex-1 p-4 space-y-4 overflow-y-auto">
+      
+      <!-- Карточка активного слоя -->
+      <div class="p-3.5 rounded-2xl border transition-colors dark:bg-[#2C2C2E] dark:border-white/10 bg-white border-black/5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-xs">
+              P
+            </div>
+            <div>
+              <div class="text-xs font-semibold">Homepage-Hero.png</div>
+              <div class="text-[10px] opacity-60">1440 × 900 px • 2x Retina</div>
+            </div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-500">Active</span>
+        </div>
+
+        <!-- Ползунок прозрачности -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px] font-medium opacity-80">
+            <span>Прозрачность (Opacity)</span>
+            <span id="opacity-val">65%</span>
+          </div>
+          <input type="range" min="0" max="100" value="65" oninput="document.getElementById('opacity-val').innerText = this.value + '%'" class="w-full accent-blue-500 h-1.5 rounded-lg cursor-pointer bg-neutral-200 dark:bg-neutral-700">
+        </div>
+
+        <!-- Управление масштабом Retina -->
+        <div class="flex items-center justify-between pt-1 border-t dark:border-white/10 border-black/5">
+          <span class="text-[11px] font-medium opacity-80">Retina Scale:</span>
+          <div class="flex p-0.5 rounded-lg dark:bg-neutral-800 bg-neutral-100 text-[10px] font-semibold">
+            <button class="px-2 py-1 rounded-md opacity-60 hover:opacity-100 transition">1x</button>
+            <button class="px-2 py-1 rounded-md bg-white dark:bg-neutral-700 shadow-sm text-blue-500 font-bold">2x</button>
+            <button class="px-2 py-1 rounded-md opacity-60 hover:opacity-100 transition">Auto</button>
+          </div>
+        </div>
+
+        <!-- Смещение координат -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="flex items-center justify-between p-2 rounded-xl dark:bg-neutral-800/60 bg-neutral-100">
+            <span class="text-[10px] opacity-50 font-bold">X</span>
+            <span class="font-mono font-medium">0 px</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl dark:bg-neutral-800/60 bg-neutral-100">
+            <span class="text-[10px] opacity-50 font-bold">Y</span>
+            <span class="font-mono font-medium">120 px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Зона быстрой вставки из буфера -->
+      <div class="border-2 border-dashed rounded-2xl p-5 text-center transition-colors dark:border-white/15 dark:hover:border-blue-500/50 border-black/15 hover:border-blue-500/50 cursor-pointer">
+        <div class="text-xs font-medium">Нажмите <kbd class="px-1.5 py-0.5 rounded text-[10px] font-semibold dark:bg-white/10 bg-black/5">Cmd + V</kbd> для вставки</div>
+        <div class="text-[11px] opacity-50 mt-1">или перетащите макет из Figma сюда</div>
+      </div>
+
+      <!-- Список брейкпоинтов -->
+      <div class="space-y-2">
+        <div class="text-[11px] font-semibold uppercase tracking-wider opacity-60">Брейкпоинты макетов</div>
+        <div class="space-y-1.5">
+          <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs dark:bg-[#2C2C2E]/60 dark:border-white/5 bg-white border-black/5">
+            <div class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="font-medium">Desktop (> 1024px)</span>
+            </div>
+            <span class="text-[10px] opacity-50">Hero-1440.png</span>
+          </div>
+          <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs opacity-60 dark:bg-[#2C2C2E]/30 dark:border-white/5 bg-white border-black/5">
+            <div class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-neutral-400"></span>
+              <span class="font-medium">Mobile (< 768px)</span>
+            </div>
+            <span class="text-[10px] opacity-50">Hero-390.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- ОВЕРЛЕЙ НАСТРОЕК: МНОГОПОТОЧНОЕ ЖИДКОЕ МАТОВОЕ СТЕКЛО     -->
+    <!-- ========================================================== -->
+    <div id="settings-modal" class="absolute inset-0 pointer-events-none overflow-hidden z-50">
+      
+      <!-- 6 МНОГОСЛОЙНЫХ СТЕКЛЯННЫХ ПОТОКОВ (RIBBON STREAMS) -->
+      
+      <!-- Поток L1: Верхний левый скоростной луч (высота 18%, угол -8deg) -->
+      <div id="stream-l1" class="glass-stream rim-glow-right top-0 left-0 w-[120%] h-[18%] -translate-x-full rounded-r-full dark:bg-neutral-900/60 bg-white/60"></div>
+      
+      <!-- Поток R1: Верхне-средний правый наплыв (высота 22%, угол 6deg) -->
+      <div id="stream-r1" class="glass-stream rim-glow-left top-[12%] right-0 w-[125%] h-[24%] translate-x-full rounded-l-full dark:bg-neutral-800/70 bg-white/70"></div>
+      
+      <!-- Поток L2: Центральный глубокий рукав (высота 32%) -->
+      <div id="stream-l2" class="glass-stream rim-glow-right top-[28%] left-0 w-[130%] h-[34%] -translate-x-full rounded-r-full dark:bg-neutral-900/75 bg-white/75"></div>
+      
+      <!-- Поток R2: Нижне-средний правый контр-поток (высота 25%) -->
+      <div id="stream-r2" class="glass-stream rim-glow-left top-[54%] right-0 w-[120%] h-[28%] translate-x-full rounded-l-full dark:bg-neutral-800/70 bg-white/70"></div>
+      
+      <!-- Поток L3: Нижний левый шлейф (высота 24%) -->
+      <div id="stream-l3" class="glass-stream rim-glow-right top-[72%] left-0 w-[125%] h-[28%] -translate-x-full rounded-r-full dark:bg-neutral-900/80 bg-white/80"></div>
+      
+      <!-- Поток R3: Завершающий правый придонный гребень -->
+      <div id="stream-r3" class="glass-stream rim-glow-left bottom-0 right-0 w-[110%] h-[16%] translate-x-full rounded-l-full dark:bg-neutral-800/85 bg-white/85"></div>
+
+      <!-- Монолитное полотно стекла (проявляется при слиянии потоков) -->
+      <div id="final-glass" class="glass-backdrop-final absolute inset-0 opacity-0 pointer-events-none dark:bg-[#1C1C1E]/85 bg-white/80"></div>
+
+      <!-- Световой диагональный блик (Sheen sweep) -->
+      <div id="specular-sheen" class="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] pointer-events-none opacity-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+      <!-- Контейнер содержимого настроек (кристаллизуется из глубины) -->
+      <div id="settings-content" class="content-crystallize relative z-20 h-full flex flex-col p-5 opacity-0 scale-95 blur-md pointer-events-none">
+        
+        <!-- Заголовок настроек -->
+        <div class="flex items-center justify-between pb-4 border-b dark:border-white/10 border-black/10">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold">Настройки</div>
+              <div class="text-[11px] opacity-60">Pixel Perfect by ITITI</div>
+            </div>
+          </div>
+          <button onclick="closeSettings()" class="w-7 h-7 rounded-full flex items-center justify-center transition dark:hover:bg-white/10 hover:bg-black/5 active:scale-95">
+            <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Тело настроек -->
+        <div class="flex-1 py-4 space-y-4 overflow-y-auto">
+          
+          <!-- Выбор темы macOS -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold uppercase tracking-wider opacity-70">Тема оформления (macOS)</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="setSystemTheme('system')" class="p-2.5 rounded-xl border text-center transition dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 bg-black/5 border-black/10 hover:bg-black/10">
+                <div class="text-base mb-1">💻</div>
+                <div class="text-[11px] font-semibold">Системная</div>
+              </button>
+              <button onclick="setSystemTheme('dark')" class="p-2.5 rounded-xl border text-center transition dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 bg-black/5 border-black/10 hover:bg-black/10">
+                <div class="text-base mb-1">🌙</div>
+                <div class="text-[11px] font-semibold">Тёмная</div>
+              </button>
+              <button onclick="setSystemTheme('light')" class="p-2.5 rounded-xl border text-center transition dark:bg-white/5 dark:border-white/10 dark:hover:bg-white/10 bg-black/5 border-black/10 hover:bg-black/10">
+                <div class="text-base mb-1">☀️</div>
+                <div class="text-[11px] font-semibold">Светлая</div>
+              </button>
+            </div>
+            <div class="text-[10px] text-emerald-500 font-medium">✓ Тёмная тема полностью бесплатна из коробки</div>
+          </div>
+
+          <!-- Настройки сетки (Grids) -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold uppercase tracking-wider opacity-70">Сетки верстки (Layout Grids)</label>
+            <div class="space-y-2 text-xs">
+              <div class="flex items-center justify-between p-2.5 rounded-xl border dark:bg-white/5 dark:border-white/10 bg-black/5 border-black/10">
+                <span>12-колоночная сетка (Bootstrap/Tailwind)</span>
+                <input type="checkbox" checked class="w-4 h-4 accent-blue-500 rounded">
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-xl border dark:bg-white/5 dark:border-white/10 bg-black/5 border-black/10">
+                <span>Горизонтальные линейки (Guides)</span>
+                <input type="checkbox" class="w-4 h-4 accent-blue-500 rounded">
+              </div>
+            </div>
+          </div>
+
+          <!-- Хоткеи -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold uppercase tracking-wider opacity-70">Горячие клавиши</label>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="flex justify-between items-center py-1 border-b dark:border-white/5 border-black/5">
+                <span class="opacity-80">Точный сдвиг слоя (1px)</span>
+                <kbd class="px-1.5 py-0.5 rounded font-mono dark:bg-white/10 bg-black/5">Стрелки</kbd>
+              </div>
+              <div class="flex justify-between items-center py-1 border-b dark:border-white/5 border-black/5">
+                <span class="opacity-80">Быстрый сдвиг слоя (10px)</span>
+                <kbd class="px-1.5 py-0.5 rounded font-mono dark:bg-white/10 bg-black/5">Shift + Стрелки</kbd>
+              </div>
+              <div class="flex justify-between items-center py-1 border-b dark:border-white/5 border-black/5">
+                <span class="opacity-80">Мгновенная вставка макета</span>
+                <kbd class="px-1.5 py-0.5 rounded font-mono dark:bg-white/10 bg-black/5">Cmd + V</kbd>
+              </div>
+              <div class="flex justify-between items-center py-1">
+                <span class="opacity-80">Скрыть / Показать слой</span>
+                <kbd class="px-1.5 py-0.5 rounded font-mono dark:bg-white/10 bg-black/5">Space / H</kbd>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Футер настроек -->
+        <div class="pt-3 border-t dark:border-white/10 border-black/10 flex items-center justify-between">
+          <span class="text-[10px] opacity-50">Pixel Perfect by ITITI • v1.0 MVP</span>
+          <button onclick="closeSettings()" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition shadow-md shadow-blue-500/20 active:scale-95">
+            Готово
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let currentSpeed = 1;
+
+    // Автоматическая адаптация под тему macOS
+    function initTheme() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setSystemTheme(isDark ? 'dark' : 'light');
+
+      // Слушатель смены темы macOS на лету
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (window.__currentThemeMode === 'system') {
+          applyThemeClass(e.matches ? 'dark' : 'light');
+        }
+      });
+    }
+
+    function setSystemTheme(mode) {
+      window.__currentThemeMode = mode;
+      
+      document.getElementById('btn-theme-dark').className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-700 text-neutral-200 hover:bg-neutral-600 transition";
+      document.getElementById('btn-theme-light').className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-700 text-neutral-200 hover:bg-neutral-600 transition";
+      document.getElementById('btn-theme-system').className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-neutral-700 text-neutral-200 hover:bg-neutral-600 transition";
+
+      if (mode === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyThemeClass(isDark ? 'dark' : 'light');
+        document.getElementById('btn-theme-system').className = "px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500/50 text-blue-400 bg-blue-500/10 font-bold transition";
+      } else if (mode === 'dark') {
+        applyThemeClass('dark');
+        document.getElementById('btn-theme-dark').className = "px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500/50 text-blue-400 bg-blue-500/10 font-bold transition";
+      } else {
+        applyThemeClass('light');
+        document.getElementById('btn-theme-light').className = "px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500/50 text-blue-400 bg-blue-500/10 font-bold transition";
+      }
+    }
+
+    function applyThemeClass(theme) {
+      const shell = document.getElementById('sidepanel-shell');
+      if (theme === 'dark') {
+        shell.classList.add('dark');
+      } else {
+        shell.classList.remove('dark');
+      }
+    }
+
+    // МНОГОПОТОЧНАЯ АНИМАЦИЯ ОТКРЫТИЯ НАСТРОЕК
+    function triggerSettings(speed) {
+      currentSpeed = speed;
+      document.documentElement.style.setProperty('--speed-multiplier', speed);
+      openSettings();
+    }
+
+    function openSettings() {
+      const modal = document.getElementById('settings-modal');
+      const finalGlass = document.getElementById('final-glass');
+      const sheen = document.getElementById('specular-sheen');
+      const content = document.getElementById('settings-content');
+
+      // Активируем контейнер
+      modal.classList.remove('pointer-events-none');
+      
+      const streams = [
+        { id: 'stream-l1', delay: 0 },
+        { id: 'stream-r1', delay: 50 },
+        { id: 'stream-l2', delay: 100 },
+        { id: 'stream-r2', delay: 150 },
+        { id: 'stream-l3', delay: 200 },
+        { id: 'stream-r3', delay: 240 }
+      ];
+
+      // Запуск потоков с органическими задержками
+      streams.forEach((s) => {
+        setTimeout(() => {
+          const el = document.getElementById(s.id);
+          el.style.transform = 'translateX(0%)';
+          el.style.opacity = '1';
+        }, s.delay * currentSpeed);
+      });
+
+      // Слияние в монолитное стекло (Coalescence)
+      setTimeout(() => {
+        finalGlass.style.opacity = '1';
+      }, 300 * currentSpeed);
+
+      // Световой блик по поверхности (Sheen Sweep)
+      setTimeout(() => {
+        sheen.classList.remove('sheen-active');
+        void sheen.offsetWidth; // force reflow
+        sheen.classList.add('sheen-active');
+      }, 340 * currentSpeed);
+
+      // Кристаллизация контента (выход из глубины размытия)
+      setTimeout(() => {
+        content.style.opacity = '1';
+        content.style.transform = 'scale(1) translateY(0px)';
+        content.style.filter = 'blur(0px)';
+        content.classList.remove('pointer-events-none');
+      }, 260 * currentSpeed);
+    }
+
+    function closeSettings() {
+      const modal = document.getElementById('settings-modal');
+      const finalGlass = document.getElementById('final-glass');
+      const sheen = document.getElementById('specular-sheen');
+      const content = document.getElementById('settings-content');
+
+      content.classList.add('pointer-events-none');
+      content.style.opacity = '0';
+      content.style.transform = 'scale(0.96) translateY(8px)';
+      content.style.filter = 'blur(6px)';
+
+      finalGlass.style.opacity = '0';
+      sheen.classList.remove('sheen-active');
+
+      const streams = ['stream-l1', 'stream-l2', 'stream-l3', 'stream-r1', 'stream-r2', 'stream-r3'];
+      streams.forEach((id) => {
+        const el = document.getElementById(id);
+        if (id.startsWith('stream-l')) {
+          el.style.transform = 'translateX(-100%)';
+        } else {
+          el.style.transform = 'translateX(100%)';
+        }
+      });
+
+      setTimeout(() => {
+        modal.classList.add('pointer-events-none');
+      }, 320 * currentSpeed);
+    }
+
+    // Инициализация при старте
+    initTheme();
+  </script>
+</body>
+</html>
