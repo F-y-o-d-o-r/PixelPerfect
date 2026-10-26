@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="sq1"><rect width="512" height="512" rx="114" /></clipPath>
+    <linearGradient id="gradTop1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.8" />
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#sq1)">
+    <rect width="512" height="512" fill="#0E1015" />
+    <rect x="1.5" y="1.5" width="509" height="509" rx="113" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3" />
+    
+    <g transform="translate(256, 290)">
+      <!-- Bottom Layer: White P -->
+      <g transform="scale(1, 0.54) rotate(-35)">
+        <path d="M -90, -115 L -90, 115 A 15,15 0 0,0 -75, 130 L -55, 130 A 15,15 0 0,0 -40, 115 L -40, 30 L 15, 30 A 80,80 0 0,0 95, -50 A 80,80 0 0,0 15, -130 L -70, -130 A 20,20 0 0,0 -90, -115 Z M -40, -85 L 15, -85 A 35,35 0 0,1 50, -50 A 35,35 0 0,1 15, -15 L -40, -15 Z" fill="#FFFFFF" opacity="0.95" />
+      </g>
+      
+      <!-- Alignment Rays -->
+      <line x1="-30" y1="-8" x2="-30" y2="-98" stroke="#38BDF8" stroke-width="3" stroke-dasharray="6 6" />
+      <line x1="45" y1="20" x2="45" y2="-70" stroke="#38BDF8" stroke-width="3" stroke-dasharray="6 6" />
+      <line x1="0" y1="-45" x2="0" y2="-135" stroke="#38BDF8" stroke-width="3" stroke-dasharray="6 6" />
+
+      <!-- Top Layer: Electric Blue P offset -90px vertically -->
+      <g transform="translate(0, -90)">
+        <g transform="scale(1, 0.54) rotate(-35)">
+          <path d="M -90, -115 L -90, 115 A 15,15 0 0,0 -75, 130 L -55, 130 A 15,15 0 0,0 -40, 115 L -40, 30 L 15, 30 A 80,80 0 0,0 95, -50 A 80,80 0 0,0 15, -130 L -70, -130 A 20,20 0 0,0 -90, -115 Z M -40, -85 L 15, -85 A 35,35 0 0,1 50, -50 A 35,35 0 0,1 15, -15 L -40, -15 Z" fill="url(#gradTop1)" stroke="#60A5FA" stroke-width="4" />
+          
+          <!-- Inner crosshair in loop (center of hole is at x=5, y=-50) -->
+          <circle cx="5" cy="-50" r="14" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-opacity="0.7" />
+          <line x1="-15" y1="-50" x2="25" y2="-50" stroke="#FFFFFF" stroke-width="3" stroke-opacity="0.7" />
+          <line x1="5" y1="-70" x2="5" y2="-30" stroke="#FFFFFF" stroke-width="3" stroke-opacity="0.7" />
+          <circle cx="5" cy="-50" r="5" fill="#FFFFFF" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

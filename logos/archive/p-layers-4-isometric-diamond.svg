@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="sq4"><rect width="512" height="512" rx="114" /></clipPath>
+    <linearGradient id="gradTop4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0.82" />
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#sq4)">
+    <rect width="512" height="512" fill="#0E1015" />
+    <rect x="1.5" y="1.5" width="509" height="509" rx="113" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="3" />
+
+    <g transform="translate(256, 280)">
+      <!-- Base Layer: White P on isometric plane -->
+      <g transform="scale(1.15, 0.58) rotate(45)">
+        <path d="M -90, -115 L -90, 115 A 15,15 0 0,0 -75, 130 L -55, 130 A 15,15 0 0,0 -40, 115 L -40, 30 L 15, 30 A 80,80 0 0,0 95, -50 A 80,80 0 0,0 15, -130 L -70, -130 A 20,20 0 0,0 -90, -115 Z M -40, -85 L 15, -85 A 35,35 0 0,1 50, -50 A 35,35 0 0,1 15, -15 L -40, -15 Z" fill="#FFFFFF" opacity="0.92" />
+      </g>
+
+      <!-- Alignment Ray connecting centers -->
+      <line x1="0" y1="20" x2="0" y2="-75" stroke="#38BDF8" stroke-width="3.5" stroke-dasharray="6 6" />
+      <line x1="-90" y1="25" x2="-90" y2="-70" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="5 5" />
+      <line x1="90" y1="25" x2="90" y2="-70" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="5 5" />
+
+      <!-- Top Layer: Electric Blue P offset vertically by -95px -->
+      <g transform="translate(0, -95)">
+        <g transform="scale(1.15, 0.58) rotate(45)">
+          <path d="M -90, -115 L -90, 115 A 15,15 0 0,0 -75, 130 L -55, 130 A 15,15 0 0,0 -40, 115 L -40, 30 L 15, 30 A 80,80 0 0,0 95, -50 A 80,80 0 0,0 15, -130 L -70, -130 A 20,20 0 0,0 -90, -115 Z M -40, -85 L 15, -85 A 35,35 0 0,1 50, -50 A 35,35 0 0,1 15, -15 L -40, -15 Z" fill="url(#gradTop4)" stroke="#60A5FA" stroke-width="4" />
+          
+          <!-- Crosshair and coordinate marks -->
+          <circle cx="5" cy="-50" r="16" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-opacity="0.8" />
+          <circle cx="5" cy="-50" r="6" fill="#FFFFFF" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
