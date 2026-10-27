@@ -41,14 +41,14 @@ PixelPerfect/
 
 ## Технологический стек (расширение для Chrome)
 
-- **Платформа:** Google Chrome Extension Manifest V3 (Side Panel API / Content Scripts).
+- **Платформа:** Google Chrome Extension Manifest V3 (Content Scripts; Side Panel API — только после MVP).
 - **Фреймворк:** Vue 3 (Composition API) + TypeScript.
 - **Сборщик:** Vite.
 - **Стили:** Sass (Indented syntax, `.sass`) — синтаксис чисто на отступах без фигурных скобок `{}` и точек с запятой `;`.
-- **Изоляция UI:** Web Components / Shadow DOM (`mode: 'open'`) для плавающего In-Page HUD (абсолютная изоляция стилей виджета и страницы).
+- **Изоляция UI:** Web Components / Shadow DOM (`mode: 'open'`) для плавающего окна (абсолютная изоляция стилей виджета и страницы).
 - **Бэкенд, Auth & БД:** Supabase (PostgreSQL, Google OAuth через `chrome.identity.launchWebAuthFlow` + PKCE, Edge Functions, бесплатный тир до 50k MAU).
-- **Хранение данных:** Гибридная модель — локальные макеты и координаты в `chrome.storage.local` (мгновенно, $0 затрат, безопасно по NDA); профили, статус Pro и лицензии в Supabase.
-- **Библиотека визуального сравнения:** GPU-оверлей в реальном времени (120 FPS) + `pixelmatch` на `OffscreenCanvas` в фоновом Offscreen Document (Smart Diff).
+- **Хранение данных:** Гибридная модель — файлы макетов (Blob) в IndexedDB, метаданные (координаты, прозрачность, привязки к URL, настройки) в `chrome.storage.local` (мгновенно, $0 затрат, безопасно по NDA); профили, статус Pro и лицензии в Supabase. Картинки в `chrome.storage.local` не хранить (квота ~10 МБ, base64).
+- **Библиотека визуального сравнения:** GPU-оверлей в реальном времени + `pixelmatch` на `OffscreenCanvas` в фоновом Offscreen Document (Smart Diff).
 
 ---
 

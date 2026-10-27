@@ -3,6 +3,9 @@
 > **Связанный документ:** [PLAN.md](file:///Users/fyodor/Documents/Pets/PixelPerfect/md/PLAN.md) — Детальный план разработки, UI/UX спецификация (тема macOS, матовое стекло) и пошаговый чеклист спринтов.  
 > **Роль этого документа:** Стратегия продукта, анализ конкурентов (PerfectPixel, Pixel Perfect Pro), монетизация B2B, стек $0/мес и долгосрочные фазы релизов.
 
+> [!WARNING]
+> Старые разделы выше раздела «Апдейт и инсайты (Октябрь 2026)» **исторические**: в них упомянуты Node.js/Express, Render, Figma OAuth в v1.0 и Free = 2 слоя. Актуальные решения (Supabase, Shadow DOM, Merchant of Record без юрлица, лимиты) — в [PLAN.md](file:///Users/fyodor/Documents/Pets/PixelPerfect/md/PLAN.md) и [AGENTS.md](file:///Users/fyodor/Documents/Pets/PixelPerfect/AGENTS.md).
+
 ---
 
 - Pixel perfect - Глубокий анализ: почему одно предложение самое популярное? При том, что она даже платная. Как сделать не хуже, а даже лучше? Проанализировать рынок.
