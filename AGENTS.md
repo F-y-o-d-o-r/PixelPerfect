@@ -44,9 +44,11 @@ PixelPerfect/
 - **Платформа:** Google Chrome Extension Manifest V3 (Side Panel API / Content Scripts).
 - **Фреймворк:** Vue 3 (Composition API) + TypeScript.
 - **Сборщик:** Vite.
-- **Стили:** Tailwind CSS.
-- **Библиотека визуального сравнения:** `pixelmatch` (Canvas-based pixel comparison).
-- **Хранение данных:** `chrome.storage.local`.
+- **Стили:** Sass (Indented syntax, `.sass`) — синтаксис чисто на отступах без фигурных скобок `{}` и точек с запятой `;`.
+- **Изоляция UI:** Web Components / Shadow DOM (`mode: 'open'`) для плавающего In-Page HUD (абсолютная изоляция стилей виджета и страницы).
+- **Бэкенд, Auth & БД:** Supabase (PostgreSQL, Google OAuth через `chrome.identity.launchWebAuthFlow` + PKCE, Edge Functions, бесплатный тир до 50k MAU).
+- **Хранение данных:** Гибридная модель — локальные макеты и координаты в `chrome.storage.local` (мгновенно, $0 затрат, безопасно по NDA); профили, статус Pro и лицензии в Supabase.
+- **Библиотека визуального сравнения:** GPU-оверлей в реальном времени (120 FPS) + `pixelmatch` на `OffscreenCanvas` в фоновом Offscreen Document (Smart Diff).
 
 ---
 
