@@ -36,6 +36,17 @@ import {
   getNormalizedUrlPath,
 } from './useUrlMatcher'
 
+function getNextPageName(existingFolders: Folder[]): string {
+  const existingNames = new Set(
+    existingFolders.map((folder) => folder.name.trim().toLowerCase())
+  )
+  let nextIndex = 1
+  while (existingNames.has(`page ${nextIndex}`)) {
+    nextIndex++
+  }
+  return `Page ${nextIndex}`
+}
+
 export function getFolderLayerCount(folderId: string): number {
   return layers.value.filter((layer) => layer.folderId === folderId).length
 }
@@ -45,10 +56,10 @@ export async function addFolder(name?: string): Promise<Folder | null> {
     showToast(`Free limit: up to ${FREE_LIMITS.maxFolders} folders`)
     return null
   }
-  const folderNumber = visibleFolders.value.length + 1
+  const folderName = name?.trim() || getNextPageName(folders.value)
   const newFolder: Folder = {
     id: `fld_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-    name: name?.trim() || `Page ${folderNumber}`,
+    name: folderName,
     urlBinding: {
       type: 'exact',
       value: getNormalizedUrlPath(),
@@ -73,6 +84,11 @@ export async function renameFolder(
 }
 
 export async function removeFolder(folderId: string): Promise<void> {
+  if (folders.value.length <= 1) {
+    showToast(uiStrings.value.toastCannotDeleteLastFolder)
+    return
+  }
+
   const layersToRemove = layers.value.filter(
     (layer) => layer.folderId === folderId
   )
@@ -82,13 +98,33 @@ export async function removeFolder(folderId: string): Promise<void> {
   }
   layers.value = layers.value.filter((layer) => layer.folderId !== folderId)
   folders.value = folders.value.filter((folder) => folder.id !== folderId)
-  if (windowState.activeFolderId === folderId) {
-    windowState.activeFolderId = null
+
+  if (
+    windowState.activeFolderId === folderId ||
+    !folders.value.some((folder) => folder.id === windowState.activeFolderId)
+  ) {
+    windowState.activeFolderId = folders.value[0].id
   }
+
   if (layersToRemove.some((layer) => layer.id === windowState.activeLayerId)) {
     windowState.activeLayerId = currentFolderLayers.value[0]?.id ?? null
   }
   await Promise.all([persistLayers(), persistFolders()])
+  showToast(uiStrings.value.toastPageDeleted)
+}
+
+export async function moveLayerToFolder(
+  layerId: string,
+  targetFolderId: string
+): Promise<void> {
+  const layer = layers.value.find((l) => l.id === layerId)
+  if (!layer || layer.folderId === targetFolderId) return
+  const wasActiveLayer = windowState.activeLayerId === layerId
+  await updateLayer(layerId, { folderId: targetFolderId })
+  if (wasActiveLayer) {
+    windowState.activeLayerId = currentFolderLayers.value[0]?.id ?? null
+  }
+  showToast(uiStrings.value.toastLayerMoved)
 }
 
 export async function addLayerFromBlob(
@@ -209,6 +245,7 @@ export function useStorage() {
     addFolder,
     renameFolder,
     removeFolder,
+    moveLayerToFolder,
     addLayerFromBlob,
     updateLayer,
     removeLayer,

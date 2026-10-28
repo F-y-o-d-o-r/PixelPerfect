@@ -20,12 +20,17 @@ const opacityPercent = computed(() =>
 
 function toggleVisible(): void {
   if (!activeLayer.value) return
-  updateLayer(activeLayer.value.id, { visible: !activeLayer.value.visible })
+  const nextVisible = !activeLayer.value.visible
+  updateLayer(activeLayer.value.id, { visible: nextVisible })
+  if (!nextVisible && windowState.vimMode === 'move') {
+    windowState.vimMode = 'locked'
+    updateLayer(activeLayer.value.id, { locked: true })
+  }
   focusKeyboardReceiverInShadowDom()
 }
 
 function toggleLock(): void {
-  if (!activeLayer.value) return
+  if (!activeLayer.value || !activeLayer.value.visible) return
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
@@ -91,7 +96,11 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
       <button
         type="button"
         class="pp-quickbar__btn"
-        :class="{ 'pp-quickbar__btn--active': windowState.vimMode === 'move' }"
+        :class="{
+          'pp-quickbar__btn--active': windowState.vimMode === 'move',
+          'pp-quickbar__btn--disabled': !activeLayer.visible,
+        }"
+        :disabled="!activeLayer.visible"
         @click="toggleLock"
       >
         <span>{{ windowState.vimMode === 'move' ? '🔒' : '🔓' }}</span>

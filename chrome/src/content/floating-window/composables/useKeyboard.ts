@@ -128,7 +128,12 @@ export function useKeyboard(): void {
     if (event.code === 'KeyS' && !event.shiftKey) {
       event.preventDefault()
       event.stopImmediatePropagation()
-      updateLayer(layer.id, { visible: !layer.visible })
+      const nextVisible = !layer.visible
+      updateLayer(layer.id, { visible: nextVisible })
+      if (!nextVisible && windowState.vimMode === 'move') {
+        windowState.vimMode = 'locked'
+        updateLayer(layer.id, { locked: true })
+      }
       return true
     }
 
@@ -156,6 +161,7 @@ export function useKeyboard(): void {
   function handleLockedModeKey(event: KeyboardEvent, layerId: string): void {
     if (handleSharedHotkeys(event)) return
     if (event.code === 'KeyI' && !event.shiftKey) {
+      if (!activeLayer.value?.visible) return
       enterMoveMode(event, layerId)
     }
   }

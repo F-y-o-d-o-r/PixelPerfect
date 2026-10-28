@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { FREE_LIMITS } from '@/shared/constants'
+import { useMockupFoldersAndList } from './mockupFoldersAndList'
 import { useStorage } from '../composables/useStorage'
 
 const {
-  visibleFolders,
+  folders,
   currentFolder,
   currentFolderLayers,
   activeLayer,
@@ -14,57 +15,23 @@ const {
   getFolderLayerCount,
   addFolder,
   renameFolder,
-  removeFolder,
-  addLayerFromBlob,
+  moveLayerToFolder,
   updateLayer,
-  removeLayer,
-  showToast,
 } = useStorage()
 
-const fileInputRef = ref<HTMLInputElement | null>(null)
-const isDragOver = ref(false)
+const {
+  fileInputRef,
+  isDragOver,
+  triggerFileUpload,
+  onFileSelected,
+  onDropFiles,
+  pasteFromClipboard,
+  confirmRemoveLayer,
+  confirmRemoveFolder,
+} = useMockupFoldersAndList()
 
-function triggerFileUpload(): void {
-  fileInputRef.value?.click()
-}
-
-async function importImageFiles(files: FileList | null): Promise<void> {
-  if (!files || files.length === 0) return
-  for (const file of Array.from(files)) {
-    if (file.type.startsWith('image/')) {
-      const cleanName = file.name.replace(/\.[^/.]+$/, '')
-      await addLayerFromBlob(file, cleanName)
-    }
-  }
-}
-
-async function onFileSelected(event: Event): Promise<void> {
-  const input = event.target as HTMLInputElement
-  await importImageFiles(input.files)
-  input.value = ''
-}
-
-async function onDropFiles(event: DragEvent): Promise<void> {
-  isDragOver.value = false
-  await importImageFiles(event.dataTransfer?.files ?? null)
-}
-
-async function pasteFromClipboard(): Promise<void> {
-  try {
-    const items = await navigator.clipboard.read()
-    for (const item of items) {
-      const imageType = item.types.find((type) => type.startsWith('image/'))
-      if (imageType) {
-        const blob = await item.getType(imageType)
-        await addLayerFromBlob(blob, 'Pasted Frame')
-        return
-      }
-    }
-    showToast(uiStrings.value.toastNoClipboardImage)
-  } catch {
-    showToast(uiStrings.value.toastUseKeyboardPaste)
-  }
-}
+const draggedLayerId = ref<string | null>(null)
+const dragOverFolderId = ref<string | null>(null)
 
 async function handleCreateFolder(): Promise<void> {
   const created = await addFolder()
@@ -74,17 +41,51 @@ async function handleCreateFolder(): Promise<void> {
 }
 
 function handleRenameFolder(folderId: string, currentName: string): void {
-  const nextName = window.prompt('Folder name:', currentName)
+  const nextName = window.prompt(uiStrings.value.promptRenamePage, currentName)
   if (nextName && nextName.trim()) {
     renameFolder(folderId, nextName.trim())
   }
 }
 
 function handleRenameLayer(layerId: string, currentName: string): void {
-  const nextName = window.prompt('Mockup name:', currentName)
+  const nextName = window.prompt(uiStrings.value.promptRenameMockup, currentName)
   if (nextName && nextName.trim()) {
     updateLayer(layerId, { name: nextName.trim() })
   }
+}
+
+function onLayerDragStart(event: DragEvent, layerId: string): void {
+  draggedLayerId.value = layerId
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('text/plain', layerId)
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+function onLayerDragEnd(): void {
+  draggedLayerId.value = null
+  dragOverFolderId.value = null
+}
+
+function onDragOverFolder(event: DragEvent, folderId: string): void {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  dragOverFolderId.value = folderId
+}
+
+function onDragLeaveFolder(folderId: string): void {
+  if (dragOverFolderId.value === folderId) {
+    dragOverFolderId.value = null
+  }
+}
+
+async function onDropOnFolder(folderId: string): Promise<void> {
+  if (!draggedLayerId.value) return
+  await moveLayerToFolder(draggedLayerId.value, folderId)
+  draggedLayerId.value = null
+  dragOverFolderId.value = null
 }
 
 function toggleViewMode(): void {
@@ -122,22 +123,51 @@ function toggleViewMode(): void {
       </button>
     </div>
 
+    <div class="pp-pages-bar">
+      <div class="pp-pages-tabs">
+        <button
+          v-for="folder in folders"
+          :key="folder.id"
+          type="button"
+          class="pp-page-tab"
+          :class="{
+            'pp-page-tab--active': currentFolder?.id === folder.id,
+            'pp-page-tab--dragover': dragOverFolderId === folder.id,
+          }"
+          @click="windowState.activeFolderId = folder.id"
+          @dragover="onDragOverFolder($event, folder.id)"
+          @dragleave="onDragLeaveFolder(folder.id)"
+          @drop.prevent="onDropOnFolder(folder.id)"
+        >
+          <span class="pp-page-tab__name">{{ folder.name }}</span>
+          <span class="pp-page-tab__count">{{ getFolderLayerCount(folder.id) }}</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="pp-icon-btn pp-page-add-btn"
+        :title="uiStrings.createFolderTitle"
+        @click="handleCreateFolder"
+      >
+        +
+      </button>
+    </div>
+
     <div class="pp-section-bar">
       <div class="pp-section-bar__left">
-        <button
-          v-if="currentFolder"
-          type="button"
-          class="pp-section-bar__back"
-          @click="windowState.activeFolderId = null"
-        >
-          ← {{ currentFolder.name }} ({{ currentFolderLayers.length }})
-        </button>
-        <span v-else>
-          {{ uiStrings.layersHeader }} ({{ currentFolderLayers.length }}/{{ FREE_LIMITS.maxLayersPerFolder }})
-        </span>
+        <span>{{ uiStrings.layersHeader }} ({{ currentFolderLayers.length }}/{{ FREE_LIMITS.maxLayersPerFolder }})</span>
       </div>
 
       <div class="pp-section-bar__actions">
+        <button
+          type="button"
+          class="pp-icon-btn"
+          :title="uiStrings.uploadButton"
+          @click="triggerFileUpload"
+        >
+          ⬆
+        </button>
         <button
           v-if="currentFolder"
           type="button"
@@ -151,19 +181,11 @@ function toggleViewMode(): void {
           v-if="currentFolder"
           type="button"
           class="pp-icon-btn"
-          :title="uiStrings.deleteFolderTitle"
-          @click="removeFolder(currentFolder.id)"
+          :class="{ 'pp-icon-btn--disabled': folders.length <= 1 }"
+          :title="folders.length <= 1 ? uiStrings.toastCannotDeleteLastFolder : uiStrings.deleteFolderTitle"
+          @click="confirmRemoveFolder(currentFolder.id)"
         >
           🗑️
-        </button>
-        <button
-          v-if="!currentFolder"
-          type="button"
-          class="pp-icon-btn"
-          :title="uiStrings.createFolderTitle"
-          @click="handleCreateFolder"
-        >
-          📁+
         </button>
         <button
           type="button"
@@ -174,19 +196,6 @@ function toggleViewMode(): void {
           {{ windowState.viewMode === 'grid' ? '☰' : '⊞' }}
         </button>
       </div>
-    </div>
-
-    <div v-if="!currentFolder && visibleFolders.length > 0" class="pp-folders-row">
-      <button
-        v-for="folder in visibleFolders"
-        :key="folder.id"
-        type="button"
-        class="pp-folder-chip"
-        @click="windowState.activeFolderId = folder.id"
-      >
-        <span>📁 {{ folder.name }}</span>
-        <span class="pp-folder-chip__count">{{ getFolderLayerCount(folder.id) }}</span>
-      </button>
     </div>
 
     <div
@@ -213,7 +222,13 @@ function toggleViewMode(): void {
         v-for="layer in currentFolderLayers"
         :key="layer.id"
         class="pp-layer-card"
-        :class="{ 'pp-layer-card--active': activeLayer?.id === layer.id }"
+        :class="{
+          'pp-layer-card--active': activeLayer?.id === layer.id,
+          'pp-layer-card--dragging': draggedLayerId === layer.id,
+        }"
+        draggable="true"
+        @dragstart="onLayerDragStart($event, layer.id)"
+        @dragend="onLayerDragEnd"
         @click="windowState.activeLayerId = layer.id"
       >
         <img
@@ -235,7 +250,7 @@ function toggleViewMode(): void {
             type="button"
             class="pp-layer-card__tool-btn pp-layer-card__tool-btn--danger"
             :title="uiStrings.deleteTitle"
-            @click="removeLayer(layer.id)"
+            @click="confirmRemoveLayer(layer.id)"
           >
             🗑️
           </button>
@@ -249,7 +264,13 @@ function toggleViewMode(): void {
         v-for="layer in currentFolderLayers"
         :key="layer.id"
         class="pp-layer-row"
-        :class="{ 'pp-layer-row--active': activeLayer?.id === layer.id }"
+        :class="{
+          'pp-layer-row--active': activeLayer?.id === layer.id,
+          'pp-layer-row--dragging': draggedLayerId === layer.id,
+        }"
+        draggable="true"
+        @dragstart="onLayerDragStart($event, layer.id)"
+        @dragend="onLayerDragEnd"
         @click="windowState.activeLayerId = layer.id"
       >
         <div class="pp-layer-row__left">
@@ -261,7 +282,7 @@ function toggleViewMode(): void {
         </div>
         <div style="display: flex; gap: 3px" @click.stop>
           <button type="button" class="pp-icon-btn" :title="uiStrings.renameTitle" @click="handleRenameLayer(layer.id, layer.name)">✏️</button>
-          <button type="button" class="pp-icon-btn" :title="uiStrings.deleteTitle" @click="removeLayer(layer.id)">🗑️</button>
+          <button type="button" class="pp-icon-btn" :title="uiStrings.deleteTitle" @click="confirmRemoveLayer(layer.id)">🗑️</button>
         </div>
       </div>
     </div>

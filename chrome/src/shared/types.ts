@@ -16,6 +16,7 @@ export interface Folder {
   name: string
   urlBinding: UrlBinding
   createdAt: number
+  lastActiveLayerId?: string | null
 }
 
 export interface LayerMetadata {

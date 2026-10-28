@@ -177,37 +177,6 @@ button
   overflow: hidden
   position: relative
 
-.pp-header
-  display: flex
-  align-items: center
-  justify-content: space-between
-  height: 38px
-  background: var(--bg-secondary)
-  border-bottom: 1px solid var(--border-subtle)
-  border-top-left-radius: inherit
-  border-top-right-radius: inherit
-  overflow: hidden
-  cursor: grab
-
-  &:active
-    cursor: grabbing
-
-.pp-header__collapse
-  display: flex
-  flex-direction: column
-  align-items: center
-  justify-content: center
-  gap: 1px
-  width: 40px
-  height: 100%
-  background: var(--bg-tertiary)
-  color: var(--text-primary)
-  border-right: 1px solid var(--border-subtle)
-  border-top-left-radius: inherit
-
-  &:hover
-    background: var(--bg-hover)
-
 .pp-collapse-symbol
   font-size: 14px
   font-weight: 600
@@ -224,27 +193,6 @@ button
   font-weight: 500
   line-height: 1
   color: var(--text-muted)
-
-.pp-header__brand
-  display: flex
-  align-items: center
-  gap: 7px
-  font-weight: 600
-  font-size: 13px
-  letter-spacing: -0.01em
-  color: var(--text-primary)
-
-.pp-header__logo
-  width: 18px
-  height: 18px
-  border-radius: 4px
-  flex-shrink: 0
-
-.pp-header__actions
-  display: flex
-  align-items: center
-  padding-right: 6px
-  gap: 2px
 
 .pp-icon-btn
   display: inline-flex
@@ -264,6 +212,14 @@ button
     color: var(--accent)
     background: var(--accent-soft)
 
+  &--disabled
+    opacity: 0.35
+    cursor: not-allowed
+
+    &:hover
+      background: transparent
+      color: var(--text-secondary)
+
 .pp-body
   padding: 10px
   display: flex
@@ -280,3 +236,18 @@ button
   display: flex
   flex-direction: column
   gap: 9px
+
+.pp-toast
+  position: fixed
+  bottom: 16px
+  right: 16px
+  padding: 7px 12px
+  border-radius: 8px
+  background: rgba(15, 23, 42, 0.92)
+  border: 1px solid rgba(56, 189, 248, 0.45)
+  color: #f8fafc
+  font-size: 12px
+  font-weight: 500
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4)
+  pointer-events: none
+  z-index: 2147483647

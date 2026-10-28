@@ -28,15 +28,19 @@ export const uiStrings = computed(() => getUiStrings(windowState.locale))
 
 export const visibleFolders = computed(() => folders.value)
 
-export const currentFolder = computed(
-  () =>
+export const currentFolder = computed<Folder | null>(() => {
+  if (folders.value.length === 0) return null
+  return (
     folders.value.find((folder) => folder.id === windowState.activeFolderId) ??
-    null
-)
+    folders.value[0]
+  )
+})
 
-export const currentFolderLayers = computed(() =>
-  layers.value.filter((layer) => layer.folderId === windowState.activeFolderId)
-)
+export const currentFolderLayers = computed(() => {
+  const activeId = currentFolder.value?.id
+  if (!activeId) return []
+  return layers.value.filter((layer) => layer.folderId === activeId)
+})
 
 export const activeLayer = computed(
   () =>
@@ -120,6 +124,44 @@ export async function persistWindowState(): Promise<void> {
   }
 }
 
+function rememberActiveLayerForFolder(folderId: string): void {
+  const activeLayerId = windowState.activeLayerId
+  const layerBelongsToFolder = layers.value.some(
+    (layer) => layer.id === activeLayerId && layer.folderId === folderId
+  )
+  if (!layerBelongsToFolder) return
+  folders.value = folders.value.map((folder) =>
+    folder.id === folderId
+      ? { ...folder, lastActiveLayerId: activeLayerId }
+      : folder
+  )
+  persistFolders()
+}
+
+function pickLayerIdForFolder(folderId: string): string | null {
+  const folderLayers = layers.value.filter((layer) => layer.folderId === folderId)
+  const currentLayer = folderLayers.find(
+    (layer) => layer.id === windowState.activeLayerId
+  )
+  if (currentLayer) return currentLayer.id
+  const rememberedLayerId = folders.value.find(
+    (folder) => folder.id === folderId
+  )?.lastActiveLayerId
+  const rememberedLayer = folderLayers.find(
+    (layer) => layer.id === rememberedLayerId
+  )
+  return (rememberedLayer ?? folderLayers[0])?.id ?? null
+}
+
+watch(
+  () => windowState.activeFolderId,
+  (nextFolderId, previousFolderId) => {
+    if (previousFolderId) rememberActiveLayerForFolder(previousFolderId)
+    if (nextFolderId) windowState.activeLayerId = pickLayerIdForFolder(nextFolderId)
+  },
+  { flush: 'sync' }
+)
+
 export function autoSelectLayerForUrl(): void {
   const normalizedPath = getNormalizedUrlPath()
   currentUrlPath.value = normalizedPath
@@ -177,6 +219,7 @@ export async function initStorage(): Promise<void> {
       if (Array.isArray(storedData[STORAGE_KEYS.FOLDERS])) {
         folders.value = storedData[STORAGE_KEYS.FOLDERS]
       }
+
       if (storedData[STORAGE_KEYS.FLOATING_WINDOW]) {
         Object.assign(
           windowState,
@@ -185,6 +228,23 @@ export async function initStorage(): Promise<void> {
         )
         windowState.visible = true
         windowState.vimMode = 'locked'
+      }
+
+      if (folders.value.length === 0) {
+        const defaultFolder: Folder = {
+          id: `fld_${Date.now()}_default`,
+          name: 'Page 1',
+          urlBinding: {
+            type: 'exact',
+            value: currentUrlPath.value,
+          },
+          createdAt: Date.now(),
+        }
+        folders.value = [defaultFolder]
+        windowState.activeFolderId = defaultFolder.id
+        await persistFolders()
+      } else if (!folders.value.some((f) => f.id === windowState.activeFolderId)) {
+        windowState.activeFolderId = folders.value[0].id
       }
     } catch {
       return

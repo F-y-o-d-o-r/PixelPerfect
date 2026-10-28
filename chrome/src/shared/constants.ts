@@ -11,8 +11,8 @@ export const DOM_HOST_IDS = {
 
 export const FREE_LIMITS = {
   maxFolders: 3,
-  maxLayersPerFolder: 5,
-  maxTotalLayers: 15,
+  maxLayersPerFolder: 3,
+  maxTotalLayers: 9,
 } as const
 
 export const STORAGE_KEYS = {

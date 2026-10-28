@@ -14,9 +14,9 @@ export const en = {
   pasteButton: 'Paste',
   pasteButtonTitle: 'Paste mockup from clipboard (or press Cmd+V)',
   layersHeader: 'MOCKUPS',
-  renameFolderTitle: 'Rename folder',
-  deleteFolderTitle: 'Delete folder',
-  createFolderTitle: 'Create new folder',
+  renameFolderTitle: 'Rename page',
+  deleteFolderTitle: 'Delete page',
+  createFolderTitle: 'New page',
   listViewTitle: 'List view',
   gridViewTitle: 'Grid view',
   emptyDropzoneTitle: 'Add your first mockup',
@@ -34,6 +34,13 @@ export const en = {
   toastOriginReset: 'Coordinates reset (0, 0)',
   toastNoClipboardImage: 'No image found in clipboard (use Cmd+V)',
   toastUseKeyboardPaste: 'Press Cmd+V / Ctrl+V on the page to paste',
+  promptRenamePage: 'Page name:',
+  promptRenameMockup: 'Mockup name:',
+  toastPageDeleted: 'Page deleted',
+  toastLayerMoved: 'Mockup moved to page',
+  confirmDeleteMockup: 'Delete this mockup?',
+  confirmDeletePage: 'Delete this page and all its mockups?',
+  toastCannotDeleteLastFolder: 'Cannot delete the only page',
 }
 
 export type UiStrings = Record<keyof typeof en, string>

@@ -78,12 +78,17 @@ function toggleMinimized(): void {
 
 function toggleMiniShow(): void {
   if (!activeLayer.value) return
-  updateLayer(activeLayer.value.id, { visible: !activeLayer.value.visible })
+  const nextVisible = !activeLayer.value.visible
+  updateLayer(activeLayer.value.id, { visible: nextVisible })
+  if (!nextVisible && windowState.vimMode === 'move') {
+    windowState.vimMode = 'locked'
+    updateLayer(activeLayer.value.id, { locked: true })
+  }
   focusKeyboardReceiverInShadowDom()
 }
 
 function toggleMiniLock(): void {
-  if (!activeLayer.value) return
+  if (!activeLayer.value || !activeLayer.value.visible) return
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
@@ -250,8 +255,9 @@ onUnmounted(() => {
         class="pp-minibar__btn"
         :class="{
           'pp-minibar__btn--active': windowState.vimMode === 'move',
-          'pp-minibar__btn--disabled': !activeLayer,
+          'pp-minibar__btn--disabled': !activeLayer || !activeLayer.visible,
         }"
+        :disabled="!activeLayer || !activeLayer.visible"
         @click="toggleMiniLock"
       >
         <span>{{ windowState.vimMode === 'move' ? '🔒' : '🔓' }}</span>
