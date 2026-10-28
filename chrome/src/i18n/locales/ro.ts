@@ -3,9 +3,10 @@ import { en, type UiStrings } from './en'
 export const ro: UiStrings = {
   ...en,
   showMockup: 'Afișează',
-  hiddenMockup: 'Ascuns',
-  lockMockup: 'Blocat',
+  hiddenMockup: 'Ascunde',
+  lockMockup: 'Blochează',
   moveMockup: 'Mută',
   menuTitle: 'Meniu',
-  hideWindow: 'Ascunde fereastra',
+  movePillMode: 'MUTARE',
+  movePillNoSnap: 'fără aliniere',
 }

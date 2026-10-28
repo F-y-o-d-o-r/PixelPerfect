@@ -18,7 +18,6 @@ const {
   addLayerFromBlob,
   updateLayer,
   removeLayer,
-  toggleUrlPin,
   showToast,
 } = useStorage()
 
@@ -96,6 +95,7 @@ function toggleViewMode(): void {
 <template>
   <div class="pp-card">
     <input
+      id="pp-file-upload-input"
       ref="fileInputRef"
       type="file"
       accept="image/png,image/jpeg,image/webp,image/svg+xml"
@@ -108,6 +108,7 @@ function toggleViewMode(): void {
       <button type="button" class="pp-btn" @click="triggerFileUpload">
         <span>⬆</span>
         <span>{{ uiStrings.uploadButton }}</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">u</span>
       </button>
       <button
         type="button"
@@ -117,6 +118,7 @@ function toggleViewMode(): void {
       >
         <span>📋</span>
         <span>{{ uiStrings.pasteButton }}</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">⌘V</span>
       </button>
     </div>
 
@@ -224,14 +226,6 @@ function toggleViewMode(): void {
           <button
             type="button"
             class="pp-layer-card__tool-btn"
-            :title="layer.urlBinding.type === 'exact' ? uiStrings.pinnedToPageTitle : uiStrings.shownOnDomainTitle"
-            @click="toggleUrlPin(layer.id)"
-          >
-            {{ layer.urlBinding.type === 'exact' ? '📌' : '🌐' }}
-          </button>
-          <button
-            type="button"
-            class="pp-layer-card__tool-btn"
             :title="uiStrings.renameTitle"
             @click="handleRenameLayer(layer.id, layer.name)"
           >
@@ -266,9 +260,6 @@ function toggleViewMode(): void {
           </div>
         </div>
         <div style="display: flex; gap: 3px" @click.stop>
-          <button type="button" class="pp-icon-btn" :title="layer.urlBinding.type === 'exact' ? uiStrings.pinnedToPageTitle : uiStrings.shownOnDomainTitle" @click="toggleUrlPin(layer.id)">
-            {{ layer.urlBinding.type === 'exact' ? '📌' : '🌐' }}
-          </button>
           <button type="button" class="pp-icon-btn" :title="uiStrings.renameTitle" @click="handleRenameLayer(layer.id, layer.name)">✏️</button>
           <button type="button" class="pp-icon-btn" :title="uiStrings.deleteTitle" @click="removeLayer(layer.id)">🗑️</button>
         </div>

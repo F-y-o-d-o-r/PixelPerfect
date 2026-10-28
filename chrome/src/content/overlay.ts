@@ -31,6 +31,12 @@ function getOrCreateOverlayShadowRoot(): ShadowRoot {
   return shadowRoot
 }
 
+function renderMovePillHtml(strings: {
+  movePillNoSnap: string
+}): string {
+  return `<kbd>⌥/Alt</kbd> ${strings.movePillNoSnap}`
+}
+
 function createOverlayElements(shadowRoot: ShadowRoot): OverlayElements {
   const wrapper = document.createElement('div')
   wrapper.className = 'pp-overlay-layer'
@@ -43,8 +49,6 @@ function createOverlayElements(shadowRoot: ShadowRoot): OverlayElements {
   const movePill = document.createElement('div')
   movePill.className = 'pp-move-pill'
   movePill.style.display = 'none'
-  movePill.innerHTML =
-    '<span>MOVE</span> <kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd> 1px · <kbd>Shift</kbd> 10px · <kbd>0</kbd> top-center · <kbd>Esc</kbd> lock'
 
   shadowRoot.replaceChildren(wrapper, movePill)
   return { wrapper, image, movePill }
@@ -66,7 +70,9 @@ function applyOverlayPositionAndVisibility(
   elements.wrapper.style.height = `${height}px`
   elements.wrapper.style.opacity = String(layer.opacity)
   elements.wrapper.classList.toggle('pp-overlay-layer--move', isMoveActive)
-  elements.movePill.style.display = isMoveActive ? 'block' : 'none'
+  if (!isMoveActive) {
+    elements.movePill.style.display = 'none'
+  }
 
   const hostElement = document.getElementById(DOM_HOST_IDS.OVERLAY)
   if (hostElement) {
@@ -80,11 +86,12 @@ function applyOverlayPositionAndVisibility(
 }
 
 export function initOverlayRenderer(): void {
-  const { activeLayer, windowState, ensureLayerObjectUrl } = useStorage()
+  const { activeLayer, windowState, uiStrings, ensureLayerObjectUrl } =
+    useStorage()
   const shadowRoot = getOrCreateOverlayShadowRoot()
   const elements = createOverlayElements(shadowRoot)
 
-  registerOverlayDragHandlers(elements.wrapper)
+  registerOverlayDragHandlers(elements.wrapper, elements.movePill)
   registerOutsideClickLockHandler(elements.wrapper)
 
   async function updateOverlayImageSource(layerId: string): Promise<boolean> {
@@ -106,6 +113,7 @@ export function initOverlayRenderer(): void {
   }
 
   async function syncOverlayWithState(): Promise<void> {
+    elements.movePill.innerHTML = renderMovePillHtml(uiStrings.value)
     const layer = activeLayer.value
     if (!windowState.visible || !layer || !layer.visible) {
       hideOverlayElements()
@@ -126,6 +134,7 @@ export function initOverlayRenderer(): void {
     () => [
       windowState.visible,
       windowState.vimMode,
+      windowState.locale,
       activeLayer.value?.id,
       activeLayer.value?.x,
       activeLayer.value?.y,

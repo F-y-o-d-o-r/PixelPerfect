@@ -3,9 +3,10 @@ import { en, type UiStrings } from './en'
 export const ka: UiStrings = {
   ...en,
   showMockup: 'ჩვენება',
-  hiddenMockup: 'დამალული',
-  lockMockup: 'ჩაკეტილი',
+  hiddenMockup: 'დამალვა',
+  lockMockup: 'ჩაკეტვა',
   moveMockup: 'გადაადგილება',
   menuTitle: 'მენიუ',
-  hideWindow: 'ფანჯრის დამალვა',
+  movePillMode: 'გადაადგილება',
+  movePillNoSnap: 'მიზიდვის გარეშე',
 }

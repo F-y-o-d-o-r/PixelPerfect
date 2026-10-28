@@ -10,10 +10,7 @@ import type {
   LayerMetadata,
 } from '@/shared/types'
 import { getLayerBlob, isExtensionContextValid } from '@/storage/db'
-import {
-  getNormalizedUrlPath,
-  matchesUrlBinding,
-} from './useUrlMatcher'
+import { getNormalizedUrlPath } from './useUrlMatcher'
 
 export const layers = ref<LayerMetadata[]>([])
 export const folders = ref<Folder[]>([])
@@ -92,7 +89,8 @@ export function showToast(message: string, durationMs = 2400): void {
 export async function persistLayers(): Promise<void> {
   if (!isExtensionContextValid()) return
   try {
-    await chrome.storage.local.set({ [STORAGE_KEYS.LAYERS]: layers.value })
+    const rawLayers: LayerMetadata[] = JSON.parse(JSON.stringify(layers.value))
+    await chrome.storage.local.set({ [STORAGE_KEYS.LAYERS]: rawLayers })
   } catch {
     return
   }
@@ -101,7 +99,8 @@ export async function persistLayers(): Promise<void> {
 export async function persistFolders(): Promise<void> {
   if (!isExtensionContextValid()) return
   try {
-    await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: folders.value })
+    const rawFolders: Folder[] = JSON.parse(JSON.stringify(folders.value))
+    await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: rawFolders })
   } catch {
     return
   }
@@ -125,24 +124,38 @@ export function autoSelectLayerForUrl(): void {
   const normalizedPath = getNormalizedUrlPath()
   currentUrlPath.value = normalizedPath
 
-  const matchedFolder = folders.value.find((folder) =>
-    matchesUrlBinding(folder.urlBinding, normalizedPath)
-  )
-  if (matchedFolder) {
-    windowState.activeFolderId = matchedFolder.id
-  }
+  const folderLayers = currentFolderLayers.value
+  if (folderLayers.length === 0) return
 
-  const matchingLayers = layers.value.filter((layer) =>
-    matchesUrlBinding(layer.urlBinding, normalizedPath)
-  )
-  if (matchingLayers.length === 0) return
-
-  const isActiveLayerStillMatching = matchingLayers.some(
+  const isActiveLayerInCurrentFolder = folderLayers.some(
     (layer) => layer.id === windowState.activeLayerId
   )
-  if (!isActiveLayerStillMatching) {
-    windowState.activeLayerId = matchingLayers[0].id
+  if (!isActiveLayerInCurrentFolder) {
+    windowState.activeLayerId = folderLayers[0].id
   }
+}
+
+function registerCrossTabStorageSyncListener(): void {
+  if (!isExtensionContextValid() || !chrome.storage?.onChanged) return
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') return
+
+    if (changes[STORAGE_KEYS.LAYERS]?.newValue) {
+      const updatedLayers = changes[STORAGE_KEYS.LAYERS].newValue
+      if (Array.isArray(updatedLayers)) {
+        layers.value = updatedLayers
+        hydrateAllLayerObjectUrls()
+      }
+    }
+
+    if (changes[STORAGE_KEYS.FOLDERS]?.newValue) {
+      const updatedFolders = changes[STORAGE_KEYS.FOLDERS].newValue
+      if (Array.isArray(updatedFolders)) {
+        folders.value = updatedFolders
+      }
+    }
+  })
 }
 
 export async function initStorage(): Promise<void> {
@@ -180,11 +193,13 @@ export async function initStorage(): Promise<void> {
 
   await hydrateAllLayerObjectUrls()
   autoSelectLayerForUrl()
+  registerCrossTabStorageSyncListener()
 }
 
 watch(
   () => ({
     minimized: windowState.minimized,
+    showHotkeys: windowState.showHotkeys,
     position: { ...windowState.position },
     viewMode: windowState.viewMode,
     activeFolderId: windowState.activeFolderId,

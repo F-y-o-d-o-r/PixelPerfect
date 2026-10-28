@@ -80,17 +80,94 @@ export function useKeyboard(): void {
     })
   }
 
+  function adjustActiveLayerOpacity(
+    event: KeyboardEvent,
+    deltaOpacity: number
+  ): void {
+    const layer = activeLayer.value
+    if (!layer) return
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    const nextOpacity = Math.round(
+      Math.min(1, Math.max(0.05, layer.opacity + deltaOpacity)) * 100
+    ) / 100
+    updateLayer(layer.id, { opacity: nextOpacity })
+  }
+
+  function handleSharedHotkeys(event: KeyboardEvent): boolean {
+    if (event.key === '?' || (event.code === 'Slash' && event.shiftKey)) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      windowState.showHotkeys = !windowState.showHotkeys
+      focusKeyboardReceiverInShadowDom()
+      return true
+    }
+
+    if (event.code === 'KeyM' && !event.shiftKey) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      windowState.minimized = !windowState.minimized
+      focusKeyboardReceiverInShadowDom()
+      return true
+    }
+
+    if (event.code === 'KeyU' && !event.shiftKey) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      const host = document.getElementById(DOM_HOST_IDS.FLOATING_WINDOW)
+      const fileInput = host?.shadowRoot?.getElementById(
+        'pp-file-upload-input'
+      ) as HTMLInputElement | null
+      fileInput?.click()
+      return true
+    }
+
+    const layer = activeLayer.value
+    if (!layer) return false
+
+    if (event.code === 'KeyS' && !event.shiftKey) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      updateLayer(layer.id, { visible: !layer.visible })
+      return true
+    }
+
+    const opacityStep = event.shiftKey ? 0.01 : 0.1
+    if (event.code === 'Minus' || event.code === 'BracketLeft') {
+      adjustActiveLayerOpacity(event, -opacityStep)
+      return true
+    }
+    if (event.code === 'Equal' || event.code === 'BracketRight') {
+      adjustActiveLayerOpacity(event, opacityStep)
+      return true
+    }
+
+    if (!event.shiftKey && /^Digit[1-9]$/.test(event.code)) {
+      const digit = Number.parseInt(event.code.replace('Digit', ''), 10)
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      updateLayer(layer.id, { opacity: digit / 10 })
+      return true
+    }
+
+    return false
+  }
+
   function handleLockedModeKey(event: KeyboardEvent, layerId: string): void {
+    if (handleSharedHotkeys(event)) return
     if (event.code === 'KeyI' && !event.shiftKey) {
       enterMoveMode(event, layerId)
     }
   }
 
   function handleMoveModeKey(event: KeyboardEvent, layerId: string): void {
+    if (handleSharedHotkeys(event)) return
     const step = event.shiftKey ? 10 : 1
 
     switch (event.code) {
+      case 'KeyI':
       case 'Escape':
+        if (event.code === 'KeyI' && event.shiftKey) break
         exitMoveModeToLocked(event, layerId)
         break
       case 'KeyH':
@@ -117,7 +194,6 @@ export function useKeyboard(): void {
           snapActiveLayerTopCenter()
         }
         break
-      case 'KeyV':
       case 'Space': {
         const layer = activeLayer.value
         if (!layer) break
@@ -134,9 +210,14 @@ export function useKeyboard(): void {
       window.removeEventListener('keydown', onKeyDown, { capture: true })
       return
     }
-    if (!windowState.visible || !activeLayer.value) return
+    if (!windowState.visible) return
     if (event.metaKey || event.ctrlKey || event.altKey) return
     if (isUserTypingInRealInput(event)) return
+
+    if (!activeLayer.value) {
+      handleSharedHotkeys(event)
+      return
+    }
 
     const layerId = activeLayer.value.id
     if (windowState.vimMode === 'locked') {

@@ -2,10 +2,11 @@ import { en, type UiStrings } from './en'
 
 export const sr: UiStrings = {
   ...en,
-  showMockup: 'Приказ',
-  hiddenMockup: 'Скривено',
-  lockMockup: 'Закључано',
+  showMockup: 'Прикажи',
+  hiddenMockup: 'Сакриј',
+  lockMockup: 'Закључај',
   moveMockup: 'Помери',
   menuTitle: 'Мени',
-  hideWindow: 'Сакриј прозор',
+  movePillMode: 'ПОМЕРАЊЕ',
+  movePillNoSnap: 'без магнета',
 }

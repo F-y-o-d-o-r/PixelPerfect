@@ -66,8 +66,6 @@ button
   width: var(--window-width)
   color: var(--text-primary)
   user-select: none
-  backdrop-filter: blur(20px) saturate(180%)
-  -webkit-backdrop-filter: blur(20px) saturate(180%)
   transition: box-shadow 0.15s ease
 
   &[data-theme="light"]
@@ -85,9 +83,23 @@ button
     --accent-soft: rgba(37, 99, 235, 0.12)
     --shadow-window: 0 16px 38px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.08)
 
-  &--docked-corner
+  &--edge-top
     .pp-panel, .pp-minibar
       border-top-left-radius: 0
+      border-top-right-radius: 0
+
+  &--edge-bottom
+    .pp-panel, .pp-minibar
+      border-bottom-left-radius: 0
+      border-bottom-right-radius: 0
+
+  &--edge-left
+    .pp-panel, .pp-minibar
+      border-top-left-radius: 0
+      border-bottom-left-radius: 0
+
+  &--edge-right
+    .pp-panel, .pp-minibar
       border-top-right-radius: 0
       border-bottom-right-radius: 0
 
@@ -98,21 +110,25 @@ button
   width: var(--window-width)
   height: 38px
   background: var(--bg-primary)
+  backdrop-filter: blur(20px) saturate(180%)
+  -webkit-backdrop-filter: blur(20px) saturate(180%)
   border-radius: 10px
   box-shadow: var(--shadow-window)
   overflow: hidden
 
 .pp-minibar__expand
   display: flex
+  flex-direction: column
   align-items: center
   justify-content: center
+  gap: 1px
   width: 40px
   height: 100%
   background: var(--bg-tertiary)
   color: var(--text-primary)
-  font-size: 16px
-  font-weight: 500
   border-right: 1px solid var(--border-subtle)
+  border-top-left-radius: inherit
+  border-bottom-left-radius: inherit
   cursor: grab
 
   &:hover
@@ -125,7 +141,7 @@ button
   display: inline-flex
   align-items: center
   justify-content: center
-  gap: 6px
+  gap: 5px
   height: 100%
   padding: 0 10px
   font-size: 12px
@@ -152,6 +168,8 @@ button
 .pp-panel
   width: var(--window-width)
   background: var(--bg-primary)
+  backdrop-filter: blur(20px) saturate(180%)
+  -webkit-backdrop-filter: blur(20px) saturate(180%)
   border-radius: 12px
   box-shadow: var(--shadow-window)
   display: flex
@@ -166,6 +184,9 @@ button
   height: 38px
   background: var(--bg-secondary)
   border-bottom: 1px solid var(--border-subtle)
+  border-top-left-radius: inherit
+  border-top-right-radius: inherit
+  overflow: hidden
   cursor: grab
 
   &:active
@@ -173,17 +194,36 @@ button
 
 .pp-header__collapse
   display: flex
+  flex-direction: column
   align-items: center
   justify-content: center
+  gap: 1px
   width: 40px
   height: 100%
   background: var(--bg-tertiary)
   color: var(--text-primary)
-  font-size: 16px
   border-right: 1px solid var(--border-subtle)
+  border-top-left-radius: inherit
 
   &:hover
     background: var(--bg-hover)
+
+.pp-collapse-symbol
+  font-size: 14px
+  font-weight: 600
+  line-height: 1
+
+.pp-btn-main-line
+  display: inline-flex
+  align-items: center
+  gap: 5px
+  line-height: 1.1
+
+.pp-hotkey-hint
+  font-size: 9px
+  font-weight: 500
+  line-height: 1
+  color: var(--text-muted)
 
 .pp-header__brand
   display: flex
@@ -224,45 +264,6 @@ button
     color: var(--accent)
     background: var(--accent-soft)
 
-.pp-dropdown
-  position: absolute
-  top: 40px
-  right: 8px
-  width: 230px
-  background: var(--bg-secondary)
-  border: 1px solid var(--border-strong)
-  border-radius: 10px
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42)
-  padding: 5px
-  z-index: 30
-  display: flex
-  flex-direction: column
-  gap: 2px
-
-.pp-dropdown__item
-  display: flex
-  align-items: center
-  justify-content: space-between
-  width: 100%
-  padding: 7px 10px
-  border-radius: 6px
-  font-size: 12px
-  color: var(--text-primary)
-  text-align: left
-
-  &:hover
-    background: var(--bg-hover)
-
-  &--muted
-    color: var(--text-muted)
-    font-size: 11px
-    pointer-events: none
-
-.pp-dropdown__divider
-  height: 1px
-  background: var(--border-subtle)
-  margin: 3px 4px
-
 .pp-body
   padding: 10px
   display: flex
@@ -279,18 +280,3 @@ button
   display: flex
   flex-direction: column
   gap: 9px
-
-.pp-toast
-  position: fixed
-  bottom: 16px
-  right: 16px
-  padding: 7px 12px
-  border-radius: 8px
-  background: rgba(15, 23, 42, 0.92)
-  border: 1px solid rgba(56, 189, 248, 0.45)
-  color: #f8fafc
-  font-size: 12px
-  font-weight: 500
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4)
-  pointer-events: none
-  z-index: 2147483647

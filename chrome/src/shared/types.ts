@@ -46,11 +46,14 @@ export interface FloatingWindowPosition {
   x: number
   y: number
   dockCorner?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'free'
+  dockEdgeX?: 'left' | 'right' | 'center' | 'none'
+  dockEdgeY?: 'top' | 'bottom' | 'center' | 'none'
 }
 
 export interface FloatingWindowState {
   visible: boolean
   minimized: boolean
+  showHotkeys: boolean
   position: FloatingWindowPosition
   viewMode: ViewMode
   activeFolderId: string | null

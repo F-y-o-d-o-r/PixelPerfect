@@ -3,9 +3,10 @@ import { en, type UiStrings } from './en'
 export const el: UiStrings = {
   ...en,
   showMockup: 'Εμφάνιση',
-  hiddenMockup: 'Κρυφό',
+  hiddenMockup: 'Απόκρυψη',
   lockMockup: 'Κλείδωμα',
   moveMockup: 'Μετακίνηση',
   menuTitle: 'Μενού',
-  hideWindow: 'Απόκρυψη παραθύρου',
+  movePillMode: 'ΚΙΝΗΣΗ',
+  movePillNoSnap: 'χωρίς έλξη',
 }

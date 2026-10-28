@@ -3,9 +3,10 @@ import { en, type UiStrings } from './en'
 export const bg: UiStrings = {
   ...en,
   showMockup: 'Покажи',
-  hiddenMockup: 'Скрит',
-  lockMockup: 'Заключен',
+  hiddenMockup: 'Скрий',
+  lockMockup: 'Заключи',
   moveMockup: 'Премести',
   menuTitle: 'Меню',
-  hideWindow: 'Скрий прозореца',
+  movePillMode: 'ПРЕМЕСТВАНЕ',
+  movePillNoSnap: 'без прилепване',
 }

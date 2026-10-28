@@ -3,7 +3,6 @@ import type {
   Folder,
   LayerMetadata,
   ScaleMode,
-  UrlBinding,
 } from '@/shared/types'
 import {
   deleteLayerBlob,
@@ -34,7 +33,6 @@ import {
 } from './storageState'
 import {
   getLayerCssDimensions,
-  getNormalizedOrigin,
   getNormalizedUrlPath,
 } from './useUrlMatcher'
 
@@ -192,22 +190,6 @@ export async function setScaleMode(mode: ScaleMode): Promise<void> {
   await updateLayer(layer.id, { scaleMode: mode })
 }
 
-export async function toggleUrlPin(layerId: string): Promise<void> {
-  const layer = layers.value.find((item) => item.id === layerId)
-  if (!layer) return
-  const nextBinding: UrlBinding =
-    layer.urlBinding.type === 'exact'
-      ? { type: 'domain', value: getNormalizedOrigin() }
-      : { type: 'exact', value: getNormalizedUrlPath() }
-
-  await updateLayer(layerId, { urlBinding: nextBinding })
-  showToast(
-    nextBinding.type === 'exact'
-      ? `Pinned to ${nextBinding.value}`
-      : `Shown across ${nextBinding.value}`
-  )
-}
-
 export function useStorage() {
   return {
     layers,
@@ -233,7 +215,6 @@ export function useStorage() {
     snapActiveLayerTopCenter,
     resetActiveLayerOrigin,
     setScaleMode,
-    toggleUrlPin,
     getLayerBlob,
     ensureLayerObjectUrl,
     showToast,

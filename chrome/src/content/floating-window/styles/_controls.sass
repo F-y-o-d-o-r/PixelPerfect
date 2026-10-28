@@ -11,7 +11,7 @@
   display: inline-flex
   align-items: center
   justify-content: center
-  gap: 6px
+  gap: 5px
   font-size: 12px
   font-weight: 500
   color: var(--text-secondary)
@@ -77,11 +77,29 @@
   &:active
     transform: scale(0.95)
 
+  &--vertical
+    flex-direction: column
+    gap: 1px
+
+  &--horizontal
+    flex-direction: row
+    gap: 3px
+
   &--center
+    flex-direction: column
+    gap: 0
     background: var(--accent-soft)
     border-color: rgba(56, 189, 248, 0.35)
     color: var(--accent)
     font-weight: 600
+
+.pp-dpad__arrow
+  font-size: 10px
+  line-height: 1
+
+.pp-dpad__center-symbol
+  font-size: 12px
+  line-height: 1
 
 .pp-coords
   display: flex
@@ -151,6 +169,11 @@
   font-weight: 600
   color: var(--text-secondary)
 
+.pp-opacity__label-group
+  display: inline-flex
+  align-items: baseline
+  gap: 6px
+
 .pp-opacity__value
   color: var(--accent)
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace
@@ -175,30 +198,83 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35)
     cursor: pointer
 
-.pp-vim-bar
+.pp-dropdown
+  position: absolute
+  top: 40px
+  right: 8px
+  width: 230px
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-strong)
+  border-radius: 10px
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42)
+  padding: 5px
+  z-index: 30
+  display: flex
+  flex-direction: column
+  gap: 2px
+
+.pp-dropdown__item
   display: flex
   align-items: center
   justify-content: space-between
-  padding: 6px 9px
-  border-radius: 8px
-  background: var(--bg-secondary)
-  border: 1px solid var(--border-subtle)
+  width: 100%
+  padding: 7px 10px
+  border-radius: 6px
+  font-size: 12px
+  color: var(--text-primary)
+  text-align: left
+
+  &:hover
+    background: var(--bg-hover)
+
+  &--muted
+    color: var(--text-muted)
+    font-size: 11px
+    pointer-events: none
+
+.pp-dropdown__divider
+  height: 1px
+  background: var(--border-subtle)
+  margin: 3px 4px
+
+.pp-lang-list
+  display: grid
+  grid-template-columns: 1fr 1fr
+  gap: 3px
+  padding: 4px
+  margin: 2px 0
+  border-radius: 7px
+  background: var(--bg-tertiary)
+
+.pp-lang-list__item
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 5px 7px
+  border-radius: 5px
   font-size: 11px
   color: var(--text-secondary)
 
-.pp-vim-bar__badge
-  display: inline-flex
-  align-items: center
-  gap: 4px
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
-  font-size: 10px
-  font-weight: 600
-  padding: 2px 6px
-  border-radius: 4px
-  background: var(--bg-tertiary)
-  color: var(--text-primary)
+  &:hover
+    background: var(--bg-hover)
+    color: var(--text-primary)
 
-  &--move
+  &--active
     background: var(--accent-soft)
     color: var(--accent)
-    border: 1px solid rgba(56, 189, 248, 0.4)
+    font-weight: 600
+
+.pp-toast
+  position: fixed
+  bottom: 16px
+  right: 16px
+  padding: 7px 12px
+  border-radius: 8px
+  background: rgba(15, 23, 42, 0.92)
+  border: 1px solid rgba(56, 189, 248, 0.45)
+  color: #f8fafc
+  font-size: 12px
+  font-weight: 500
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4)
+  pointer-events: none
+  z-index: 2147483647

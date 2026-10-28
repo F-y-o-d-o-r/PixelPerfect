@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { LANGUAGE_LABELS, SUPPORTED_LOCALES } from '@/i18n/config'
-import { EXTENSION_VERSION } from '@/shared/constants'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import FloatingWindowHeader from './components/FloatingWindowHeader.vue'
 import MockupFoldersAndList from './components/MockupFoldersAndList.vue'
 import MockupPositionControls from './components/MockupPositionControls.vue'
 import {
@@ -13,62 +12,74 @@ import { useTheme } from './composables/useTheme'
 import { useWindowDrag } from './composables/useWindowDrag'
 
 const {
+  layers,
   activeLayer,
   windowState,
   uiStrings,
   statusToast,
   initStorage,
   updateLayer,
+  showToast,
 } = useStorage()
 
 const { resolvedTheme } = useTheme(() => windowState.theme)
 const { startDragFloatingWindow } = useWindowDrag()
 useKeyboard()
 
-const isMenuOpen = ref(false)
+const floatingWindowRef = ref<HTMLElement | null>(null)
+let isPointerDownInWindow = false
 
-onMounted(() => {
-  initStorage()
-})
+const isDockedRight = computed(
+  () =>
+    windowState.position.dockEdgeX === 'right' ||
+    (windowState.position.dockCorner === 'top-right' &&
+      windowState.position.x === 0) ||
+    windowState.position.dockCorner === 'bottom-right'
+)
+
+const isDockedLeft = computed(
+  () =>
+    windowState.position.dockEdgeX === 'left' ||
+    windowState.position.dockCorner === 'top-left' ||
+    windowState.position.dockCorner === 'bottom-left'
+)
+
+const isDockedTop = computed(
+  () =>
+    windowState.position.dockEdgeY === 'top' ||
+    (windowState.position.dockCorner === 'top-right' &&
+      windowState.position.y === 0) ||
+    windowState.position.dockCorner === 'top-left'
+)
+
+const isDockedBottom = computed(
+  () =>
+    windowState.position.dockEdgeY === 'bottom' ||
+    windowState.position.dockCorner === 'bottom-right' ||
+    windowState.position.dockCorner === 'bottom-left'
+)
 
 const windowPositionStyle = computed(() => {
-  if (windowState.position.dockCorner === 'top-right') {
-    return {
-      top: `${windowState.position.y}px`,
-      right: `${windowState.position.x}px`,
-    }
-  }
+  const horizontalStyle = isDockedRight.value
+    ? { left: 'auto', right: '0px' }
+    : { left: `${windowState.position.x}px`, right: 'auto' }
+  const verticalStyle = isDockedBottom.value
+    ? { top: 'auto', bottom: '0px' }
+    : { top: `${windowState.position.y}px`, bottom: 'auto' }
   return {
-    top: `${windowState.position.y}px`,
-    left: `${windowState.position.x}px`,
+    ...horizontalStyle,
+    ...verticalStyle,
   }
 })
-
-const isDockedToTopRightCorner = computed(
-  () =>
-    windowState.position.dockCorner === 'top-right' &&
-    windowState.position.x === 0 &&
-    windowState.position.y === 0
-)
 
 function toggleMinimized(): void {
   windowState.minimized = !windowState.minimized
-  isMenuOpen.value = false
-}
-
-function cycleTheme(): void {
-  windowState.theme = resolvedTheme.value === 'dark' ? 'light' : 'dark'
-}
-
-function cycleLocale(): void {
-  const currentIndex = SUPPORTED_LOCALES.indexOf(windowState.locale)
-  const nextIndex = (currentIndex + 1) % SUPPORTED_LOCALES.length
-  windowState.locale = SUPPORTED_LOCALES[nextIndex]
 }
 
 function toggleMiniShow(): void {
   if (!activeLayer.value) return
   updateLayer(activeLayer.value.id, { visible: !activeLayer.value.visible })
+  focusKeyboardReceiverInShadowDom()
 }
 
 function toggleMiniLock(): void {
@@ -76,20 +87,23 @@ function toggleMiniLock(): void {
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
+  focusKeyboardReceiverInShadowDom()
 }
 
-function resetWindowToTopRightCorner(): void {
-  windowState.position = {
-    x: 0,
-    y: 0,
-    dockCorner: 'top-right',
+function onWindowPointerDown(): void {
+  isPointerDownInWindow = true
+  setTimeout(() => {
+    isPointerDownInWindow = false
+  }, 150)
+}
+
+function handleKeyboardReceiverBlur(): void {
+  if (isPointerDownInWindow) return
+  if (windowState.vimMode === 'move' && activeLayer.value) {
+    windowState.vimMode = 'locked'
+    updateLayer(activeLayer.value.id, { locked: true })
+    showToast(uiStrings.value.toastLocked)
   }
-  isMenuOpen.value = false
-}
-
-function closeFloatingWindow(): void {
-  isMenuOpen.value = false
-  windowState.visible = false
 }
 
 function handleWindowClick(event: MouseEvent): void {
@@ -100,26 +114,95 @@ function handleWindowClick(event: MouseEvent): void {
   focusKeyboardReceiverInShadowDom()
 }
 
-function handleKeyboardTrapBlur(): void {
-  if (windowState.vimMode === 'move' && activeLayer.value) {
-    windowState.vimMode = 'locked'
-    updateLayer(activeLayer.value.id, { locked: true })
-    setTimeout(() => {
-      if (windowState.visible) {
-        focusKeyboardReceiverInShadowDom()
-      }
-    }, 0)
+function clampAndSnapWindowToViewport(): void {
+  const element = floatingWindowRef.value
+  if (!element || !windowState.visible) return
+
+  const rect = element.getBoundingClientRect()
+  const viewportWidth = Math.min(
+    window.innerWidth,
+    document.documentElement.clientWidth || window.innerWidth
+  )
+  const viewportHeight = Math.min(
+    window.innerHeight,
+    document.documentElement.clientHeight || window.innerHeight
+  )
+
+  let nextX = windowState.position.x
+  let nextY = windowState.position.y
+  let nextEdgeX = windowState.position.dockEdgeX ?? (isDockedRight.value ? 'right' : isDockedLeft.value ? 'left' : 'none')
+  let nextEdgeY = windowState.position.dockEdgeY ?? (isDockedTop.value ? 'top' : isDockedBottom.value ? 'bottom' : 'none')
+  let changed = false
+
+  if (nextEdgeY !== 'bottom' && rect.bottom >= viewportHeight - 20) {
+    nextY = 0
+    nextEdgeY = 'bottom'
+    changed = true
+  } else if (nextEdgeY !== 'top' && rect.top < 0) {
+    nextY = 0
+    nextEdgeY = 'top'
+    changed = true
+  }
+
+  if (nextEdgeX !== 'right' && rect.right >= viewportWidth - 20) {
+    nextX = 0
+    nextEdgeX = 'right'
+    changed = true
+  } else if (nextEdgeX !== 'left' && rect.left < 0) {
+    nextX = 0
+    nextEdgeX = 'left'
+    changed = true
+  }
+
+  if (!changed) return
+
+  let nextCorner: typeof windowState.position.dockCorner = 'free'
+  if (nextEdgeX === 'right' && nextEdgeY === 'top') nextCorner = 'top-right'
+  else if (nextEdgeX === 'left' && nextEdgeY === 'top') nextCorner = 'top-left'
+  else if (nextEdgeX === 'right' && nextEdgeY === 'bottom') nextCorner = 'bottom-right'
+  else if (nextEdgeX === 'left' && nextEdgeY === 'bottom') nextCorner = 'bottom-left'
+
+  windowState.position = {
+    x: nextX,
+    y: nextY,
+    dockCorner: nextCorner,
+    dockEdgeX: nextEdgeX,
+    dockEdgeY: nextEdgeY,
   }
 }
+
+watch(
+  () => [windowState.minimized, layers.value.length, windowState.activeLayerId],
+  async () => {
+    await nextTick()
+    clampAndSnapWindowToViewport()
+  }
+)
+
+onMounted(() => {
+  initStorage()
+  window.addEventListener('resize', clampAndSnapWindowToViewport)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', clampAndSnapWindowToViewport)
+})
 </script>
 
 <template>
   <div
     v-if="windowState.visible"
+    ref="floatingWindowRef"
     class="pp-floating-window"
-    :class="{ 'pp-floating-window--docked-corner': isDockedToTopRightCorner }"
+    :class="{
+      'pp-floating-window--edge-top': isDockedTop,
+      'pp-floating-window--edge-bottom': isDockedBottom,
+      'pp-floating-window--edge-left': isDockedLeft,
+      'pp-floating-window--edge-right': isDockedRight,
+    }"
     :data-theme="resolvedTheme"
     :style="windowPositionStyle"
+    @pointerdown="onWindowPointerDown"
     @click="handleWindowClick"
   >
     <input
@@ -129,17 +212,21 @@ function handleKeyboardTrapBlur(): void {
       tabindex="-1"
       aria-hidden="true"
       class="pp-keyboard-receiver"
-      @blur="handleKeyboardTrapBlur"
+      @blur="handleKeyboardReceiverBlur"
     />
-    <div v-if="windowState.minimized" class="pp-minibar">
+    <div
+      v-if="windowState.minimized"
+      class="pp-minibar"
+      @pointerdown="startDragFloatingWindow"
+    >
       <button
         type="button"
         class="pp-minibar__expand"
         :title="uiStrings.expandWindowTitle"
-        @pointerdown="startDragFloatingWindow"
         @click="toggleMinimized"
       >
-        +
+        <span class="pp-collapse-symbol">+</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">m</span>
       </button>
 
       <button
@@ -151,8 +238,11 @@ function handleKeyboardTrapBlur(): void {
         }"
         @click="toggleMiniShow"
       >
-        <span>{{ activeLayer?.visible ? '👁' : '🙈' }}</span>
-        <span>{{ uiStrings.showMockup }}</span>
+        <span>{{ activeLayer?.visible ? '🙈' : '👁' }}</span>
+        <span>{{
+          activeLayer?.visible ? uiStrings.hiddenMockup : uiStrings.showMockup
+        }}</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">s</span>
       </button>
 
       <button
@@ -164,114 +254,18 @@ function handleKeyboardTrapBlur(): void {
         }"
         @click="toggleMiniLock"
       >
-        <span>{{ windowState.vimMode === 'move' ? '🔓' : '🔒' }}</span>
+        <span>{{ windowState.vimMode === 'move' ? '🔒' : '🔓' }}</span>
         <span>{{
           windowState.vimMode === 'move'
-            ? uiStrings.moveMockup
-            : uiStrings.lockMockup
+            ? uiStrings.lockMockup
+            : uiStrings.moveMockup
         }}</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">i</span>
       </button>
     </div>
 
     <div v-else class="pp-panel">
-      <header class="pp-header" @pointerdown="startDragFloatingWindow">
-        <button
-          type="button"
-          class="pp-header__collapse"
-          :title="uiStrings.collapseWindowTitle"
-          @click="toggleMinimized"
-        >
-          −
-        </button>
-
-        <div class="pp-header__brand">
-          <svg class="pp-header__logo" viewBox="0 0 512 512">
-            <rect width="512" height="512" rx="114" fill="#0E1015" />
-            <g transform="translate(256, 280)">
-              <g transform="scale(1.15, 0.58) rotate(45)">
-                <path
-                  d="M -90,-115 L -90,115 A 15,15 0 0,0 -75,130 L -55,130 A 15,15 0 0,0 -40,115 L -40,30 L 15,30 A 80,80 0 0,0 95,-50 A 80,80 0 0,0 15,-130 L -70,-130 A 20,20 0 0,0 -90,-115 Z M -40,-85 L 15,-85 A 35,35 0 0,1 50,-50 A 35,35 0 0,1 15,-15 L -40,-15 Z"
-                  fill="#FFFFFF"
-                  fill-rule="evenodd"
-                  opacity="0.92"
-                />
-              </g>
-              <g transform="translate(0, -95) scale(1.15, 0.58) rotate(45)">
-                <path
-                  d="M -90,-115 L -90,115 A 15,15 0 0,0 -75,130 L -55,130 A 15,15 0 0,0 -40,115 L -40,30 L 15,30 A 80,80 0 0,0 95,-50 A 80,80 0 0,0 15,-130 L -70,-130 A 20,20 0 0,0 -90,-115 Z M -40,-85 L 15,-85 A 35,35 0 0,1 50,-50 A 35,35 0 0,1 15,-15 L -40,-15 Z"
-                  fill="#38BDF8"
-                  fill-rule="evenodd"
-                />
-              </g>
-            </g>
-          </svg>
-          <span>Pixel Perfect</span>
-        </div>
-
-        <div class="pp-header__actions">
-          <button
-            type="button"
-            class="pp-icon-btn"
-            :title="
-              resolvedTheme === 'dark'
-                ? uiStrings.lightTheme
-                : uiStrings.darkTheme
-            "
-            @click="cycleTheme"
-          >
-            {{ resolvedTheme === 'dark' ? '🌙' : '☀️' }}
-          </button>
-          <button
-            type="button"
-            class="pp-icon-btn"
-            :class="{ 'pp-icon-btn--active': isMenuOpen }"
-            :title="uiStrings.menuTitle"
-            @click="isMenuOpen = !isMenuOpen"
-          >
-            ☰
-          </button>
-        </div>
-      </header>
-
-      <div v-if="isMenuOpen" class="pp-dropdown">
-        <button
-          type="button"
-          class="pp-dropdown__item"
-          @click="
-            windowState.theme = 'system';
-            isMenuOpen = false
-          "
-        >
-          <span>{{ uiStrings.systemThemeAuto }}</span>
-          <span v-if="windowState.theme === 'system'">✓</span>
-        </button>
-        <button type="button" class="pp-dropdown__item" @click="cycleLocale">
-          <span>🌐 {{ LANGUAGE_LABELS[windowState.locale] }}</span>
-          <span>{{ windowState.locale.toUpperCase() }}</span>
-        </button>
-        <button
-          type="button"
-          class="pp-dropdown__item"
-          @click="resetWindowToTopRightCorner"
-        >
-          <span>{{ uiStrings.resetWindowCorner }}</span>
-          <span>↗</span>
-        </button>
-        <div class="pp-dropdown__divider" />
-        <button
-          type="button"
-          class="pp-dropdown__item"
-          @click="closeFloatingWindow"
-        >
-          <span>{{ uiStrings.hideWindow }}</span>
-          <span>✕</span>
-        </button>
-        <div class="pp-dropdown__divider" />
-        <div class="pp-dropdown__item pp-dropdown__item--muted">
-          <span>Pixel Perfect by ITITI</span>
-          <span>v{{ EXTENSION_VERSION }}</span>
-        </div>
-      </div>
+      <FloatingWindowHeader />
 
       <div class="pp-body">
         <MockupFoldersAndList />

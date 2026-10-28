@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ScaleMode } from '@/shared/types'
+import { focusKeyboardReceiverInShadowDom } from '../composables/useKeyboard'
 import { useStorage } from '../composables/useStorage'
 
 const {
@@ -20,6 +21,7 @@ const opacityPercent = computed(() =>
 function toggleVisible(): void {
   if (!activeLayer.value) return
   updateLayer(activeLayer.value.id, { visible: !activeLayer.value.visible })
+  focusKeyboardReceiverInShadowDom()
 }
 
 function toggleLock(): void {
@@ -27,6 +29,7 @@ function toggleLock(): void {
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
+  focusKeyboardReceiverInShadowDom()
 }
 
 function moveBy(deltaX: number, deltaY: number, event?: MouseEvent): void {
@@ -78,10 +81,11 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
         :class="{ 'pp-quickbar__btn--active': activeLayer.visible }"
         @click="toggleVisible"
       >
-        <span>{{ activeLayer.visible ? '👁' : '🙈' }}</span>
+        <span>{{ activeLayer.visible ? '🙈' : '👁' }}</span>
         <span>{{
-          activeLayer.visible ? uiStrings.showMockup : uiStrings.hiddenMockup
+          activeLayer.visible ? uiStrings.hiddenMockup : uiStrings.showMockup
         }}</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">s</span>
       </button>
 
       <button
@@ -90,18 +94,24 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
         :class="{ 'pp-quickbar__btn--active': windowState.vimMode === 'move' }"
         @click="toggleLock"
       >
-        <span>{{ windowState.vimMode === 'move' ? '🔓' : '🔒' }}</span>
+        <span>{{ windowState.vimMode === 'move' ? '🔒' : '🔓' }}</span>
         <span>{{
           windowState.vimMode === 'move'
-            ? `${uiStrings.moveMockup} (i)`
-            : uiStrings.lockMockup
+            ? uiStrings.lockMockup
+            : uiStrings.moveMockup
         }}</span>
+        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">i</span>
       </button>
     </div>
 
     <div class="pp-card">
       <div class="pp-origin-header">
-        <span>{{ uiStrings.originLabel }}</span>
+        <span class="pp-opacity__label-group">
+          <span>{{ uiStrings.originLabel }}</span>
+          <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">
+            Shift 10px
+          </span>
+        </span>
         <button
           type="button"
           class="pp-origin-reset"
@@ -116,19 +126,21 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
           <div />
           <button
             type="button"
-            class="pp-dpad__btn"
+            class="pp-dpad__btn pp-dpad__btn--vertical"
             @click="moveBy(0, -1, $event)"
           >
-            ▲
+            <span class="pp-dpad__arrow">▲</span>
+            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">k</span>
           </button>
           <div />
 
           <button
             type="button"
-            class="pp-dpad__btn"
+            class="pp-dpad__btn pp-dpad__btn--horizontal"
             @click="moveBy(-1, 0, $event)"
           >
-            ◀
+            <span class="pp-dpad__arrow">◀</span>
+            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">h</span>
           </button>
           <button
             type="button"
@@ -136,23 +148,26 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
             :title="uiStrings.snapToTopCenterTitle"
             @click="snapActiveLayerTopCenter"
           >
-            ⌖
+            <span class="pp-dpad__center-symbol">⌖</span>
+            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">0</span>
           </button>
           <button
             type="button"
-            class="pp-dpad__btn"
+            class="pp-dpad__btn pp-dpad__btn--horizontal"
             @click="moveBy(1, 0, $event)"
           >
-            ▶
+            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">l</span>
+            <span class="pp-dpad__arrow">▶</span>
           </button>
 
           <div />
           <button
             type="button"
-            class="pp-dpad__btn"
+            class="pp-dpad__btn pp-dpad__btn--vertical"
             @click="moveBy(0, 1, $event)"
           >
-            ▼
+            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">j</span>
+            <span class="pp-dpad__arrow">▼</span>
           </button>
           <div />
         </div>
@@ -197,7 +212,12 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
 
       <div class="pp-opacity">
         <div class="pp-opacity__header">
-          <span>{{ uiStrings.opacityLabel }}</span>
+          <span class="pp-opacity__label-group">
+            <span>{{ uiStrings.opacityLabel }}</span>
+            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">
+              - / + · 1–9
+            </span>
+          </span>
           <span class="pp-opacity__value">{{ opacityPercent }}%</span>
         </div>
         <input
@@ -209,22 +229,6 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
           @input="onOpacityInput"
         />
       </div>
-    </div>
-
-    <div class="pp-vim-bar">
-      <span>{{ uiStrings.vimModeLabel }}</span>
-      <span
-        class="pp-vim-bar__badge"
-        :class="{
-          'pp-vim-bar__badge--move': windowState.vimMode === 'move',
-        }"
-      >
-        {{
-          windowState.vimMode === 'move'
-            ? uiStrings.vimMoveBadge
-            : uiStrings.vimLockedBadge
-        }}
-      </span>
     </div>
   </template>
 </template>
