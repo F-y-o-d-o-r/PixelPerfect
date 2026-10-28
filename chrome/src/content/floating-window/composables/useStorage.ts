@@ -1,4 +1,5 @@
 import { FREE_LIMITS } from '@/shared/constants'
+import { reorderItemsById } from './reorder'
 import type {
   BreakpointType,
   Folder,
@@ -35,15 +36,11 @@ import {
 } from './storageState'
 import { getLayerCssDimensions, getNormalizedUrlPath } from './useUrlMatcher'
 
-function getNextPageName(existingFolders: Folder[]): string {
-  const existingNames = new Set(
-    existingFolders.map((folder) => folder.name.trim().toLowerCase())
-  )
-  let nextIndex = 1
-  while (existingNames.has(`page ${nextIndex}`)) {
-    nextIndex++
-  }
-  return `Page ${nextIndex}`
+function getNextFolderName(existingFolders: Folder[]): string {
+  const names = new Set(existingFolders.map((f) => f.name.trim().toLowerCase()))
+  let i = 1
+  while (names.has(`folder ${i}`)) i++
+  return `Folder ${i}`
 }
 
 export function getFolderLayerCount(folderId: string): number {
@@ -60,14 +57,11 @@ export async function addFolder(name?: string): Promise<Folder | null> {
     )
     return null
   }
-  const folderName = name?.trim() || getNextPageName(folders.value)
+  const folderName = name?.trim() || getNextFolderName(folders.value)
   const newFolder: Folder = {
     id: `fld_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     name: folderName,
-    urlBinding: {
-      type: 'exact',
-      value: getNormalizedUrlPath(),
-    },
+    urlBinding: { type: 'exact', value: getNormalizedUrlPath() },
     createdAt: Date.now(),
   }
   folders.value = [...folders.value, newFolder]
@@ -130,23 +124,23 @@ export async function moveLayerToFolder(
 }
 
 export async function reorderLayers(
-  sourceLayerId: string,
-  targetLayerId: string,
-  position: 'before' | 'after' = 'before'
+  sourceId: string,
+  targetId: string,
+  pos: 'before' | 'after' = 'before'
 ): Promise<void> {
-  if (sourceLayerId === targetLayerId) return
-  const current = [...layers.value]
-  const sourceIndex = current.findIndex((l) => l.id === sourceLayerId)
-  if (sourceIndex === -1) return
-  const [moved] = current.splice(sourceIndex, 1)
-
-  const targetIndex = current.findIndex((l) => l.id === targetLayerId)
-  if (targetIndex === -1) return
-
-  const insertIndex = position === 'after' ? targetIndex + 1 : targetIndex
-  current.splice(insertIndex, 0, moved)
-  layers.value = current
+  if (sourceId === targetId) return
+  layers.value = reorderItemsById(layers.value, sourceId, targetId, pos)
   await persistLayers()
+}
+
+export async function reorderFolders(
+  sourceId: string,
+  targetId: string,
+  pos: 'before' | 'after' = 'before'
+): Promise<void> {
+  if (sourceId === targetId) return
+  folders.value = reorderItemsById(folders.value, sourceId, targetId, pos)
+  await persistFolders()
 }
 
 export async function addLayerFromBlob(
@@ -296,6 +290,7 @@ export function useStorage() {
     renameFolder,
     removeFolder,
     moveLayerToFolder,
+    reorderFolders,
     reorderLayers,
     addLayerFromBlob,
     updateLayer,

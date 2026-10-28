@@ -276,18 +276,24 @@ chrome/
 │   │   └── floating-window/   # Плавающее окно внутри Shadow DOM
 │   │       ├── FloatingWindow.vue              # Главный контейнер (Mini-bar и развернутая панель)
 │   │       ├── components/
-│   │       │   ├── MockupFoldersAndList.vue    # Папки, список загруженных макетов, drag & drop
-│   │       │   └── MockupPositionControls.vue  # Координаты X/Y, D-pad, прозрачность, lock, 1x/2x/Auto
+│   │       │   ├── FolderTabs.vue              # Вкладки папок, создание папки, drag & drop перестановка
+│   │       │   ├── folderTabs.ts               # Логика вкладок папок и drag-and-drop
+│   │       │   ├── folderTabs.sass             # Стили вкладок папок
+│   │       │   ├── MockupList.vue              # Список макетов активной папки, сетка/список, удаление, переименование
+│   │       │   ├── mockupList.ts               # Логика списка макетов и перестановки
+│   │       │   ├── mockupList.sass             # Стили карточек, списка и шапки секции макетов
+│   │       │   ├── mockupImport.ts             # Импорт картинок (upload, paste из буфера, drag & drop)
+│   │       │   ├── MockupPositionControls.vue  # Координаты X/Y, D-pad, прозрачность, lock, 1x/2x/Auto
+│   │       │   └── mockupPositionControls.sass # Стили контролов позиционирования
 │   │       ├── composables/
 │   │       │   ├── useTheme.ts                 # Тема плавающего окна (dark / light / system)
 │   │       │   ├── useStorage.ts               # Реактивное состояние слоёв, папок и окна в chrome.storage.local
 │   │       │   ├── useUrlMatcher.ts            # Нормализация URL и проверка привязки слоёв к страницам
-│   │       │   └── useKeyboard.ts              # Vim-режим (event.code, capture), Locked/Nudge
+│   │       │   ├── useKeyboard.ts              # Vim-режим (event.code, capture), Locked/Nudge
+│   │       │   └── reorder.ts                  # Централизованное состояние и функции drag-and-drop перестановки
 │   │       └── styles/
 │   │           ├── floating-window.sass        # Точка сборки стилей плавающего окна (?inline)
-│   │           ├── _layout.sass                # Базовый каркас окна, шапка, мини-панель, меню
-│   │           ├── _mockups.sass               # Сетка и список макетов, папки, зона загрузки
-│   │           └── _controls.sass              # Крестовина D-Pad, поля X/Y, масштаб Retina, прозрачность
+│   │           └── _layout.sass                # Базовый каркас окна, шапка, мини-панель, меню, toast
 │   ├── i18n/
 │   │   ├── config.ts          # Реестр 8 языков (en, ru, uk, el, sr, bg, ro, ka) и автоопределение языка браузера
 │   │   └── locales.ts         # Словари переводов интерфейса

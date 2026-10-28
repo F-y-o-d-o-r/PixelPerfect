@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import FloatingWindowHeader from './components/FloatingWindowHeader.vue'
-import MockupFoldersAndList from './components/MockupFoldersAndList.vue'
+import FolderTabs from './components/FolderTabs.vue'
+import MockupList from './components/MockupList.vue'
 import MockupPositionControls from './components/MockupPositionControls.vue'
 import {
   focusKeyboardReceiverInShadowDom,
@@ -285,7 +286,10 @@ onUnmounted(() => {
       <FloatingWindowHeader />
 
       <div class="pp-body">
-        <MockupFoldersAndList />
+        <div class="pp-card">
+          <FolderTabs />
+          <MockupList />
+        </div>
         <MockupPositionControls />
       </div>
     </div>

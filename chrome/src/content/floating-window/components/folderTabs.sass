@@ -1,0 +1,110 @@
+.pp-folder-bar
+  display: flex
+  align-items: center
+  gap: 5px
+  border-bottom: 1px solid var(--border-subtle)
+  padding-bottom: 7px
+  margin-bottom: 6px
+
+.pp-folder-tabs
+  display: flex
+  align-items: center
+  gap: 4px
+  padding: 2px 6px
+  overflow-x: auto
+  scrollbar-width: none
+  flex: 1
+  min-width: 0
+
+  &::-webkit-scrollbar
+    display: none
+
+.pp-folder-tab
+  position: relative
+  display: inline-flex
+  align-items: center
+  gap: 5px
+  padding: 4px 8px
+  border-radius: 6px
+  background: var(--bg-tertiary)
+  border: 1px solid var(--border-subtle)
+  font: 500 11px/1.2 inherit
+  color: var(--text-secondary)
+  cursor: move
+  white-space: nowrap
+  flex-shrink: 0
+  transition: all 0.12s ease
+
+  *
+    pointer-events: none
+
+  &:hover
+    background: var(--bg-hover)
+    color: var(--text-primary)
+
+  &--active
+    background: var(--accent-soft)
+    border-color: rgba(56, 189, 248, 0.4)
+    color: var(--accent)
+    font-weight: 600
+
+    .pp-folder-tab__count
+      background: var(--accent)
+      border-color: var(--accent)
+      color: #ffffff
+
+  &--dragging
+    opacity: 0.35
+
+  &--dragover
+    background: var(--accent-soft)
+    border-color: var(--accent)
+    color: var(--accent)
+    box-shadow: inset 0 0 0 1px var(--accent)
+
+  &--drop-before::before, &--drop-after::before
+    content: ''
+    position: absolute
+    top: 2px
+    bottom: 2px
+    width: 2px
+    border-radius: 99px
+    background: var(--accent)
+    box-shadow: 0 0 4px rgba(56, 189, 248, 0.85)
+    z-index: 25
+    pointer-events: none
+
+  &--drop-before::before
+    left: -4px
+
+  &--drop-after::before
+    right: -4px
+
+  &__name
+    max-width: 82px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    display: inline-block
+
+  &__count
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    min-width: 17px
+    height: 16px
+    padding: 0 4px
+    border-radius: 99px
+    font: 600 10px/1 inherit
+    background: var(--bg-hover)
+    border: 1px solid var(--border-strong)
+    color: var(--text-primary)
+    box-sizing: border-box
+
+.pp-folder-add-btn
+  width: 24px
+  height: 24px
+  flex-shrink: 0
+  border-radius: 5px
+  background: var(--bg-tertiary)
+  font-size: 14px

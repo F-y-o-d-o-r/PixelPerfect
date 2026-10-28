@@ -229,7 +229,7 @@ export async function initStorage(): Promise<void> {
       if (folders.value.length === 0) {
         const defaultFolder: Folder = {
           id: `fld_${Date.now()}_default`,
-          name: 'Page 1',
+          name: 'Folder 1',
           urlBinding: {
             type: 'exact',
             value: currentUrlPath.value,

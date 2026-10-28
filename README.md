@@ -15,10 +15,10 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 ## ✨ Key Features
 
 - **No Ads:** Clean, distraction-free interface right next to DevTools.
-- **Strict Page-Based Organization:** Mockups always belong to a specific page (`Page 1`, `Page 2`, etc.) with quick tab navigation, native trackpad horizontal scrolling, gap-free page auto-numbering, drag-and-drop between page tabs, in-page mockup reordering, remembering the last active mockup on each page, and zero unorganized clutter.
+- **Strict Folder-Based Organization:** Mockups always belong to a specific folder (`Folder 1`, `Folder 2`, etc.) with quick tab navigation, native trackpad horizontal scrolling, gap-free folder auto-numbering, drag-and-drop reordering for both folder tabs and mockups with centered neon indicator lines, moving mockups between folders via Drag & Drop, remembering the last active mockup in each folder, and zero unorganized clutter.
 - **Raster & Vector Mockup Support:** Upload PNG, JPEG, WebP, and SVG files, with native project dimension detection from `viewBox` and `width`/`height`.
 - **Centered Floating Toasts:** Real-time feedback for move mode, locking, mockup selection, and uploads in an elegant bottom-center pill capsule with blur.
-- **Safe Deletion:** Localized confirmation before deleting a mockup or a page, plus a duplicate `Upload` button next to the `MOCKUPS` header.
+- **Safe Deletion:** Localized confirmation before deleting a mockup or a folder, plus a duplicate `Upload` button next to the `MOCKUPS` header.
 - **Dark Mode Included:** Full dark theme support out of the box, 100% free (Dark `🌙`, Light `☀️`, System Auto `🌗`).
 - **Keyboard-First Controls:** Full keyboard navigation (`s` Show/Hide, `i` Move/Lock, `m` Minimize, `u` Upload, `0` Top-Center snap, `h/j/k/l` 1px/10px nudge, `- / +` & `1–9` opacity).
 - **On-Demand Hotkeys Guide (`?`):** Clean UI by default; press `?` (`Shift + /`) or click `?` in the header to reveal subtle key badges.

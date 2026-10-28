@@ -1,50 +1,38 @@
 <script setup lang="ts">
 import { FREE_LIMITS } from '@/shared/constants'
-import { useMockupFoldersAndList } from './mockupFoldersAndList'
-import { useStorage } from '../composables/useStorage'
+import { useMockupList } from './mockupList'
 
 const {
   folders,
   currentFolder,
   currentFolderLayers,
-  activeLayer,
   layerObjectUrls,
   windowState,
   uiStrings,
-  getFolderLayerCount,
-} = useStorage()
-
-const {
   fileInputRef,
   isDragOver,
-  draggedLayerId,
-  dragOverFolderId,
-  dragOverLayerId,
-  dropPosition,
   triggerFileUpload,
   onFileSelected,
   onDropFiles,
   pasteFromClipboard,
   confirmRemoveLayer,
   confirmRemoveFolder,
-  onLayerDragStart,
-  onLayerDragEnd,
-  onDragOverFolder,
-  onDragLeaveFolder,
-  onDropOnFolder,
-  onDragOverLayer,
-  onDragLeaveLayer,
-  onDropOnLayer,
-  selectLayer,
-  handleCreateFolder,
   handleRenameFolder,
   handleRenameLayer,
   toggleViewMode,
-} = useMockupFoldersAndList()
+  selectLayer,
+  onLayerDragStart,
+  onLayerDragEnd,
+  onDragOverLayer,
+  onDragLeaveLayer,
+  onDropOnLayer,
+  getLayerCardClass,
+  getLayerRowClass,
+} = useMockupList()
 </script>
 
 <template>
-  <div class="pp-card">
+  <div class="pp-mockup-list">
     <input
       id="pp-file-upload-input"
       ref="fileInputRef"
@@ -57,8 +45,7 @@ const {
 
     <div class="pp-add-row">
       <button type="button" class="pp-btn" @click="triggerFileUpload">
-        <span>⬆</span>
-        <span>{{ uiStrings.uploadButton }}</span>
+        <span>⬆</span> <span>{{ uiStrings.uploadButton }}</span>
         <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">u</span>
       </button>
       <button
@@ -67,43 +54,8 @@ const {
         :title="uiStrings.pasteButtonTitle"
         @click="pasteFromClipboard"
       >
-        <span>📋</span>
-        <span>{{ uiStrings.pasteButton }}</span>
+        <span>📋</span> <span>{{ uiStrings.pasteButton }}</span>
         <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">⌘V</span>
-      </button>
-    </div>
-
-    <div class="pp-pages-bar">
-      <div class="pp-pages-tabs">
-        <button
-          v-for="folder in folders"
-          :key="folder.id"
-          type="button"
-          class="pp-page-tab"
-          :class="{
-            'pp-page-tab--active': currentFolder?.id === folder.id,
-            'pp-page-tab--dragover': dragOverFolderId === folder.id,
-          }"
-          :title="folder.name"
-          @click="windowState.activeFolderId = folder.id"
-          @dragover="onDragOverFolder($event, folder.id)"
-          @dragleave="onDragLeaveFolder(folder.id)"
-          @drop.prevent="onDropOnFolder(folder.id)"
-        >
-          <span class="pp-page-tab__name">{{ folder.name }}</span>
-          <span class="pp-page-tab__count">{{
-            getFolderLayerCount(folder.id)
-          }}</span>
-        </button>
-      </div>
-
-      <button
-        type="button"
-        class="pp-icon-btn pp-page-add-btn"
-        :title="uiStrings.createFolderTitle"
-        @click="handleCreateFolder"
-      >
-        +
       </button>
     </div>
 
@@ -112,14 +64,14 @@ const {
         class="pp-section-bar__left"
         :title="currentFolder?.name || uiStrings.layersHeader"
       >
-        <span class="pp-section-bar__title">{{
-          currentFolder?.name || uiStrings.layersHeader
-        }}</span>
-        <span class="pp-section-bar__count"
-          >({{ currentFolderLayers.length }}/{{
+        <span class="pp-section-bar__title">
+          {{ currentFolder?.name || uiStrings.layersHeader }}
+        </span>
+        <span class="pp-section-bar__count">
+          ({{ currentFolderLayers.length }}/{{
             FREE_LIMITS.maxLayersPerFolder
-          }})</span
-        >
+          }})
+        </span>
       </div>
 
       <div class="pp-section-bar__actions">
@@ -193,14 +145,7 @@ const {
         v-for="layer in currentFolderLayers"
         :key="layer.id"
         class="pp-layer-card"
-        :class="{
-          'pp-layer-card--active': activeLayer?.id === layer.id,
-          'pp-layer-card--dragging': draggedLayerId === layer.id,
-          'pp-layer-card--drop-before':
-            dragOverLayerId === layer.id && dropPosition === 'before',
-          'pp-layer-card--drop-after':
-            dragOverLayerId === layer.id && dropPosition === 'after',
-        }"
+        :class="getLayerCardClass(layer.id)"
         draggable="true"
         @dragstart="onLayerDragStart($event, layer.id)"
         @dragend="onLayerDragEnd"
@@ -250,14 +195,7 @@ const {
         v-for="layer in currentFolderLayers"
         :key="layer.id"
         class="pp-layer-row"
-        :class="{
-          'pp-layer-row--active': activeLayer?.id === layer.id,
-          'pp-layer-row--dragging': draggedLayerId === layer.id,
-          'pp-layer-row--drop-before':
-            dragOverLayerId === layer.id && dropPosition === 'before',
-          'pp-layer-row--drop-after':
-            dragOverLayerId === layer.id && dropPosition === 'after',
-        }"
+        :class="getLayerRowClass(layer.id)"
         draggable="true"
         @dragstart="onLayerDragStart($event, layer.id)"
         @dragend="onLayerDragEnd"
