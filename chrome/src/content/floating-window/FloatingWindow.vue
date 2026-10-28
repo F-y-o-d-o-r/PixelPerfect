@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import AppIcon from './components/AppIcon.vue'
 import FloatingWindowHeader from './components/FloatingWindowHeader.vue'
 import MockupImportBar from './components/MockupImportBar.vue'
 import FolderTabs from './components/FolderTabs.vue'
 import MockupList from './components/MockupList.vue'
 import MockupPositionControls from './components/MockupPositionControls.vue'
+import KeyboardShortcutsModal from './components/KeyboardShortcutsModal.vue'
 import {
   focusKeyboardReceiverInShadowDom,
   useKeyboard,
@@ -13,6 +14,7 @@ import {
 import { useStorage } from './composables/useStorage'
 import { useTheme } from './composables/useTheme'
 import { useWindowDrag } from './composables/useWindowDrag'
+import { useWindowPosition } from './composables/useWindowPosition'
 
 const {
   layers,
@@ -20,6 +22,8 @@ const {
   windowState,
   uiStrings,
   statusToast,
+  isShortcutsModalOpen,
+  isKeyboardControlActive,
   initStorage,
   updateLayer,
   showToast,
@@ -27,52 +31,18 @@ const {
 
 const { resolvedTheme } = useTheme(() => windowState.theme)
 const { startDragFloatingWindow } = useWindowDrag()
+const {
+  floatingWindowRef,
+  isDockedRight,
+  isDockedLeft,
+  isDockedTop,
+  isDockedBottom,
+  windowPositionStyle,
+  clampAndSnapWindowToViewport,
+  snapAfterLayoutChange,
+} = useWindowPosition()
+
 useKeyboard()
-
-const floatingWindowRef = ref<HTMLElement | null>(null)
-
-const isDockedRight = computed(
-  () =>
-    windowState.position.dockEdgeX === 'right' ||
-    (windowState.position.dockCorner === 'top-right' &&
-      windowState.position.x === 0) ||
-    windowState.position.dockCorner === 'bottom-right'
-)
-
-const isDockedLeft = computed(
-  () =>
-    windowState.position.dockEdgeX === 'left' ||
-    windowState.position.dockCorner === 'top-left' ||
-    windowState.position.dockCorner === 'bottom-left'
-)
-
-const isDockedTop = computed(
-  () =>
-    windowState.position.dockEdgeY === 'top' ||
-    (windowState.position.dockCorner === 'top-right' &&
-      windowState.position.y === 0) ||
-    windowState.position.dockCorner === 'top-left'
-)
-
-const isDockedBottom = computed(
-  () =>
-    windowState.position.dockEdgeY === 'bottom' ||
-    windowState.position.dockCorner === 'bottom-right' ||
-    windowState.position.dockCorner === 'bottom-left'
-)
-
-const windowPositionStyle = computed(() => {
-  const horizontalStyle = isDockedRight.value
-    ? { left: 'auto', right: '0px' }
-    : { left: `${windowState.position.x}px`, right: 'auto' }
-  const verticalStyle = isDockedBottom.value
-    ? { top: 'auto', bottom: '0px' }
-    : { top: `${windowState.position.y}px`, bottom: 'auto' }
-  return {
-    ...horizontalStyle,
-    ...verticalStyle,
-  }
-})
 
 function toggleMinimized(): void {
   windowState.minimized = !windowState.minimized
@@ -104,6 +74,7 @@ function toggleMiniLock(): void {
 }
 
 function handleWindowClick(event: MouseEvent): void {
+  isKeyboardControlActive.value = true
   const target = event.target as HTMLElement | null
   if (target && (target.tagName === 'INPUT' || target.tagName === 'SELECT')) {
     return
@@ -111,75 +82,9 @@ function handleWindowClick(event: MouseEvent): void {
   focusKeyboardReceiverInShadowDom()
 }
 
-function clampAndSnapWindowToViewport(): void {
-  const element = floatingWindowRef.value
-  if (!element || !windowState.visible) return
-
-  const rect = element.getBoundingClientRect()
-  const viewportWidth = Math.min(
-    window.innerWidth,
-    document.documentElement.clientWidth || window.innerWidth
-  )
-  const viewportHeight = Math.min(
-    window.innerHeight,
-    document.documentElement.clientHeight || window.innerHeight
-  )
-
-  let nextX = windowState.position.x
-  let nextY = windowState.position.y
-  let nextEdgeX =
-    windowState.position.dockEdgeX ??
-    (isDockedRight.value ? 'right' : isDockedLeft.value ? 'left' : 'none')
-  let nextEdgeY =
-    windowState.position.dockEdgeY ??
-    (isDockedTop.value ? 'top' : isDockedBottom.value ? 'bottom' : 'none')
-  let changed = false
-
-  if (nextEdgeY !== 'bottom' && rect.bottom >= viewportHeight - 20) {
-    nextY = 0
-    nextEdgeY = 'bottom'
-    changed = true
-  } else if (nextEdgeY !== 'top' && rect.top < 0) {
-    nextY = 0
-    nextEdgeY = 'top'
-    changed = true
-  }
-
-  if (nextEdgeX !== 'right' && rect.right >= viewportWidth - 20) {
-    nextX = 0
-    nextEdgeX = 'right'
-    changed = true
-  } else if (nextEdgeX !== 'left' && rect.left < 0) {
-    nextX = 0
-    nextEdgeX = 'left'
-    changed = true
-  }
-
-  if (!changed) return
-
-  let nextCorner: typeof windowState.position.dockCorner = 'free'
-  if (nextEdgeX === 'right' && nextEdgeY === 'top') nextCorner = 'top-right'
-  else if (nextEdgeX === 'left' && nextEdgeY === 'top') nextCorner = 'top-left'
-  else if (nextEdgeX === 'right' && nextEdgeY === 'bottom')
-    nextCorner = 'bottom-right'
-  else if (nextEdgeX === 'left' && nextEdgeY === 'bottom')
-    nextCorner = 'bottom-left'
-
-  windowState.position = {
-    x: nextX,
-    y: nextY,
-    dockCorner: nextCorner,
-    dockEdgeX: nextEdgeX,
-    dockEdgeY: nextEdgeY,
-  }
-}
-
 watch(
   () => [windowState.minimized, layers.value.length, windowState.activeLayerId],
-  async () => {
-    await nextTick()
-    clampAndSnapWindowToViewport()
-  }
+  snapAfterLayoutChange
 )
 
 onMounted(() => {
@@ -295,9 +200,14 @@ onUnmounted(() => {
         <MockupPositionControls />
       </div>
     </div>
+  </div>
 
-    <div v-if="statusToast" class="pp-toast">
-      {{ statusToast }}
-    </div>
+  <KeyboardShortcutsModal
+    v-if="isShortcutsModalOpen"
+    @close="isShortcutsModalOpen = false"
+  />
+
+  <div v-if="statusToast" class="pp-toast">
+    {{ statusToast }}
   </div>
 </template>

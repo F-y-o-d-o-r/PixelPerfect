@@ -21,6 +21,8 @@ export type IconName =
   | 'menu'
   | 'globe'
   | 'corner-reset'
+  | 'help'
+  | 'close'
 
 withDefaults(
   defineProps<{
@@ -194,6 +196,18 @@ withDefaults(
     <!-- Corner reset ↗ -->
     <template v-else-if="name === 'corner-reset'">
       <path d="M4 12L12 4M6 4h6v6" />
+    </template>
+
+    <!-- Help / Question mark circle -->
+    <template v-else-if="name === 'help'">
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M6.4 6.2a1.75 1.75 0 0 1 3.2.9c0 1.1-1.6 1.4-1.6 2.3" />
+      <circle cx="8" cy="11.7" r="0.65" stroke="none" fill="currentColor" />
+    </template>
+
+    <!-- Close cross -->
+    <template v-else-if="name === 'close'">
+      <path d="M4 4l8 8M12 4l-8 8" />
     </template>
   </svg>
 </template>

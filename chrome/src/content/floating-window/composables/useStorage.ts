@@ -26,6 +26,8 @@ import {
   revokeLayerObjectUrl,
   showToast,
   statusToast,
+  isShortcutsModalOpen,
+  isKeyboardControlActive,
   uiStrings,
   visibleFolders,
   windowState,
@@ -38,12 +40,8 @@ export function getFolderLayerCount(folderId: string): number {
 
 export async function addFolder(name?: string): Promise<Folder | null> {
   if (visibleFolders.value.length >= FREE_LIMITS.maxFolders) {
-    showToast(
-      uiStrings.value.toastLimitFolders.replace(
-        '{count}',
-        String(FREE_LIMITS.maxFolders)
-      )
-    )
+    const limit = String(FREE_LIMITS.maxFolders)
+    showToast(uiStrings.value.toastLimitFolders.replace('{count}', limit))
     return null
   }
   const folderName = name?.trim() || getNextFolderName(folders.value)
@@ -58,15 +56,10 @@ export async function addFolder(name?: string): Promise<Folder | null> {
   return newFolder
 }
 
-export async function renameFolder(
-  folderId: string,
-  newName: string
-): Promise<void> {
+export async function renameFolder(folderId: string, newName: string): Promise<void> {
   const trimmed = newName.trim()
   if (!trimmed) return
-  folders.value = folders.value.map((f) =>
-    f.id === folderId ? { ...f, name: trimmed } : f
-  )
+  folders.value = folders.value.map((f) => f.id === folderId ? { ...f, name: trimmed } : f)
   await persistFolders()
 }
 
@@ -98,10 +91,7 @@ export async function removeFolder(folderId: string): Promise<void> {
   showToast(uiStrings.value.toastPageDeleted)
 }
 
-export async function moveLayerToFolder(
-  layerId: string,
-  targetFolderId: string
-): Promise<void> {
+export async function moveLayerToFolder(layerId: string, targetFolderId: string): Promise<void> {
   const layer = layers.value.find((l) => l.id === layerId)
   if (!layer || layer.folderId === targetFolderId) return
   const wasActiveLayer = windowState.activeLayerId === layerId
@@ -288,6 +278,8 @@ export function useStorage() {
     uiStrings,
     currentUrlPath,
     statusToast,
+    isShortcutsModalOpen,
+    isKeyboardControlActive,
     initStorage,
     autoSelectLayerForUrl,
     getFolderLayerCount,

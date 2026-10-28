@@ -61,6 +61,18 @@ export const en = {
   blendSmartDiff: 'Smart Diff',
   proBadge: 'PRO',
   comingSoon: 'Soon',
+  toastWidgetFocused: 'Pixel Perfect focused',
+  toastPageFocused: 'Page focused',
+  shortcutsModalTitle: 'Keyboard Shortcuts',
+  shortcutsToggleHints: 'Show letter hints on buttons',
+  shortcutsClose: 'Close (Esc)',
+  shortcutsCatNav: 'Navigation & Focus',
+  shortcutsFocusToggleWidget: 'Pixel Perfect Focus / Close',
+  shortcutsFocusPage: 'Page Focus',
+  shortcutsCatLayers: 'Mockups & Folders',
+  shortcutsCatMove: 'Nudge & Alignment',
+  shortcutsCatView: 'Opacity & View',
+  shortcutsCatMouse: 'Mouse & Drag',
 }
 
 export type UiStrings = Record<keyof typeof en, string>

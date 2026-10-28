@@ -1,0 +1,174 @@
+.pp-shortcuts-backdrop
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  width: 100vw
+  height: 100vh
+  background: rgba(0, 0, 0, 0.6)
+  backdrop-filter: blur(4px)
+  -webkit-backdrop-filter: blur(4px)
+  z-index: 2000
+  display: flex
+  align-items: center
+  justify-content: center
+  padding: 16px
+  box-sizing: border-box
+
+.pp-shortcuts-modal
+  background: var(--bg-primary)
+  color: var(--text-primary)
+  border: 1px solid var(--border-subtle)
+  border-radius: 12px
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45)
+  width: 100%
+  max-width: 440px
+  max-height: 85vh
+  display: flex
+  flex-direction: column
+  overflow: hidden
+  font-family: inherit
+  animation: ppShortcutsFadeIn 0.16s ease-out
+
+@keyframes ppShortcutsFadeIn
+  from
+    opacity: 0
+    transform: scale(0.96)
+  to
+    opacity: 1
+    transform: scale(1)
+
+.pp-shortcuts-header
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 12px 16px
+  border-bottom: 1px solid var(--border-subtle)
+  background: var(--bg-secondary)
+
+.pp-shortcuts-title
+  font-size: 13px
+  font-weight: 600
+  color: var(--text-primary)
+  display: flex
+  align-items: center
+  gap: 6px
+
+.pp-shortcuts-close
+  background: transparent
+  border: none
+  color: var(--text-muted)
+  cursor: pointer
+  padding: 4px
+  border-radius: 4px
+  display: flex
+  align-items: center
+  justify-content: center
+  transition: all 0.14s ease
+
+  &:hover
+    color: var(--text-primary)
+    background: var(--bg-hover)
+
+.pp-shortcuts-toggle-bar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 8px 16px
+  background: var(--bg-secondary)
+  border-bottom: 1px solid var(--border-subtle)
+  font-size: 11px
+  color: var(--text-muted)
+
+.pp-shortcuts-switch
+  position: relative
+  display: inline-block
+  width: 32px
+  height: 18px
+
+  input
+    opacity: 0
+    width: 0
+    height: 0
+
+.pp-shortcuts-slider
+  position: absolute
+  cursor: pointer
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  background-color: var(--border-subtle)
+  transition: 0.16s
+  border-radius: 18px
+
+  &:before
+    position: absolute
+    content: ""
+    height: 14px
+    width: 14px
+    left: 2px
+    bottom: 2px
+    background-color: #ffffff
+    transition: 0.16s
+    border-radius: 50%
+
+input:checked + .pp-shortcuts-slider
+  background-color: var(--accent)
+
+input:checked + .pp-shortcuts-slider:before
+  transform: translateX(14px)
+
+.pp-shortcuts-body
+  padding: 12px 16px
+  overflow-y: auto
+  display: flex
+  flex-direction: column
+  gap: 14px
+
+.pp-shortcuts-section
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.pp-shortcuts-section-title
+  font-size: 10px
+  font-weight: 700
+  letter-spacing: 0.05em
+  text-transform: uppercase
+  color: var(--accent)
+  margin-bottom: 2px
+
+.pp-shortcuts-row
+  display: flex
+  align-items: center
+  justify-content: space-between
+  font-size: 11px
+  line-height: 1.4
+
+.pp-shortcuts-keys
+  display: flex
+  align-items: center
+  gap: 4px
+  flex-shrink: 0
+
+.pp-shortcuts-kbd
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  min-width: 18px
+  height: 18px
+  padding: 0 5px
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+  font-size: 10px
+  font-weight: 500
+  color: var(--text-primary)
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-subtle)
+  border-radius: 4px
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12)
+
+.pp-shortcuts-desc
+  color: var(--text-muted)
+  padding-right: 8px

@@ -43,21 +43,26 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 
 | Key | Action |
 | :--- | :--- |
-| **`?`** (`Shift + /`) | Toggle hotkey hints on controls |
+| **`⌥S` / `⌥\`` / `⌥W`** (`Alt+S / Alt+\` / Alt+W`) | Toggle Pixel Perfect (Open $\to$ Focus $\to$ Close) from anywhere |
+| **`Esc`** | Release focus to page / Lock mockup / Close modal |
+| **`[` / `]`** | Cycle mockups in active folder (auto-unhide) |
+| **`{` / `}`** (`Shift + [` / `]`) | Cycle folders / pages |
+| **`Alt + 1…3`** | Direct jump to folder 1, 2, or 3 |
+| **`?`** (`Shift + /`) | Open Keyboard Shortcuts cheatsheet modal |
 | **`s`** | Show / Hide active mockup |
-| **`i`** / **`Esc`** | Toggle Move mode / Lock mockup |
+| **`i`** | Toggle Move mode / Lock mockup |
 | **`m`** | Minimize to compact bar / Expand window |
 | **`u`** | Open file upload dialog |
-| **`⌘V`** / **`Ctrl+V`** | Paste image from clipboard |
-| **`h`** / **`j`** / **`k`** / **`l`** (or arrows) | Nudge mockup by 1px (Left / Down / Up / Right) |
+| **`⌘V` / `Ctrl+V`** | Paste image from clipboard |
+| **`h` / `j` / `k` / `l`** (or arrows) | Nudge mockup by 1px (Left / Down / Up / Right) |
 | **`Shift` + `h/j/k/l`** | Nudge mockup by 10px |
-| **`0`** / **`Home`** | Snap mockup to Top-Center (X: Center, Y: 0) |
+| **`0` / `Home`** | Snap mockup to Top-Center (X: Center, Y: 0) |
 | **`x`** | Snap mockup horizontally to Center |
 | **`y`** | Snap mockup vertically to Top (Y: 0) |
 | **`r`** | Reset mockup to origin (X: 0, Y: 0, 1x, Normal, 50%) |
 | **`v`** | Toggle color inversion (Normal / Invert) |
-| **`1`** – **`9`** | Set opacity to 10% – 90% |
-| **`-`** / **`+`** (or `[` / `]`) | Adjust opacity by ±10% (with `Shift`: ±1%) |
+| **`1` – `9`** | Set opacity to 10% – 90% |
+| **`-` / `+`** | Adjust opacity by ±10% (with `Shift`: ±1%) |
 | **Mouse Wheel** | Adjust opacity by ±5% (in Move mode over overlay) |
 | **`⌥ / Alt`** | Hold while dragging to bypass magnetic edge snapping |
 | **`⇧ / Shift`** | Hold while dragging to lock movement strictly to one axis (X or Y) |

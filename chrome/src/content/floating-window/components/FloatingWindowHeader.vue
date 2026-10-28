@@ -10,11 +10,16 @@ import { DOM_HOST_IDS, EXTENSION_VERSION } from '@/shared/constants'
 import { useStorage } from '../composables/useStorage'
 import { useWindowDrag } from '../composables/useWindowDrag'
 
-const { windowState, uiStrings } = useStorage()
+const { windowState, uiStrings, isShortcutsModalOpen } = useStorage()
 const { startDragFloatingWindow } = useWindowDrag()
 
 const isMenuOpen = ref(false)
 const isLanguageListOpen = ref(false)
+
+function openShortcutsModal(): void {
+  isShortcutsModalOpen.value = true
+  closeDropdownMenu()
+}
 
 const themeIconName = computed<'moon' | 'sun' | 'theme-system'>(() => {
   if (windowState.theme === 'dark') return 'moon'
@@ -146,9 +151,9 @@ onUnmounted(() => {
       <button
         type="button"
         class="pp-icon-btn"
-        :class="{ 'pp-icon-btn--active': windowState.showHotkeys }"
-        title="Hotkeys (?)"
-        @click="windowState.showHotkeys = !windowState.showHotkeys"
+        :class="{ 'pp-icon-btn--active': isShortcutsModalOpen }"
+        :title="uiStrings.shortcutsModalTitle"
+        @click="isShortcutsModalOpen = !isShortcutsModalOpen"
       >
         ?
       </button>
@@ -208,6 +213,17 @@ onUnmounted(() => {
     >
       <span>{{ uiStrings.resetWindowCorner }}</span>
       <AppIcon name="corner-reset" :size="13" />
+    </button>
+    <button
+      type="button"
+      class="pp-dropdown__item"
+      @click="openShortcutsModal"
+    >
+      <span style="display: inline-flex; align-items: center; gap: 6px">
+        <AppIcon name="help" :size="13" />
+        {{ uiStrings.shortcutsModalTitle }}
+      </span>
+      <span class="pp-hotkey-hint">?</span>
     </button>
     <div class="pp-dropdown__divider" />
     <div class="pp-dropdown__item pp-dropdown__item--muted">

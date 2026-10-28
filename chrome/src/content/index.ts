@@ -2,6 +2,10 @@ import { createApp } from 'vue'
 import { DOM_HOST_IDS } from '@/shared/constants'
 import type { ExtensionMessage } from '@/shared/types'
 import FloatingWindow from './floating-window/FloatingWindow.vue'
+import {
+  focusKeyboardReceiverInShadowDom,
+  releaseFocusToPage,
+} from './floating-window/composables/keyboardFocus'
 import { useStorage } from './floating-window/composables/useStorage'
 import floatingWindowStyles from './floating-window/styles/floating-window.sass?inline'
 import { initOverlayRenderer } from './overlay'
@@ -120,12 +124,21 @@ function registerBrowserHistoryNavigationListener(): void {
 
 function registerExtensionMessageListener(): void {
   if (typeof chrome === 'undefined' || !chrome.runtime?.onMessage) return
-  const { windowState } = useStorage()
+  const { windowState, uiStrings, showToast } = useStorage()
 
   chrome.runtime.onMessage.addListener(
     (message: ExtensionMessage, _sender, sendResponse) => {
       if (message.type === 'PP_TOGGLE_FLOATING_WINDOW') {
         windowState.visible = !windowState.visible
+        if (windowState.visible) {
+          if (windowState.minimized) windowState.minimized = false
+          setTimeout(() => {
+            focusKeyboardReceiverInShadowDom()
+          }, 0)
+          showToast(uiStrings.value.toastWidgetFocused)
+        } else {
+          releaseFocusToPage()
+        }
         sendResponse({ visible: windowState.visible })
       }
       return false

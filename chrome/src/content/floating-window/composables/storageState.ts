@@ -13,6 +13,8 @@ export const windowState = reactive<FloatingWindowState>({
 })
 export const currentUrlPath = ref<string>(getNormalizedUrlPath())
 export const statusToast = ref<string | null>(null)
+export const isShortcutsModalOpen = ref(false)
+export const isKeyboardControlActive = ref(true)
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 let isStorageInitialized = false
@@ -245,7 +247,6 @@ export async function initStorage(): Promise<void> {
           DEFAULT_FLOATING_WINDOW_STATE,
           storedData[STORAGE_KEYS.FLOATING_WINDOW]
         )
-        windowState.visible = true
         windowState.vimMode = 'locked'
       }
 
@@ -279,6 +280,7 @@ export async function initStorage(): Promise<void> {
 
 watch(
   () => ({
+    visible: windowState.visible,
     minimized: windowState.minimized,
     showHotkeys: windowState.showHotkeys,
     position: { ...windowState.position },

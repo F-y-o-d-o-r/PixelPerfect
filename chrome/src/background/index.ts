@@ -118,6 +118,14 @@ async function handleExtensionActionClick(tab: chrome.tabs.Tab): Promise<void> {
     const injected = await injectContentScriptIntoTab(tab.id)
     if (injected) {
       chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS })
+      setTimeout(async () => {
+        if (tab.id) {
+          const retry = await sendToggleFloatingWindowMessage(tab.id)
+          if (retry.ok && retry.visible) {
+            chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS })
+          }
+        }
+      }, 60)
     }
     return
   }
