@@ -11,12 +11,21 @@ function isUserTypingInRealInput(event: KeyboardEvent): boolean {
     if (!(node instanceof HTMLElement)) continue
     if (node.id === KEYBOARD_TRAP_ID) continue
     const tag = node.tagName
-    if (
-      tag === 'INPUT' ||
-      tag === 'TEXTAREA' ||
-      tag === 'SELECT' ||
-      node.isContentEditable
-    ) {
+    if (tag === 'INPUT') {
+      const type = (node as HTMLInputElement).type
+      if (
+        type === 'range' ||
+        type === 'checkbox' ||
+        type === 'radio' ||
+        type === 'file' ||
+        type === 'button' ||
+        type === 'submit'
+      ) {
+        continue
+      }
+      return true
+    }
+    if (tag === 'TEXTAREA' || tag === 'SELECT' || node.isContentEditable) {
       return true
     }
   }
@@ -38,7 +47,10 @@ export function useKeyboard(): void {
     windowState,
     uiStrings,
     updateLayer,
+    snapActiveLayerCenterX,
+    snapActiveLayerTopY,
     snapActiveLayerTopCenter,
+    resetActiveLayerOrigin,
     showToast,
   } = useStorage()
 
@@ -156,6 +168,47 @@ export function useKeyboard(): void {
       return true
     }
 
+    const triggerAction = (action: () => void): boolean => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      action()
+      focusKeyboardReceiverInShadowDom()
+      return true
+    }
+
+    if (
+      !event.shiftKey &&
+      (event.code === 'Digit0' ||
+        event.code === 'Numpad0' ||
+        event.key === '0' ||
+        event.code === 'Home')
+    ) {
+      return triggerAction(snapActiveLayerTopCenter)
+    }
+
+    if (event.code === 'KeyR' && !event.shiftKey) {
+      return triggerAction(resetActiveLayerOrigin)
+    }
+
+    if (event.code === 'KeyX' && !event.shiftKey) {
+      return triggerAction(snapActiveLayerCenterX)
+    }
+
+    if (event.code === 'KeyY' && !event.shiftKey) {
+      return triggerAction(snapActiveLayerTopY)
+    }
+
+    if (event.code === 'KeyV' && !event.shiftKey) {
+      const nextMode = layer.blendMode === 'invert' ? 'normal' : 'invert'
+      updateLayer(layer.id, { blendMode: nextMode })
+      const label =
+        nextMode === 'invert'
+          ? uiStrings.value.blendInvert
+          : uiStrings.value.blendNormal
+      showToast(`${uiStrings.value.blendModeLabel}: ${label}`)
+      return triggerAction(() => {})
+    }
+
     return false
   }
 
@@ -192,14 +245,6 @@ export function useKeyboard(): void {
       case 'KeyJ':
       case 'ArrowDown':
         moveActiveLayerBy(event, 0, step)
-        break
-      case 'Digit0':
-      case 'Home':
-        if (!event.shiftKey) {
-          event.preventDefault()
-          event.stopImmediatePropagation()
-          snapActiveLayerTopCenter()
-        }
         break
       case 'Space': {
         const layer = activeLayer.value

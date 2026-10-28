@@ -1,87 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { ScaleMode } from '@/shared/types'
-import { focusKeyboardReceiverInShadowDom } from '../composables/useKeyboard'
-import { useStorage } from '../composables/useStorage'
+import MockupDpad from './MockupDpad.vue'
+import {
+  SCALE_MODES,
+  useMockupPositionControls,
+} from './mockupPositionControls'
 
 const {
   activeLayer,
   windowState,
   uiStrings,
-  updateLayer,
-  snapActiveLayerTopCenter,
-  resetActiveLayerOrigin,
+  opacityPercent,
+  toggleVisible,
+  toggleLock,
+  toggleInvertMode,
+  onCoordInput,
+  onOpacityInput,
   setScaleMode,
-  showToast,
-} = useStorage()
-
-const opacityPercent = computed(() =>
-  activeLayer.value ? Math.round(activeLayer.value.opacity * 100) : 50
-)
-
-function toggleVisible(): void {
-  if (!activeLayer.value) return
-  const nextVisible = !activeLayer.value.visible
-  updateLayer(activeLayer.value.id, { visible: nextVisible })
-  if (!nextVisible && windowState.vimMode === 'move') {
-    windowState.vimMode = 'locked'
-    updateLayer(activeLayer.value.id, { locked: true })
-  }
-  showToast(
-    nextVisible ? uiStrings.value.showMockup : uiStrings.value.hiddenMockup
-  )
-  focusKeyboardReceiverInShadowDom()
-}
-
-function toggleLock(): void {
-  if (!activeLayer.value || !activeLayer.value.visible) return
-  const nextLocked = windowState.vimMode === 'move'
-  windowState.vimMode = nextLocked ? 'locked' : 'move'
-  updateLayer(activeLayer.value.id, { locked: nextLocked })
-  showToast(
-    nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
-  )
-  focusKeyboardReceiverInShadowDom()
-}
-
-function moveBy(deltaX: number, deltaY: number, event?: MouseEvent): void {
-  if (!activeLayer.value) return
-  const stepMultiplier = event?.shiftKey ? 10 : 1
-  updateLayer(activeLayer.value.id, {
-    x: activeLayer.value.x + deltaX * stepMultiplier,
-    y: activeLayer.value.y + deltaY * stepMultiplier,
-  })
-}
-
-function onCoordInput(axis: 'x' | 'y', event: Event): void {
-  if (!activeLayer.value) return
-  const parsedValue = Number.parseInt(
-    (event.target as HTMLInputElement).value,
-    10
-  )
-  if (!Number.isNaN(parsedValue)) {
-    updateLayer(activeLayer.value.id, { [axis]: parsedValue })
-  }
-}
-
-function onOpacityInput(event: Event): void {
-  if (!activeLayer.value) return
-  const parsedValue = Number.parseInt(
-    (event.target as HTMLInputElement).value,
-    10
-  )
-  if (!Number.isNaN(parsedValue)) {
-    updateLayer(activeLayer.value.id, {
-      opacity: Math.min(1, Math.max(0, parsedValue / 100)),
-    })
-  }
-}
-
-const scaleModes: { value: ScaleMode; label: string }[] = [
-  { value: '1x', label: '1x' },
-  { value: '2x', label: '2x' },
-  { value: 'auto', label: 'Auto' },
-]
+  snapActiveLayerCenterX,
+  snapActiveLayerTopY,
+  resetActiveLayerOrigin,
+} = useMockupPositionControls()
 </script>
 
 <template>
@@ -92,26 +30,51 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
         <span>{{
           activeLayer.visible ? uiStrings.hiddenMockup : uiStrings.showMockup
         }}</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">s</span>
+        <span
+          v-if="windowState.showHotkeys"
+          class="pp-hotkey-hint pp-hotkey-hint--corner-bar"
+        >
+          s
+        </span>
       </button>
 
       <button
         type="button"
         class="pp-quickbar__btn"
         :class="{
-          'pp-quickbar__btn--active': windowState.vimMode === 'move',
           'pp-quickbar__btn--disabled': !activeLayer.visible,
         }"
         :disabled="!activeLayer.visible"
         @click="toggleLock"
       >
-        <span>{{ windowState.vimMode === 'move' ? '🔒' : '🔓' }}</span>
+        <span v-if="windowState.vimMode === 'move'">🔒</span>
+        <svg
+          v-else
+          class="pp-move-icon"
+          viewBox="0 0 16 16"
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M8 1.5v13M1.5 8h13M5 4.5L8 1.5l3 3M5 11.5L8 14.5l3-3M4.5 5L1.5 8l3 3M11.5 5l3 3-3 3"
+          />
+        </svg>
         <span>{{
           windowState.vimMode === 'move'
             ? uiStrings.lockMockup
             : uiStrings.moveMockup
         }}</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">i</span>
+        <span
+          v-if="windowState.showHotkeys"
+          class="pp-hotkey-hint pp-hotkey-hint--corner-bar"
+        >
+          i
+        </span>
       </button>
     </div>
 
@@ -128,95 +91,134 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
           class="pp-origin-reset"
           @click="resetActiveLayerOrigin"
         >
-          {{ uiStrings.resetLabel }}
+          <span>{{ uiStrings.resetLabel }}</span>
+          <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">r</span>
         </button>
       </div>
 
       <div class="pp-origin-grid">
-        <div class="pp-dpad">
-          <div />
-          <button
-            type="button"
-            class="pp-dpad__btn pp-dpad__btn--vertical"
-            @click="moveBy(0, -1, $event)"
-          >
-            <span class="pp-dpad__arrow">▲</span>
-            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">k</span>
-          </button>
-          <div />
-
-          <button
-            type="button"
-            class="pp-dpad__btn pp-dpad__btn--horizontal"
-            @click="moveBy(-1, 0, $event)"
-          >
-            <span class="pp-dpad__arrow">◀</span>
-            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">h</span>
-          </button>
-          <button
-            type="button"
-            class="pp-dpad__btn pp-dpad__btn--center"
-            :title="uiStrings.snapToTopCenterTitle"
-            @click="snapActiveLayerTopCenter"
-          >
-            <span class="pp-dpad__center-symbol">⌖</span>
-            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">0</span>
-          </button>
-          <button
-            type="button"
-            class="pp-dpad__btn pp-dpad__btn--horizontal"
-            @click="moveBy(1, 0, $event)"
-          >
-            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">l</span>
-            <span class="pp-dpad__arrow">▶</span>
-          </button>
-
-          <div />
-          <button
-            type="button"
-            class="pp-dpad__btn pp-dpad__btn--vertical"
-            @click="moveBy(0, 1, $event)"
-          >
-            <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">j</span>
-            <span class="pp-dpad__arrow">▼</span>
-          </button>
-          <div />
-        </div>
+        <MockupDpad />
 
         <div class="pp-coords">
-          <label class="pp-coord-field">
-            <input
-              type="number"
-              class="pp-coord-field__input"
-              :value="activeLayer.x"
-              @input="onCoordInput('x', $event)"
-            />
-            <span class="pp-coord-field__label">X</span>
-          </label>
-
-          <label class="pp-coord-field">
-            <input
-              type="number"
-              class="pp-coord-field__input"
-              :value="activeLayer.y"
-              @input="onCoordInput('y', $event)"
-            />
-            <span class="pp-coord-field__label">Y</span>
-          </label>
-
-          <div class="pp-scale-group">
+          <div class="pp-coord-row">
             <button
-              v-for="mode in scaleModes"
-              :key="mode.value"
               type="button"
-              class="pp-scale-btn"
-              :class="{
-                'pp-scale-btn--active': activeLayer.scaleMode === mode.value,
-              }"
-              @click="setScaleMode(mode.value)"
+              class="pp-coord-snap-btn"
+              :title="uiStrings.snapCenterXTitle"
+              @click="snapActiveLayerCenterX"
             >
-              {{ mode.label }}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M7 1v12M2 7h3m7 0H9m-6-2l-2 2 2 2m8-4l2 2-2 2"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span
+                v-if="windowState.showHotkeys"
+                class="pp-hotkey-hint pp-hotkey-hint--corner"
+              >
+                x
+              </span>
             </button>
+            <label class="pp-coord-field">
+              <input
+                type="number"
+                class="pp-coord-field__input"
+                :value="activeLayer.x"
+                @input="onCoordInput('x', $event)"
+              />
+              <button
+                type="button"
+                class="pp-coord-field__label-btn"
+                :title="uiStrings.snapCenterXTitle"
+                @click.prevent="snapActiveLayerCenterX"
+              >
+                X
+              </button>
+            </label>
+          </div>
+
+          <div class="pp-coord-row">
+            <button
+              type="button"
+              class="pp-coord-snap-btn"
+              :title="uiStrings.snapTopYTitle"
+              @click="snapActiveLayerTopY"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M1 2h12M7 13V5m-3 3l3-3 3 3"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span
+                v-if="windowState.showHotkeys"
+                class="pp-hotkey-hint pp-hotkey-hint--corner"
+              >
+                y
+              </span>
+            </button>
+            <label class="pp-coord-field">
+              <input
+                type="number"
+                class="pp-coord-field__input"
+                :value="activeLayer.y"
+                @input="onCoordInput('y', $event)"
+              />
+              <button
+                type="button"
+                class="pp-coord-field__label-btn"
+                :title="uiStrings.snapTopYTitle"
+                @click.prevent="snapActiveLayerTopY"
+              >
+                Y
+              </button>
+            </label>
+          </div>
+
+          <div class="pp-coord-row">
+            <button
+              type="button"
+              class="pp-coord-snap-btn"
+              :class="{
+                'pp-coord-snap-btn--active': activeLayer.blendMode === 'invert',
+              }"
+              :title="
+                activeLayer.blendMode === 'invert'
+                  ? `${uiStrings.blendInvert} (${uiStrings.blendNormal})`
+                  : uiStrings.blendInvert
+              "
+              @click="toggleInvertMode"
+            >
+              <span class="pp-blend-icon">◐</span>
+              <span
+                v-if="windowState.showHotkeys"
+                class="pp-hotkey-hint pp-hotkey-hint--corner"
+              >
+                v
+              </span>
+            </button>
+
+            <div class="pp-scale-group">
+              <button
+                v-for="mode in SCALE_MODES"
+                :key="mode.value"
+                type="button"
+                class="pp-scale-btn"
+                :class="{
+                  'pp-scale-btn--active': activeLayer.scaleMode === mode.value,
+                }"
+                @click="setScaleMode(mode.value)"
+              >
+                {{ mode.label }}
+              </button>
+            </div>
           </div>
         </div>
       </div>

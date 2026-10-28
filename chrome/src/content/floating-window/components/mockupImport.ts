@@ -1,10 +1,11 @@
 import { ref } from 'vue'
 import { useStorage } from '../composables/useStorage'
 
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const isDragOver = ref(false)
+
 export function useMockupImport() {
   const { addLayerFromBlob, showToast, uiStrings } = useStorage()
-  const fileInputRef = ref<HTMLInputElement | null>(null)
-  const isDragOver = ref(false)
 
   function isSupportedImageFile(file: File): boolean {
     if (file.type.startsWith('image/')) return true

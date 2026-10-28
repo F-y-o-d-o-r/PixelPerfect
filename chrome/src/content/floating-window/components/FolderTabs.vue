@@ -53,7 +53,16 @@ const {
       :title="uiStrings.createFolderTitle"
       @click="handleCreateFolder"
     >
-      +
+      <svg
+        class="pp-folder-add-icon"
+        viewBox="0 0 14 14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+      >
+        <path d="M7 2.5v9M2.5 7h9" />
+      </svg>
     </button>
   </div>
 </template>

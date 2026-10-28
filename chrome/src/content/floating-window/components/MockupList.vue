@@ -9,12 +9,9 @@ const {
   layerObjectUrls,
   windowState,
   uiStrings,
-  fileInputRef,
   isDragOver,
   triggerFileUpload,
-  onFileSelected,
   onDropFiles,
-  pasteFromClipboard,
   confirmRemoveLayer,
   confirmRemoveFolder,
   handleRenameFolder,
@@ -33,32 +30,6 @@ const {
 
 <template>
   <div class="pp-mockup-list">
-    <input
-      id="pp-file-upload-input"
-      ref="fileInputRef"
-      type="file"
-      accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg,.png,.jpg,.jpeg,.webp"
-      multiple
-      style="display: none"
-      @change="onFileSelected"
-    />
-
-    <div class="pp-add-row">
-      <button type="button" class="pp-btn" @click="triggerFileUpload">
-        <span>⬆</span> <span>{{ uiStrings.uploadButton }}</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">u</span>
-      </button>
-      <button
-        type="button"
-        class="pp-btn pp-btn--primary"
-        :title="uiStrings.pasteButtonTitle"
-        @click="pasteFromClipboard"
-      >
-        <span>📋</span> <span>{{ uiStrings.pasteButton }}</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">⌘V</span>
-      </button>
-    </div>
-
     <div class="pp-section-bar">
       <div
         class="pp-section-bar__left"

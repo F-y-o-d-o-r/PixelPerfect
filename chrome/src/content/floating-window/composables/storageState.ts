@@ -131,6 +131,13 @@ function rememberActiveLayerForFolder(folderId: string): void {
   persistFolders()
 }
 
+export function getNextFolderName(existingFolders: Folder[]): string {
+  const names = new Set(existingFolders.map((f) => f.name.trim().toLowerCase()))
+  let i = 1
+  while (names.has(`folder ${i}`)) i++
+  return `Folder ${i}`
+}
+
 function pickLayerIdForFolder(folderId: string): string | null {
   const folderLayers = layers.value.filter(
     (layer) => layer.folderId === folderId

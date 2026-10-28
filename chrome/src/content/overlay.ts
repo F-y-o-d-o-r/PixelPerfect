@@ -3,10 +3,7 @@ import { DOM_HOST_IDS } from '@/shared/constants'
 import type { LayerMetadata } from '@/shared/types'
 import { useStorage } from './floating-window/composables/useStorage'
 import { getLayerCssDimensions } from './floating-window/composables/useUrlMatcher'
-import {
-  registerOutsideClickLockHandler,
-  registerOverlayDragHandlers,
-} from './overlayDrag'
+import { registerOverlayDragHandlers } from './overlayDrag'
 import { OVERLAY_SHADOW_STYLES } from './overlayStyles'
 
 interface OverlayElements {
@@ -31,8 +28,11 @@ function getOrCreateOverlayShadowRoot(): ShadowRoot {
   return shadowRoot
 }
 
-function renderMovePillHtml(strings: { movePillNoSnap: string }): string {
-  return `<kbd>⌥/Alt</kbd> ${strings.movePillNoSnap}`
+function renderMovePillHtml(strings: {
+  movePillNoSnap: string
+  movePillLockAxis: string
+}): string {
+  return `<kbd>⌥/Alt</kbd> ${strings.movePillNoSnap} <span class="pp-move-pill-sep">·</span> <kbd>⇧/Shift</kbd> ${strings.movePillLockAxis}`
 }
 
 function createOverlayElements(shadowRoot: ShadowRoot): OverlayElements {
@@ -72,6 +72,11 @@ function applyOverlayPositionAndVisibility(
     elements.movePill.style.display = 'none'
   }
 
+  const isInverted = layer.blendMode === 'invert'
+  elements.image.style.filter = isInverted ? 'invert(1)' : 'none'
+  elements.wrapper.style.mixBlendMode = 'normal'
+  elements.image.style.mixBlendMode = 'normal'
+
   const hostElement = document.getElementById(DOM_HOST_IDS.OVERLAY)
   if (hostElement) {
     const docHeight = Math.max(
@@ -90,7 +95,6 @@ export function initOverlayRenderer(): void {
   const elements = createOverlayElements(shadowRoot)
 
   registerOverlayDragHandlers(elements.wrapper, elements.movePill)
-  registerOutsideClickLockHandler(elements.wrapper)
 
   async function updateOverlayImageSource(layerId: string): Promise<boolean> {
     const objectUrl = await ensureLayerObjectUrl(layerId)
@@ -140,6 +144,7 @@ export function initOverlayRenderer(): void {
       activeLayer.value?.visible,
       activeLayer.value?.locked,
       activeLayer.value?.scaleMode,
+      activeLayer.value?.blendMode,
     ],
     () => {
       syncOverlayWithState()

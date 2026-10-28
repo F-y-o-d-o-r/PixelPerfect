@@ -29,6 +29,7 @@ export const en = {
   opacityLabel: 'OPACITY:',
   movePillMode: 'MOVE',
   movePillNoSnap: 'no snap',
+  movePillLockAxis: 'lock axis',
   toastLocked: 'Mockup locked',
   toastMove: 'Move mode: h/j/k/l move • i / Esc lock',
   toastOriginReset: 'Coordinates reset (0, 0)',
@@ -48,6 +49,18 @@ export const en = {
   toastLimitFolders: 'Free limit: up to {count} folders',
   toastLimitFolderLayers: 'Free limit: up to {count} mockups per folder',
   toastLimitTotalLayers: 'Free limit reached ({count} mockups)',
+  snapCenterXTitle: 'Center horizontally (X)',
+  snapTopYTitle: 'Snap to top (Y: 0)',
+  toastSnappedCenterX: 'Centered horizontally (X: {x})',
+  toastSnappedTopY: 'Snapped to top (Y: 0)',
+  blendModeLabel: 'Blend',
+  blendNormal: 'Normal',
+  blendDifference: 'Difference',
+  blendInvert: 'Invert',
+  blendMultiply: 'Multiply',
+  blendSmartDiff: 'Smart Diff',
+  proBadge: 'PRO',
+  comingSoon: 'Soon',
 }
 
 export type UiStrings = Record<keyof typeof en, string>

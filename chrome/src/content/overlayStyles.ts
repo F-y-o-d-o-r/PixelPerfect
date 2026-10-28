@@ -70,4 +70,10 @@ export const OVERLAY_SHADOW_STYLES = `
   background: rgba(56, 189, 248, 0.14);
   border-radius: 4px;
 }
+
+.pp-move-pill-sep {
+  display: inline-block;
+  opacity: 0.45;
+  margin: 0 5px;
+}
 `

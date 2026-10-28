@@ -28,6 +28,8 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 - **Smart Retina / DPI Scaling:** Fixes the 0.5x / 2x display bug on high-DPI screens with instant `[ 1x | 2x | Auto ]` toggle.
 - **8 Built-in Locales:** Native multi-language support (`en`, `ru`, `uk`, `el`, `sr`, `bg`, `ro`, `ka`) with browser auto-detection.
 - **Top Layer Web Component:** Complete style isolation via Shadow DOM (`mode: 'open'`) in Chrome's native Top Layer (`popover="manual"`).
+- **Precision Overlay & Invert Mode:** Real-time opacity slider, keyboard adjustments, and 1-click color invert (`[ ◐ ]`) for dark/light theme testing.
+- **Smart Loading & System Pages Handling:** Defaults to a clean grayscale icon while tabs are loading, transitions to the active colored icon as soon as the page is ready, and displays an informative popup on restricted browser pages (`chrome://`, Web Store).
 - **Built-in Layout Grids:** Preset column grids for Tailwind CSS, Bootstrap, Material UI, custom grids, and precision rulers.
 - **Responsive Auto-Switch:** Automatically switches active mockups between Desktop, Tablet, and Mobile based on viewport width.
 - **Click-Through Mode:** Lock overlays with `pointer-events: none` to inspect and edit DOM elements underneath via DevTools.
@@ -49,10 +51,15 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 | **`h`** / **`j`** / **`k`** / **`l`** (or arrows) | Nudge mockup by 1px (Left / Down / Up / Right) |
 | **`Shift` + `h/j/k/l`** | Nudge mockup by 10px |
 | **`0`** / **`Home`** | Snap mockup to Top-Center (X: Center, Y: 0) |
+| **`x`** | Snap mockup horizontally to Center |
+| **`y`** | Snap mockup vertically to Top (Y: 0) |
+| **`r`** | Reset mockup to origin (X: 0, Y: 0, 1x, Normal, 50%) |
+| **`v`** | Toggle color inversion (Normal / Invert) |
 | **`1`** – **`9`** | Set opacity to 10% – 90% |
 | **`-`** / **`+`** (or `[` / `]`) | Adjust opacity by ±10% (with `Shift`: ±1%) |
 | **Mouse Wheel** | Adjust opacity by ±5% (in Move mode over overlay) |
 | **`⌥ / Alt`** | Hold while dragging to bypass magnetic edge snapping |
+| **`⇧ / Shift`** | Hold while dragging to lock movement strictly to one axis (X or Y) |
 
 ---
 

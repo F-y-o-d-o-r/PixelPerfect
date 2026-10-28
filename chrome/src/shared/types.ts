@@ -2,6 +2,8 @@ import type { SupportedLocale } from '@/i18n/config'
 
 export type ScaleMode = '1x' | '2x' | 'auto'
 
+export type BlendMode = 'normal' | 'difference' | 'invert' | 'multiply'
+
 export type BreakpointType = 'all' | 'desktop' | 'tablet' | 'mobile'
 
 export type UrlBindingType = 'exact' | 'prefix' | 'pattern' | 'domain'
@@ -30,6 +32,7 @@ export interface LayerMetadata {
   visible: boolean
   locked: boolean
   scaleMode: ScaleMode
+  blendMode?: BlendMode
   naturalWidth: number
   naturalHeight: number
   breakpoint: BreakpointType

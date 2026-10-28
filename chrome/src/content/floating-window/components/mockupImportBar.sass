@@ -1,0 +1,27 @@
+.pp-import-bar
+  display: grid
+  grid-template-columns: 1fr 1fr
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-subtle)
+  border-radius: 9px
+  overflow: hidden
+  height: 34px
+
+.pp-import-bar__btn
+  position: relative
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 6px
+  font-size: 12px
+  font-weight: 500
+  color: var(--text-secondary)
+  border-right: 1px solid var(--border-subtle)
+  transition: background 0.12s ease, color 0.12s ease
+
+  &:last-child
+    border-right: none
+
+  &:hover
+    background: var(--bg-hover)
+    color: var(--text-primary)

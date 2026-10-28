@@ -109,7 +109,12 @@ onUnmounted(() => {
       @click="toggleMinimized"
     >
       <span class="pp-collapse-symbol">−</span>
-      <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">m</span>
+      <span
+        v-if="windowState.showHotkeys"
+        class="pp-hotkey-hint pp-hotkey-hint--corner"
+      >
+        m
+      </span>
     </button>
 
     <div class="pp-header__brand">

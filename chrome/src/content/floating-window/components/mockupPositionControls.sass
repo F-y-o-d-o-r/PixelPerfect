@@ -7,36 +7,25 @@
   overflow: hidden
   height: 34px
 
-.pp-quickbar__btn
-  display: inline-flex
-  align-items: center
-  justify-content: center
-  gap: 5px
-  font-size: 12px
-  font-weight: 500
-  color: var(--text-secondary)
-  border-right: 1px solid var(--border-subtle)
-  transition: background 0.12s ease, color 0.12s ease
-
-  &:last-child
-    border-right: none
-
-  &:hover
-    background: var(--bg-hover)
-    color: var(--text-primary)
-
-  &--active
-    color: var(--accent)
-    background: var(--accent-soft)
-
-  &--disabled
-    opacity: 0.38
-    cursor: not-allowed
-    pointer-events: none
-
+  &__btn
+    position: relative
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    gap: 5px
+    font-size: 12px
+    font-weight: 500
+    color: var(--text-secondary)
+    border-right: 1px solid var(--border-subtle)
+    transition: background 0.12s ease, color 0.12s ease
+    &:last-child
+      border-right: none
     &:hover
-      background: transparent
-      color: var(--text-secondary)
+      background: var(--bg-hover)
+      color: var(--text-primary)
+    &--disabled
+      opacity: 0.38
+      pointer-events: none
 
 .pp-origin-header
   display: flex
@@ -47,10 +36,12 @@
   color: var(--text-secondary)
 
 .pp-origin-reset
+  display: inline-flex
+  align-items: center
+  gap: 4px
   font-size: 11px
   font-weight: 600
   color: var(--accent)
-
   &:hover
     text-decoration: underline
 
@@ -58,88 +49,114 @@
   display: grid
   grid-template-columns: 108px 1fr
   gap: 10px
-  align-items: center
 
 .pp-dpad
   display: grid
   grid-template-columns: repeat(3, 32px)
-  grid-template-rows: repeat(3, 30px)
-  gap: 4px
-  justify-content: center
+  grid-template-rows: repeat(3, 32px)
+  gap: 6px
 
-.pp-dpad__btn
-  display: flex
-  align-items: center
-  justify-content: center
-  border-radius: 7px
-  background: var(--bg-tertiary)
-  border: 1px solid var(--border-subtle)
-  color: var(--text-primary)
-  font-size: 13px
-  transition: all 0.1s ease
+  &__btn
+    position: relative
+    display: flex
+    align-items: center
+    justify-content: center
+    border-radius: 7px
+    background: var(--bg-tertiary)
+    border: 1px solid var(--border-subtle)
+    color: var(--text-secondary)
+    transition: all 0.12s ease
+    &:hover
+      background: var(--bg-hover)
+      border-color: var(--accent)
+      color: var(--accent)
+    &:active
+      transform: scale(0.95)
 
-  &:hover
-    background: var(--bg-hover)
-    border-color: var(--accent)
-    color: var(--accent)
+    &--center
+      background: var(--accent-soft)
+      border-color: rgba(56, 189, 248, 0.35)
+      color: var(--accent)
 
-  &:active
-    transform: scale(0.95)
-
-  &--vertical
-    flex-direction: column
-    gap: 1px
-
-  &--horizontal
-    flex-direction: row
-    gap: 3px
-
-  &--center
-    flex-direction: column
-    gap: 0
-    background: var(--accent-soft)
-    border-color: rgba(56, 189, 248, 0.35)
-    color: var(--accent)
-    font-weight: 600
-
-.pp-dpad__arrow
-  font-size: 10px
-  line-height: 1
-
-.pp-dpad__center-symbol
-  font-size: 12px
-  line-height: 1
+  &__arrow
+    font-size: 10px
+    line-height: 1
+  &__center-svg
+    display: block
+    pointer-events: none
 
 .pp-coords
   display: flex
   flex-direction: column
   gap: 6px
 
+.pp-coord-row
+  display: flex
+  align-items: center
+  gap: 6px
+
+.pp-coord-snap-btn
+  position: relative
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 30px
+  height: 30px
+  flex-shrink: 0
+  border-radius: 7px
+  background: var(--bg-tertiary)
+  border: 1px solid var(--border-subtle)
+  color: var(--text-secondary)
+  transition: all 0.12s ease
+  &:hover
+    background: var(--bg-hover)
+    color: var(--accent)
+    border-color: var(--accent)
+  &:active, &--active
+    color: var(--accent)
+    background: var(--accent-soft)
+    border-color: var(--accent)
+  svg
+    display: block
+
+.pp-blend-icon
+  font-size: 13px
+  line-height: 1
+
 .pp-coord-field
   display: flex
   align-items: center
   justify-content: space-between
   height: 30px
-  padding: 0 9px
+  padding: 0 8px
   border-radius: 7px
   background: var(--bg-tertiary)
   border: 1px solid var(--border-subtle)
-
-  &:focus-within
+  flex: 1
+  min-width: 0
+  transition: border-color 0.12s ease
+  &:hover, &:focus-within
     border-color: var(--accent)
-
-.pp-coord-field__input
-  width: 100%
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
-  font-size: 12px
-  font-weight: 500
-  color: var(--text-primary)
-
-.pp-coord-field__label
-  font-size: 11px
-  font-weight: 600
-  color: var(--text-muted)
-  margin-left: 6px
+  &__input
+    width: 100%
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+    font-size: 12px
+    font-weight: 500
+    color: var(--text-primary)
+  &__label, &__label-btn
+    font-size: 11px
+    font-weight: 600
+    color: var(--text-muted)
+    margin-left: 4px
+    user-select: none
+  &__label-btn
+    background: none
+    border: none
+    padding: 0 2px
+    cursor: pointer
+    transition: color 0.12s ease
+    &:hover
+      color: var(--accent)
 
 .pp-scale-group
   display: grid
@@ -150,6 +167,8 @@
   background: var(--bg-tertiary)
   border: 1px solid var(--border-subtle)
   gap: 2px
+  flex: 1
+  min-width: 0
 
 .pp-scale-btn
   border-radius: 5px
@@ -157,52 +176,69 @@
   font-weight: 600
   color: var(--text-secondary)
   transition: all 0.12s ease
-
-  &:hover
+  &:hover:not(&--active)
     color: var(--text-primary)
-
+    box-shadow: inset 0 0 0 1px var(--accent)
   &--active
     background: var(--accent-strong)
     color: #ffffff
+    &:hover
+      background: var(--accent)
+      color: #ffffff
 
 .pp-opacity
   display: flex
   flex-direction: column
   gap: 5px
 
-.pp-opacity__header
-  display: flex
-  align-items: center
-  justify-content: space-between
-  font-size: 11px
-  font-weight: 600
-  color: var(--text-secondary)
+  &__header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    font-size: 11px
+    font-weight: 600
+    color: var(--text-secondary)
 
-.pp-opacity__label-group
-  display: inline-flex
-  align-items: baseline
-  gap: 6px
-
-.pp-opacity__value
-  color: var(--accent)
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
-
-.pp-opacity__slider
-  -webkit-appearance: none
-  appearance: none
-  width: 100%
-  height: 5px
-  border-radius: 99px
-  background: var(--bg-tertiary)
-  cursor: pointer
-
-  &::-webkit-slider-thumb
+  &__label-group
+    display: inline-flex
+    align-items: baseline
+    gap: 6px
+  &__value
+    color: var(--accent)
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+  &__slider
     -webkit-appearance: none
     appearance: none
-    width: 15px
-    height: 15px
-    border-radius: 50%
-    background: var(--accent)
-    border: 2px solid #ffffff
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35)
+    width: 100%
+    height: 16px
+    background: transparent
     cursor: pointer
+    margin: 0
+    padding: 0
+    &::-webkit-slider-runnable-track
+      height: 4px
+      border-radius: 99px
+      background: var(--bg-tertiary)
+    &::-moz-range-track
+      height: 4px
+      border-radius: 99px
+      background: var(--bg-tertiary)
+    &::-webkit-slider-thumb
+      -webkit-appearance: none
+      appearance: none
+      width: 14px
+      height: 14px
+      border-radius: 50%
+      background: var(--accent)
+      border: 2px solid #ffffff
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35)
+      cursor: pointer
+      margin-top: -5px
+    &::-moz-range-thumb
+      width: 14px
+      height: 14px
+      border-radius: 50%
+      background: var(--accent)
+      border: 2px solid #ffffff
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35)
+      cursor: pointer

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import FloatingWindowHeader from './components/FloatingWindowHeader.vue'
+import MockupImportBar from './components/MockupImportBar.vue'
 import FolderTabs from './components/FolderTabs.vue'
 import MockupList from './components/MockupList.vue'
 import MockupPositionControls from './components/MockupPositionControls.vue'
@@ -28,7 +29,6 @@ const { startDragFloatingWindow } = useWindowDrag()
 useKeyboard()
 
 const floatingWindowRef = ref<HTMLElement | null>(null)
-let isPointerDownInWindow = false
 
 const isDockedRight = computed(
   () =>
@@ -100,22 +100,6 @@ function toggleMiniLock(): void {
     nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
   )
   focusKeyboardReceiverInShadowDom()
-}
-
-function onWindowPointerDown(): void {
-  isPointerDownInWindow = true
-  setTimeout(() => {
-    isPointerDownInWindow = false
-  }, 150)
-}
-
-function handleKeyboardReceiverBlur(): void {
-  if (isPointerDownInWindow) return
-  if (windowState.vimMode === 'move' && activeLayer.value) {
-    windowState.vimMode = 'locked'
-    updateLayer(activeLayer.value.id, { locked: true })
-    showToast(uiStrings.value.toastLocked)
-  }
 }
 
 function handleWindowClick(event: MouseEvent): void {
@@ -220,7 +204,6 @@ onUnmounted(() => {
     }"
     :data-theme="resolvedTheme"
     :style="windowPositionStyle"
-    @pointerdown="onWindowPointerDown"
     @click="handleWindowClick"
   >
     <input
@@ -230,7 +213,6 @@ onUnmounted(() => {
       tabindex="-1"
       aria-hidden="true"
       class="pp-keyboard-receiver"
-      @blur="handleKeyboardReceiverBlur"
     />
     <div
       v-if="windowState.minimized"
@@ -244,7 +226,12 @@ onUnmounted(() => {
         @click="toggleMinimized"
       >
         <span class="pp-collapse-symbol">+</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">m</span>
+        <span
+          v-if="windowState.showHotkeys"
+          class="pp-hotkey-hint pp-hotkey-hint--corner"
+        >
+          m
+        </span>
       </button>
 
       <button
@@ -259,7 +246,12 @@ onUnmounted(() => {
         <span>{{
           activeLayer?.visible ? uiStrings.hiddenMockup : uiStrings.showMockup
         }}</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">s</span>
+        <span
+          v-if="windowState.showHotkeys"
+          class="pp-hotkey-hint pp-hotkey-hint--corner-bar"
+        >
+          s
+        </span>
       </button>
 
       <button
@@ -272,13 +264,34 @@ onUnmounted(() => {
         :disabled="!activeLayer || !activeLayer.visible"
         @click="toggleMiniLock"
       >
-        <span>{{ windowState.vimMode === 'move' ? '🔒' : '🔓' }}</span>
+        <span v-if="windowState.vimMode === 'move'">🔒</span>
+        <svg
+          v-else
+          class="pp-move-icon"
+          viewBox="0 0 16 16"
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M8 1.5v13M1.5 8h13M5 4.5L8 1.5l3 3M5 11.5L8 14.5l3-3M4.5 5L1.5 8l3 3M11.5 5l3 3-3 3"
+          />
+        </svg>
         <span>{{
           windowState.vimMode === 'move'
             ? uiStrings.lockMockup
             : uiStrings.moveMockup
         }}</span>
-        <span v-if="windowState.showHotkeys" class="pp-hotkey-hint">i</span>
+        <span
+          v-if="windowState.showHotkeys"
+          class="pp-hotkey-hint pp-hotkey-hint--corner-bar"
+        >
+          i
+        </span>
       </button>
     </div>
 
@@ -286,6 +299,7 @@ onUnmounted(() => {
       <FloatingWindowHeader />
 
       <div class="pp-body">
+        <MockupImportBar />
         <div class="pp-card">
           <FolderTabs />
           <MockupList />

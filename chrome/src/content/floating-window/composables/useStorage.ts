@@ -1,11 +1,6 @@
 import { FREE_LIMITS } from '@/shared/constants'
 import { reorderItemsById } from './reorder'
-import type {
-  BreakpointType,
-  Folder,
-  LayerMetadata,
-  ScaleMode,
-} from '@/shared/types'
+import type { Folder, LayerMetadata, ScaleMode } from '@/shared/types'
 import {
   deleteLayerBlob,
   getLayerBlob,
@@ -21,6 +16,7 @@ import {
   currentUrlPath,
   ensureLayerObjectUrl,
   folders,
+  getNextFolderName,
   initStorage,
   layerObjectUrls,
   layers,
@@ -35,13 +31,6 @@ import {
   windowState,
 } from './storageState'
 import { getLayerCssDimensions, getNormalizedUrlPath } from './useUrlMatcher'
-
-function getNextFolderName(existingFolders: Folder[]): string {
-  const names = new Set(existingFolders.map((f) => f.name.trim().toLowerCase()))
-  let i = 1
-  while (names.has(`folder ${i}`)) i++
-  return `Folder ${i}`
-}
 
 export function getFolderLayerCount(folderId: string): number {
   return layers.value.filter((layer) => layer.folderId === folderId).length
@@ -168,12 +157,7 @@ export async function addLayerFromBlob(
   }
 
   const blob = normalizeImageBlob(rawBlob, rawName)
-  let inspection: {
-    naturalWidth: number
-    naturalHeight: number
-    breakpoint: BreakpointType
-  }
-
+  let inspection: Awaited<ReturnType<typeof inspectImageBlob>>
   try {
     inspection = await inspectImageBlob(blob)
   } catch {
@@ -207,6 +191,7 @@ export async function addLayerFromBlob(
     visible: true,
     locked: true,
     scaleMode: '1x',
+    blendMode: 'normal',
     naturalWidth,
     naturalHeight,
     breakpoint,
@@ -244,12 +229,31 @@ export async function removeLayer(layerId: string): Promise<void> {
   await persistLayers()
 }
 
+function getCenteredLayerX(layer: LayerMetadata): number {
+  const { width } = getLayerCssDimensions(layer)
+  const clientWidth = document.documentElement.clientWidth || window.innerWidth
+  return Math.round((clientWidth - width) / 2)
+}
+
+export async function snapActiveLayerCenterX(): Promise<void> {
+  const layer = activeLayer.value
+  if (!layer) return
+  const x = getCenteredLayerX(layer)
+  await updateLayer(layer.id, { x })
+  showToast(uiStrings.value.toastSnappedCenterX.replace('{x}', String(x)))
+}
+
+export async function snapActiveLayerTopY(): Promise<void> {
+  const layer = activeLayer.value
+  if (!layer) return
+  await updateLayer(layer.id, { y: 0 })
+  showToast(uiStrings.value.toastSnappedTopY)
+}
+
 export async function snapActiveLayerTopCenter(): Promise<void> {
   const layer = activeLayer.value
   if (!layer) return
-  const { width } = getLayerCssDimensions(layer)
-  const clientWidth = document.documentElement.clientWidth || window.innerWidth
-  const x = Math.round((clientWidth - width) / 2)
+  const x = getCenteredLayerX(layer)
   await updateLayer(layer.id, { x, y: 0 })
   showToast(uiStrings.value.toastSnappedTopCenter.replace('{x}', String(x)))
 }
@@ -260,6 +264,7 @@ export async function resetActiveLayerOrigin(): Promise<void> {
     x: 0,
     y: 0,
     scaleMode: '1x',
+    blendMode: 'normal',
     opacity: 0.5,
   })
   showToast(uiStrings.value.toastOriginReset)
@@ -295,6 +300,8 @@ export function useStorage() {
     addLayerFromBlob,
     updateLayer,
     removeLayer,
+    snapActiveLayerCenterX,
+    snapActiveLayerTopY,
     snapActiveLayerTopCenter,
     resetActiveLayerOrigin,
     setScaleMode,

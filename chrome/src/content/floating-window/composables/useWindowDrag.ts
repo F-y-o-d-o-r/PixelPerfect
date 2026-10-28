@@ -115,20 +115,37 @@ export function useWindowDrag() {
     dragOffsetX = event.clientX - rect.left
     dragOffsetY = event.clientY - rect.top
     let hasMovedBeyondThreshold = false
+    let lockedAxis: 'x' | 'y' | null = null
 
     const onPointerMove = (moveEvent: PointerEvent) => {
-      const deltaX = Math.abs(moveEvent.clientX - startClientX)
-      const deltaY = Math.abs(moveEvent.clientY - startClientY)
+      const deltaX = moveEvent.clientX - startClientX
+      const deltaY = moveEvent.clientY - startClientY
       if (!hasMovedBeyondThreshold) {
         if (
-          deltaX < DRAG_START_DISTANCE_PX &&
-          deltaY < DRAG_START_DISTANCE_PX
+          Math.abs(deltaX) < DRAG_START_DISTANCE_PX &&
+          Math.abs(deltaY) < DRAG_START_DISTANCE_PX
         ) {
           return
         }
         hasMovedBeyondThreshold = true
         isDraggingWindow.value = true
         setDragSnapHintVisible(true)
+      }
+
+      let currentClientX = moveEvent.clientX
+      let currentClientY = moveEvent.clientY
+
+      if (moveEvent.shiftKey) {
+        if (!lockedAxis && (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2)) {
+          lockedAxis = Math.abs(deltaX) >= Math.abs(deltaY) ? 'x' : 'y'
+        }
+        if (lockedAxis === 'x') {
+          currentClientY = startClientY
+        } else if (lockedAxis === 'y') {
+          currentClientX = startClientX
+        }
+      } else {
+        lockedAxis = null
       }
 
       const currentRect = windowElement.getBoundingClientRect()
@@ -142,16 +159,40 @@ export function useWindowDrag() {
       )
       const maxX = Math.max(0, viewportWidth - currentRect.width)
       const maxY = Math.max(0, viewportHeight - currentRect.height)
-      const rawLeft = Math.round(moveEvent.clientX - dragOffsetX)
-      const rawTop = Math.round(moveEvent.clientY - dragOffsetY)
+      const rawLeft = Math.round(currentClientX - dragOffsetX)
+      const rawTop = Math.round(currentClientY - dragOffsetY)
 
-      windowState.position = computeSnappedWindowPosition(
+      let nextPos = computeSnappedWindowPosition(
         rawLeft,
         rawTop,
         maxX,
         maxY,
         moveEvent.altKey
       )
+
+      if (moveEvent.shiftKey && lockedAxis === 'x') {
+        nextPos = {
+          ...nextPos,
+          y: Math.min(
+            maxY,
+            Math.max(0, Math.round(startClientY - dragOffsetY))
+          ),
+          dockEdgeY: 'none',
+          dockCorner: 'free',
+        }
+      } else if (moveEvent.shiftKey && lockedAxis === 'y') {
+        nextPos = {
+          ...nextPos,
+          x: Math.min(
+            maxX,
+            Math.max(0, Math.round(startClientX - dragOffsetX))
+          ),
+          dockEdgeX: 'none',
+          dockCorner: 'free',
+        }
+      }
+
+      windowState.position = nextPos
     }
 
     const onPointerUp = () => {
@@ -162,6 +203,7 @@ export function useWindowDrag() {
           once: true,
         })
       }
+      lockedAxis = null
       isDraggingWindow.value = false
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
