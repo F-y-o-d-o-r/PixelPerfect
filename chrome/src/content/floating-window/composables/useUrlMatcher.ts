@@ -52,8 +52,16 @@ export function getLayerCssDimensions(layer: LayerMetadata): {
   height: number
 } {
   const scaleFactor = getEffectiveScaleFactor(layer)
+  const baseWidth =
+    Number.isFinite(layer.naturalWidth) && layer.naturalWidth > 0
+      ? layer.naturalWidth
+      : 800
+  const baseHeight =
+    Number.isFinite(layer.naturalHeight) && layer.naturalHeight > 0
+      ? layer.naturalHeight
+      : 600
   return {
-    width: Math.round(layer.naturalWidth * scaleFactor),
-    height: Math.round(layer.naturalHeight * scaleFactor),
+    width: Math.max(1, Math.round(baseWidth * scaleFactor)),
+    height: Math.max(1, Math.round(baseHeight * scaleFactor)),
   }
 }

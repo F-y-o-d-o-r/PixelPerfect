@@ -159,8 +159,24 @@ watch(
   () => windowState.activeFolderId,
   (nextFolderId, previousFolderId) => {
     if (previousFolderId) rememberActiveLayerForFolder(previousFolderId)
-    if (nextFolderId)
-      windowState.activeLayerId = pickLayerIdForFolder(nextFolderId)
+    if (nextFolderId) {
+      const nextLayerId = pickLayerIdForFolder(nextFolderId)
+      windowState.activeLayerId = nextLayerId
+      if (nextLayerId) {
+        const targetLayer = layers.value.find((l) => l.id === nextLayerId)
+        if (targetLayer) {
+          if (!targetLayer.visible) {
+            layers.value = layers.value.map((l) =>
+              l.id === nextLayerId ? { ...l, visible: true } : l
+            )
+            persistLayers()
+          }
+          if (previousFolderId) {
+            showToast(targetLayer.name)
+          }
+        }
+      }
+    }
   },
   { flush: 'sync' }
 )

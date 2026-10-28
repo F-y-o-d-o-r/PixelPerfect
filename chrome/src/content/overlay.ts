@@ -58,15 +58,18 @@ function applyOverlayPositionAndVisibility(
   isMoveActive: boolean
 ): void {
   const { width, height } = getLayerCssDimensions(layer)
-  const roundedX = Math.round(layer.x)
-  const roundedY = Math.round(layer.y)
+  const roundedX = Number.isFinite(layer.x) ? Math.round(layer.x) : 0
+  const roundedY = Number.isFinite(layer.y) ? Math.round(layer.y) : 0
+  const opacity = Number.isFinite(layer.opacity)
+    ? Math.max(0, Math.min(1, layer.opacity))
+    : 0.5
 
   elements.wrapper.style.display = 'block'
   elements.wrapper.style.left = `${roundedX}px`
   elements.wrapper.style.top = `${roundedY}px`
   elements.wrapper.style.width = `${width}px`
   elements.wrapper.style.height = `${height}px`
-  elements.wrapper.style.opacity = String(layer.opacity)
+  elements.wrapper.style.opacity = String(opacity)
   elements.wrapper.classList.toggle('pp-overlay-layer--move', isMoveActive)
   if (!isMoveActive) {
     elements.movePill.style.display = 'none'

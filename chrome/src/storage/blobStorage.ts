@@ -38,16 +38,37 @@ function convertDataUrlToBlob(dataUrl: string): Blob {
     return new Blob([], { type: 'image/png' })
   }
   const header = dataUrl.slice(0, commaIndex)
-  const base64Data = dataUrl.slice(commaIndex + 1)
-  const mimeMatch = header.match(/:(.*?);/)
+  const rawData = dataUrl.slice(commaIndex + 1)
+  const mimeMatch = header.match(/^data:([^;,]+)/)
   const mimeType = mimeMatch ? mimeMatch[1] : 'image/png'
-  const binaryString = atob(base64Data)
-  const length = binaryString.length
-  const bytes = new Uint8Array(length)
-  for (let i = 0; i < length; i++) {
-    bytes[i] = binaryString.charCodeAt(i)
+  const isBase64 = header.includes(';base64')
+
+  if (!isBase64) {
+    try {
+      const decoded = decodeURIComponent(rawData)
+      return new Blob([decoded], { type: mimeType })
+    } catch {
+      return new Blob([rawData], { type: mimeType })
+    }
   }
-  return new Blob([bytes], { type: mimeType })
+
+  try {
+    const cleanBase64 = rawData.replace(/\s+/g, '')
+    const binaryString = atob(cleanBase64)
+    const length = binaryString.length
+    const bytes = new Uint8Array(length)
+    for (let i = 0; i < length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    return new Blob([bytes], { type: mimeType })
+  } catch {
+    try {
+      const decoded = decodeURIComponent(rawData)
+      return new Blob([decoded], { type: mimeType })
+    } catch {
+      return new Blob([], { type: mimeType })
+    }
+  }
 }
 
 export async function saveLayerBlob(id: string, blob: Blob): Promise<void> {

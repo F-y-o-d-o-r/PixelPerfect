@@ -70,6 +70,9 @@ export function useMockupList() {
 
   function selectLayer(layer: LayerMetadata): void {
     windowState.activeLayerId = layer.id
+    if (!layer.visible) {
+      updateLayer(layer.id, { visible: true })
+    }
     showToast(layer.name)
   }
 
