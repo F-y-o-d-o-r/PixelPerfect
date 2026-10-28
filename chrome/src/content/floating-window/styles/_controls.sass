@@ -1,0 +1,204 @@
+.pp-quickbar
+  display: grid
+  grid-template-columns: 1fr 1fr
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-subtle)
+  border-radius: 9px
+  overflow: hidden
+  height: 34px
+
+.pp-quickbar__btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 6px
+  font-size: 12px
+  font-weight: 500
+  color: var(--text-secondary)
+  border-right: 1px solid var(--border-subtle)
+  transition: background 0.12s ease, color 0.12s ease
+
+  &:last-child
+    border-right: none
+
+  &:hover
+    background: var(--bg-hover)
+    color: var(--text-primary)
+
+  &--active
+    color: var(--accent)
+    background: var(--accent-soft)
+
+.pp-origin-header
+  display: flex
+  align-items: center
+  justify-content: space-between
+  font-size: 11px
+  font-weight: 600
+  color: var(--text-secondary)
+
+.pp-origin-reset
+  font-size: 11px
+  font-weight: 600
+  color: var(--accent)
+
+  &:hover
+    text-decoration: underline
+
+.pp-origin-grid
+  display: grid
+  grid-template-columns: 108px 1fr
+  gap: 10px
+  align-items: center
+
+.pp-dpad
+  display: grid
+  grid-template-columns: repeat(3, 32px)
+  grid-template-rows: repeat(3, 30px)
+  gap: 4px
+  justify-content: center
+
+.pp-dpad__btn
+  display: flex
+  align-items: center
+  justify-content: center
+  border-radius: 7px
+  background: var(--bg-tertiary)
+  border: 1px solid var(--border-subtle)
+  color: var(--text-primary)
+  font-size: 13px
+  transition: all 0.1s ease
+
+  &:hover
+    background: var(--bg-hover)
+    border-color: var(--accent)
+    color: var(--accent)
+
+  &:active
+    transform: scale(0.95)
+
+  &--center
+    background: var(--accent-soft)
+    border-color: rgba(56, 189, 248, 0.35)
+    color: var(--accent)
+    font-weight: 600
+
+.pp-coords
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.pp-coord-field
+  display: flex
+  align-items: center
+  justify-content: space-between
+  height: 30px
+  padding: 0 9px
+  border-radius: 7px
+  background: var(--bg-tertiary)
+  border: 1px solid var(--border-subtle)
+
+  &:focus-within
+    border-color: var(--accent)
+
+.pp-coord-field__input
+  width: 100%
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+  font-size: 12px
+  font-weight: 500
+  color: var(--text-primary)
+
+.pp-coord-field__label
+  font-size: 11px
+  font-weight: 600
+  color: var(--text-muted)
+  margin-left: 6px
+
+.pp-scale-group
+  display: grid
+  grid-template-columns: repeat(3, 1fr)
+  height: 30px
+  padding: 2px
+  border-radius: 7px
+  background: var(--bg-tertiary)
+  border: 1px solid var(--border-subtle)
+  gap: 2px
+
+.pp-scale-btn
+  border-radius: 5px
+  font-size: 11px
+  font-weight: 600
+  color: var(--text-secondary)
+  transition: all 0.12s ease
+
+  &:hover
+    color: var(--text-primary)
+
+  &--active
+    background: var(--accent-strong)
+    color: #ffffff
+
+.pp-opacity
+  display: flex
+  flex-direction: column
+  gap: 5px
+
+.pp-opacity__header
+  display: flex
+  align-items: center
+  justify-content: space-between
+  font-size: 11px
+  font-weight: 600
+  color: var(--text-secondary)
+
+.pp-opacity__value
+  color: var(--accent)
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+
+.pp-opacity__slider
+  -webkit-appearance: none
+  appearance: none
+  width: 100%
+  height: 5px
+  border-radius: 99px
+  background: var(--bg-tertiary)
+  cursor: pointer
+
+  &::-webkit-slider-thumb
+    -webkit-appearance: none
+    appearance: none
+    width: 15px
+    height: 15px
+    border-radius: 50%
+    background: var(--accent)
+    border: 2px solid #ffffff
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35)
+    cursor: pointer
+
+.pp-vim-bar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 6px 9px
+  border-radius: 8px
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-subtle)
+  font-size: 11px
+  color: var(--text-secondary)
+
+.pp-vim-bar__badge
+  display: inline-flex
+  align-items: center
+  gap: 4px
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+  font-size: 10px
+  font-weight: 600
+  padding: 2px 6px
+  border-radius: 4px
+  background: var(--bg-tertiary)
+  color: var(--text-primary)
+
+  &--move
+    background: var(--accent-soft)
+    color: var(--accent)
+    border: 1px solid rgba(56, 189, 248, 0.4)

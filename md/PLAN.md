@@ -3,7 +3,7 @@
 > **Статус документа:** Актуальный рабочий план (v1.0)  
 > **Связанные документы:** [ROADMAP.md](file:///Users/fyodor/Documents/Pets/PixelPerfect/md/ROADMAP.md) (стратегия и анализ рынка), [AGENTS.md](file:///Users/fyodor/Documents/Pets/PixelPerfect/AGENTS.md) (правила проекта).
 
-> **Терминология:** «плавающее окно» — панель поверх страницы сайта (как у PerfectPixel); в коде — папка `content/hud/` (HUD). «Боковая панель» (Side Panel) — отдельная колонка Chrome сбоку от страницы; в MVP **не делаем**.
+> **Терминология:** «плавающее окно» (`floating-window`) — панель поверх страницы сайта (как у PerfectPixel); в коде — папка `content/floating-window/`. «Боковая панель» (Side Panel) — отдельная колонка Chrome сбоку от страницы; в MVP **не делаем**.
 
 ---
 
@@ -260,32 +260,43 @@
 
 ```text
 chrome/
-├── manifest.json              # Конфигурация Manifest V3 (Content Scripts on-demand + минимальные Permissions; без side_panel в MVP)
+├── public/
+│   ├── manifest.json          # Конфигурация Manifest V3 (Content Scripts on-demand + минимальные Permissions; без side_panel в MVP)
+│   └── icons/                 # Фирменные иконки PNG (16, 32, 48, 128 px)
 ├── package.json               # Зависимости (Vue 3, Vite, Sass, idb; позже pixelmatch, @supabase/supabase-js)
 ├── vite.config.ts             # Конфигурация сборки под расширение Chrome
-├── public/icons/              # Фирменные иконки PNG (16, 48, 128 px)
 ├── src/
 │   ├── background/
-│   │   └── index.ts           # Service Worker (клик по иконке, хоткеи, webNavigation, позже скриншоты/offscreen)
+│   │   └── index.ts           # Service Worker (клик по иконке, хоткеи, отправка аналитики)
 │   ├── content/
 │   │   ├── index.ts           # Точка входа Content Script (Shadow DOM: attachShadow({ mode: 'open' }))
-│   │   ├── overlay.ts         # Управление позицией макета, масштабом и прозрачностью (CSS transform, GPU)
-│   │   └── hud/               # Плавающий виджет внутри Shadow DOM
-│   │       ├── HudApp.vue     # Главный контейнер (Mini-bar и Expanded панель)
+│   │   ├── overlay.ts         # Управление рендером макета на странице (CSS transform, GPU)
+│   │   ├── overlayDrag.ts     # Логика перетаскивания макета мышью в режиме Nudge
+│   │   ├── overlayStyles.ts   # Изолированные стили для Shadow DOM макета-оверлея
+│   │   └── floating-window/   # Плавающее окно внутри Shadow DOM
+│   │       ├── FloatingWindow.vue              # Главный контейнер (Mini-bar и развернутая панель)
 │   │       ├── components/
-│   │       │   ├── LayerList.vue       # Список макетов, папки, drag & drop
-│   │       │   └── LayerControls.vue   # Позиция X/Y, D-pad, прозрачность, lock, 1x/2x/Auto
+│   │       │   ├── MockupFoldersAndList.vue    # Папки, список загруженных макетов, drag & drop
+│   │       │   └── MockupPositionControls.vue  # Координаты X/Y, D-pad, прозрачность, lock, 1x/2x/Auto
 │   │       ├── composables/
-│   │       │   ├── useTheme.ts         # Тема плавающего окна (dark по умолчанию)
-│   │       │   ├── useStorage.ts       # Метаданные в chrome.storage.local, синхронизация через onChanged
-│   │       │   └── useKeyboard.ts      # Vim-режим (event.code, capture), Locked/Nudge
+│   │       │   ├── useTheme.ts                 # Тема плавающего окна (dark / light / system)
+│   │       │   ├── useStorage.ts               # Реактивное состояние слоёв, папок и окна в chrome.storage.local
+│   │       │   ├── useUrlMatcher.ts            # Нормализация URL и проверка привязки слоёв к страницам
+│   │       │   └── useKeyboard.ts              # Vim-режим (event.code, capture), Locked/Nudge
 │   │       └── styles/
-│   │           └── hud.sass            # Sass на отступах; подключается в shadow root вручную (?inline)
+│   │           ├── floating-window.sass        # Точка сборки стилей плавающего окна (?inline)
+│   │           ├── _layout.sass                # Базовый каркас окна, шапка, мини-панель, меню
+│   │           ├── _mockups.sass               # Сетка и список макетов, папки, зона загрузки
+│   │           └── _controls.sass              # Крестовина D-Pad, поля X/Y, масштаб Retina, прозрачность
+│   ├── i18n/
+│   │   ├── config.ts          # Реестр 8 языков (en, ru, uk, el, sr, bg, ro, ka) и автоопределение языка браузера
+│   │   └── locales.ts         # Словари переводов интерфейса
 │   ├── storage/
-│   │   └── db.ts              # IndexedDB (stores: layers, blobs, folders) + версии/миграции
+│   │   └── db.ts              # IndexedDB (хранение Blob картинок и генерация превью)
 │   └── shared/
-│       ├── types.ts           # Общие типы слоев, папок, UrlBinding, настроек
-│       └── constants.ts       # Дефолты и лимиты бесплатного тарифа (FREE_LIMITS — меняется в одном месте)
+│       ├── types.ts           # Общие типы макетов, папок, UrlBinding, состояния окна
+│       ├── constants.ts       # Дефолты и лимиты бесплатного тарифа (FREE_LIMITS — меняется в одном месте)
+│       └── logger.ts          # Структурированный логгер (debug в dev, warn/error в prod)
 │
 │   # После MVP (не создавать в Спринтах 1–2):
 │   #   sidepanel/  — боковая панель Chrome (второй интерфейс)
@@ -296,19 +307,40 @@ chrome/
 
 ---
 
+### 3.1. Локализация (8 языков из `../ititi`) и Наблюдаемость (Логгер, Sentry, Amplitude)
+
+1. **Автоматическая локализация под язык браузера (`src/i18n/`):**
+   - Поддерживаются все **8 языков** основной экосистемы ITITI (`../ititi/src/i18n/config.ts` и `../EatRay`):
+     - `en` (English — язык по умолчанию / fallback)
+     - `ru` (Русский)
+     - `uk` (Українська)
+     - `el` (Ελληνικά)
+     - `sr` (Српски)
+     - `bg` (Български)
+     - `ro` (Română)
+     - `ka` (ქართული)
+   - При первом запуске расширение считывает язык интерфейса браузера через `chrome.i18n.getUILanguage()` (или `navigator.language`), приводит его к двухбуквенному коду (`ru-RU` $\rightarrow$ `ru`) и проверяет наличие в списке поддерживаемых. Если язык поддерживается — активируется он; если нет — ставится `en`. В меню плавающего окна пользователь может переключить язык вручную.
+
+2. **Логирование, Sentry и продуктовая аналитика Amplitude:**
+   - **Логгер (`src/shared/logger.ts`):** единая обёртка с префиксом `[Pixel Perfect]`. В режиме разработки (`development`) выводит `debug` и `info`, в продакшене (`production`) — только `warn` и `error`, чтобы не спамить в DevTools разработчикам, которые верстают свои сайты.
+   - **Отслеживание ошибок (`Sentry`):** используется изолированный `BrowserClient` (`@sentry/browser`) без глобальных обработчиков `window.onerror` чужой страницы, чтобы фиксировать только внутренние сбои самого расширения.
+   - **Продуктовая аналитика (`Amplitude`):** отправляется из фонового Service Worker (`background/index.ts`) по HTTP API (так как внешние скрипты запрещены в Manifest V3, а Content Script ограничен CSP проверяемого сайта). Передаются исключительно обезличенные события фичей (`mockup_added`, `vim_nudge_toggled`, `free_limit_reached`) — без отправки URL страниц или изображений пользователя.
+
+---
+
 ## 4. Пошаговый план разработки (Sprint Checklist)
 
 ### Спринт 1: Каркас расширения и плавающее окно (Фундамент)
-- [ ] Инициализировать проект в папке `chrome/` (Vite + Vue 3 Composition API + TypeScript + Sass indented syntax `.sass`).
-- [ ] Настроить `manifest.json` Manifest V3 (action без popup, `background.service_worker`; **без** `side_panel` — отложено после MVP). Клик по иконке расширения включает/выключает плавающее окно на текущей вкладке.
-- [ ] Настроить минимальные разрешения: `activeTab`, `scripting`, `storage` (+ `unlimitedStorage` при необходимости). Широкий доступ к сайтам (`optional_host_permissions` + `webNavigation`) запрашивать только по жесту пользователя при включении авто-активации макетов по URL. Не использовать `<all_urls>` по умолчанию (долгое ревью в Chrome Web Store). Подготовить текст обоснования каждого разрешения.
-- [ ] Content script инжектить **по требованию** (клик по иконке / хоткей через `chrome.scripting.executeScript`), а не на каждой странице.
-- [ ] Стили Sass подключать внутрь shadow root вручную (импорт `?inline` и вставка `<style>` в shadow root): стили из `<style lang="sass">` по умолчанию попадают в `document.head`, а не в shadow root.
-- [ ] Экспортировать и подключить утвержденные иконки расширения (`icon16.png`, `icon48.png`, `icon128.png`) из `logos/` в `chrome/public/icons/`.
-- [ ] Реализовать `useTheme.ts`:
+- [x] Инициализировать проект в папке `chrome/` (Vite + Vue 3 Composition API + TypeScript + Sass indented syntax `.sass`).
+- [x] Настроить `manifest.json` Manifest V3 (action без popup, `background.service_worker`; **без** `side_panel` — отложено после MVP). Клик по иконке расширения включает/выключает плавающее окно на текущей вкладке.
+- [x] Настроить минимальные разрешения: `activeTab`, `scripting`, `storage` (+ `unlimitedStorage` при необходимости). Широкий доступ к сайтам (`optional_host_permissions` + `webNavigation`) запрашивать только по жесту пользователя при включении авто-активации макетов по URL. Не использовать `<all_urls>` по умолчанию (долгое ревью в Chrome Web Store). Подготовить текст обоснования каждого разрешения.
+- [x] Content script инжектить **по требованию** (клик по иконке / хоткей через `chrome.scripting.executeScript`), а не на каждой странице.
+- [x] Стили Sass подключать внутрь shadow root вручную (импорт `?inline` и вставка через `adoptedStyleSheets` в shadow root): стили из `<style lang="sass">` по умолчанию попадают в `document.head`, а не в shadow root.
+- [x] Экспортировать и подключить утвержденные иконки расширения (`icon-16.png`, `icon-32.png`, `icon-48.png`, `icon-128.png`) из `logos/` в `chrome/public/icons/`.
+- [x] Реализовать `useTheme.ts`:
   - Отслеживание системной темы macOS (`prefers-color-scheme`).
   - Сохранение пользовательского выбора (`system` / `dark` / `light`).
-  - Мгновенное применение CSS-переменных и класса `.dark`.
+  - Мгновенное применение CSS-переменных и `data-theme`.
 - [ ] Реализовать компонент `SettingsModal.vue`:
   - Верстка полноэкранного матового оверлея.
   - Двухпоточная анимация наплыва створок слева и справа.

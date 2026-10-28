@@ -1,0 +1,296 @@
+:host
+  all: initial
+  position: fixed
+  z-index: 2147483647
+  top: 0
+  left: 0
+  width: 0
+  height: 0
+  margin: 0
+  padding: 0
+  border: none
+  background: transparent
+  overflow: visible
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif
+  font-size: 13px
+  line-height: 1.4
+  color: #f5f5f7
+  -webkit-font-smoothing: antialiased
+
+*, *::before, *::after
+  box-sizing: border-box
+
+button, input, select, textarea
+  font: inherit
+  color: inherit
+  background: none
+  border: none
+  margin: 0
+  padding: 0
+  outline: none
+
+button
+  cursor: pointer
+  user-select: none
+
+.pp-keyboard-receiver
+  position: fixed
+  top: 0
+  right: 0
+  width: 1px
+  height: 1px
+  opacity: 0
+  pointer-events: none
+  border: none
+  padding: 0
+  margin: 0
+  z-index: -1
+
+.pp-floating-window
+  --window-width: 300px
+  --bg-primary: rgba(24, 26, 32, 0.94)
+  --bg-secondary: rgba(38, 41, 50, 0.9)
+  --bg-tertiary: rgba(52, 56, 68, 0.75)
+  --bg-hover: rgba(255, 255, 255, 0.08)
+  --border-subtle: rgba(255, 255, 255, 0.1)
+  --border-strong: rgba(255, 255, 255, 0.18)
+  --text-primary: #f8fafc
+  --text-secondary: #94a3b8
+  --text-muted: #64748b
+  --accent: #38bdf8
+  --accent-strong: #2563eb
+  --accent-soft: rgba(56, 189, 248, 0.15)
+  --danger: #f43f5e
+  --shadow-window: 0 18px 42px rgba(0, 0, 0, 0.48), 0 0 0 1px rgba(255, 255, 255, 0.1)
+  position: fixed
+  width: var(--window-width)
+  color: var(--text-primary)
+  user-select: none
+  backdrop-filter: blur(20px) saturate(180%)
+  -webkit-backdrop-filter: blur(20px) saturate(180%)
+  transition: box-shadow 0.15s ease
+
+  &[data-theme="light"]
+    --bg-primary: rgba(246, 247, 250, 0.95)
+    --bg-secondary: #ffffff
+    --bg-tertiary: rgba(226, 232, 240, 0.75)
+    --bg-hover: rgba(15, 23, 42, 0.06)
+    --border-subtle: rgba(15, 23, 42, 0.09)
+    --border-strong: rgba(15, 23, 42, 0.16)
+    --text-primary: #0f172a
+    --text-secondary: #475569
+    --text-muted: #94a3b8
+    --accent: #2563eb
+    --accent-strong: #1d4ed8
+    --accent-soft: rgba(37, 99, 235, 0.12)
+    --shadow-window: 0 16px 38px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.08)
+
+  &--docked-corner
+    .pp-panel, .pp-minibar
+      border-top-left-radius: 0
+      border-top-right-radius: 0
+      border-bottom-right-radius: 0
+
+.pp-minibar
+  display: grid
+  grid-template-columns: 40px 1fr 1fr
+  align-items: center
+  width: var(--window-width)
+  height: 38px
+  background: var(--bg-primary)
+  border-radius: 10px
+  box-shadow: var(--shadow-window)
+  overflow: hidden
+
+.pp-minibar__expand
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 40px
+  height: 100%
+  background: var(--bg-tertiary)
+  color: var(--text-primary)
+  font-size: 16px
+  font-weight: 500
+  border-right: 1px solid var(--border-subtle)
+  cursor: grab
+
+  &:hover
+    background: var(--bg-hover)
+
+  &:active
+    cursor: grabbing
+
+.pp-minibar__btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 6px
+  height: 100%
+  padding: 0 10px
+  font-size: 12px
+  font-weight: 500
+  color: var(--text-secondary)
+  border-right: 1px solid var(--border-subtle)
+  transition: background 0.12s ease, color 0.12s ease
+
+  &:last-child
+    border-right: none
+
+  &:hover
+    background: var(--bg-hover)
+    color: var(--text-primary)
+
+  &--active
+    color: var(--accent)
+    background: var(--accent-soft)
+
+  &--disabled
+    opacity: 0.45
+    pointer-events: none
+
+.pp-panel
+  width: var(--window-width)
+  background: var(--bg-primary)
+  border-radius: 12px
+  box-shadow: var(--shadow-window)
+  display: flex
+  flex-direction: column
+  overflow: hidden
+  position: relative
+
+.pp-header
+  display: flex
+  align-items: center
+  justify-content: space-between
+  height: 38px
+  background: var(--bg-secondary)
+  border-bottom: 1px solid var(--border-subtle)
+  cursor: grab
+
+  &:active
+    cursor: grabbing
+
+.pp-header__collapse
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 40px
+  height: 100%
+  background: var(--bg-tertiary)
+  color: var(--text-primary)
+  font-size: 16px
+  border-right: 1px solid var(--border-subtle)
+
+  &:hover
+    background: var(--bg-hover)
+
+.pp-header__brand
+  display: flex
+  align-items: center
+  gap: 7px
+  font-weight: 600
+  font-size: 13px
+  letter-spacing: -0.01em
+  color: var(--text-primary)
+
+.pp-header__logo
+  width: 18px
+  height: 18px
+  border-radius: 4px
+  flex-shrink: 0
+
+.pp-header__actions
+  display: flex
+  align-items: center
+  padding-right: 6px
+  gap: 2px
+
+.pp-icon-btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 28px
+  height: 28px
+  border-radius: 6px
+  color: var(--text-secondary)
+  transition: background 0.12s ease, color 0.12s ease
+
+  &:hover
+    background: var(--bg-hover)
+    color: var(--text-primary)
+
+  &--active
+    color: var(--accent)
+    background: var(--accent-soft)
+
+.pp-dropdown
+  position: absolute
+  top: 40px
+  right: 8px
+  width: 230px
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-strong)
+  border-radius: 10px
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42)
+  padding: 5px
+  z-index: 30
+  display: flex
+  flex-direction: column
+  gap: 2px
+
+.pp-dropdown__item
+  display: flex
+  align-items: center
+  justify-content: space-between
+  width: 100%
+  padding: 7px 10px
+  border-radius: 6px
+  font-size: 12px
+  color: var(--text-primary)
+  text-align: left
+
+  &:hover
+    background: var(--bg-hover)
+
+  &--muted
+    color: var(--text-muted)
+    font-size: 11px
+    pointer-events: none
+
+.pp-dropdown__divider
+  height: 1px
+  background: var(--border-subtle)
+  margin: 3px 4px
+
+.pp-body
+  padding: 10px
+  display: flex
+  flex-direction: column
+  gap: 10px
+  max-height: calc(100vh - 50px)
+  overflow-y: auto
+
+.pp-card
+  background: var(--bg-secondary)
+  border: 1px solid var(--border-subtle)
+  border-radius: 10px
+  padding: 10px
+  display: flex
+  flex-direction: column
+  gap: 9px
+
+.pp-toast
+  position: fixed
+  bottom: 16px
+  right: 16px
+  padding: 7px 12px
+  border-radius: 8px
+  background: rgba(15, 23, 42, 0.92)
+  border: 1px solid rgba(56, 189, 248, 0.45)
+  color: #f8fafc
+  font-size: 12px
+  font-weight: 500
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4)
+  pointer-events: none
+  z-index: 2147483647
