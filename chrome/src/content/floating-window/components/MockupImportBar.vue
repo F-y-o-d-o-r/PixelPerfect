@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from './AppIcon.vue'
 import { useStorage } from '../composables/useStorage'
 import { useMockupImport } from './mockupImport'
 
@@ -25,7 +26,7 @@ const { fileInputRef, triggerFileUpload, onFileSelected, pasteFromClipboard } =
       :title="uiStrings.uploadButton"
       @click="triggerFileUpload"
     >
-      <span>⬆</span>
+      <AppIcon name="upload" :size="13" />
       <span>{{ uiStrings.uploadButton }}</span>
       <span
         v-if="windowState.showHotkeys"
@@ -40,7 +41,7 @@ const { fileInputRef, triggerFileUpload, onFileSelected, pasteFromClipboard } =
       :title="uiStrings.pasteButtonTitle"
       @click="pasteFromClipboard"
     >
-      <span>📋</span>
+      <AppIcon name="clipboard" :size="13" />
       <span>{{ uiStrings.pasteButton }}</span>
       <span
         v-if="windowState.showHotkeys"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from './AppIcon.vue'
 import { FREE_LIMITS } from '@/shared/constants'
 import { useMockupList } from './mockupList'
 
@@ -52,7 +53,7 @@ const {
           :title="uiStrings.uploadButton"
           @click="triggerFileUpload"
         >
-          ⬆
+          <AppIcon name="upload" :size="13" />
         </button>
         <button
           v-if="currentFolder"
@@ -61,7 +62,7 @@ const {
           :title="uiStrings.renameFolderTitle"
           @click="handleRenameFolder(currentFolder.id, currentFolder.name)"
         >
-          ✏️
+          <AppIcon name="pencil" :size="12" />
         </button>
         <button
           v-if="currentFolder"
@@ -75,7 +76,7 @@ const {
           "
           @click="confirmRemoveFolder(currentFolder.id)"
         >
-          🗑️
+          <AppIcon name="trash" :size="12" />
         </button>
         <button
           type="button"
@@ -87,7 +88,10 @@ const {
           "
           @click="toggleViewMode"
         >
-          {{ windowState.viewMode === 'grid' ? '☰' : '⊞' }}
+          <AppIcon
+            :name="windowState.viewMode === 'grid' ? 'list' : 'grid'"
+            :size="13"
+          />
         </button>
       </div>
     </div>
@@ -138,7 +142,7 @@ const {
             :title="uiStrings.renameTitle"
             @click="handleRenameLayer(layer.id, layer.name)"
           >
-            ✏️
+            <AppIcon name="pencil" :size="12" />
           </button>
           <button
             type="button"
@@ -146,7 +150,7 @@ const {
             :title="uiStrings.deleteTitle"
             @click="confirmRemoveLayer(layer.id)"
           >
-            🗑️
+            <AppIcon name="trash" :size="12" />
           </button>
         </div>
         <div class="pp-layer-card__footer" :title="layer.name">
@@ -197,7 +201,7 @@ const {
             :title="uiStrings.renameTitle"
             @click="handleRenameLayer(layer.id, layer.name)"
           >
-            ✏️
+            <AppIcon name="pencil" :size="12" />
           </button>
           <button
             type="button"
@@ -205,7 +209,7 @@ const {
             :title="uiStrings.deleteTitle"
             @click="confirmRemoveLayer(layer.id)"
           >
-            🗑️
+            <AppIcon name="trash" :size="12" />
           </button>
         </div>
       </div>

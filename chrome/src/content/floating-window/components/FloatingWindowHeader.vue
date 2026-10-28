@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import AppIcon from './AppIcon.vue'
 import {
   LANGUAGE_LABELS,
   SUPPORTED_LOCALES,
@@ -15,10 +16,10 @@ const { startDragFloatingWindow } = useWindowDrag()
 const isMenuOpen = ref(false)
 const isLanguageListOpen = ref(false)
 
-const themeIcon = computed(() => {
-  if (windowState.theme === 'dark') return '🌙'
-  if (windowState.theme === 'light') return '☀️'
-  return '🌗'
+const themeIconName = computed<'moon' | 'sun' | 'theme-system'>(() => {
+  if (windowState.theme === 'dark') return 'moon'
+  if (windowState.theme === 'light') return 'sun'
+  return 'theme-system'
 })
 
 const themeButtonTitle = computed(() => {
@@ -157,7 +158,7 @@ onUnmounted(() => {
         :title="themeButtonTitle"
         @click="cycleTheme"
       >
-        {{ themeIcon }}
+        <AppIcon :name="themeIconName" :size="14" />
       </button>
       <button
         type="button"
@@ -166,7 +167,7 @@ onUnmounted(() => {
         :title="uiStrings.menuTitle"
         @click="toggleMenu"
       >
-        ☰
+        <AppIcon name="menu" :size="13" />
       </button>
     </div>
   </header>
@@ -177,7 +178,10 @@ onUnmounted(() => {
       class="pp-dropdown__item"
       @click="isLanguageListOpen = !isLanguageListOpen"
     >
-      <span>🌐 {{ LANGUAGE_LABELS[windowState.locale] }}</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px">
+        <AppIcon name="globe" :size="13" />
+        {{ LANGUAGE_LABELS[windowState.locale] }}
+      </span>
       <span>{{ windowState.locale.toUpperCase() }} ▾</span>
     </button>
 
@@ -203,7 +207,7 @@ onUnmounted(() => {
       @click="resetWindowToTopRightCorner"
     >
       <span>{{ uiStrings.resetWindowCorner }}</span>
-      <span>↗</span>
+      <AppIcon name="corner-reset" :size="13" />
     </button>
     <div class="pp-dropdown__divider" />
     <div class="pp-dropdown__item pp-dropdown__item--muted">

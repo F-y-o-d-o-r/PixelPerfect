@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from './AppIcon.vue'
 import { useMockupPositionControls } from './mockupPositionControls'
 
 const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
@@ -9,7 +10,7 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
   <div class="pp-dpad">
     <div />
     <button type="button" class="pp-dpad__btn" @click="moveBy(0, -1, $event)">
-      <span class="pp-dpad__arrow">▲</span>
+      <AppIcon name="arrow-up" :size="13" />
       <span
         v-if="windowState.showHotkeys"
         class="pp-hotkey-hint pp-hotkey-hint--corner"
@@ -20,7 +21,7 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
     <div />
 
     <button type="button" class="pp-dpad__btn" @click="moveBy(-1, 0, $event)">
-      <span class="pp-dpad__arrow">◀</span>
+      <AppIcon name="arrow-left" :size="13" />
       <span
         v-if="windowState.showHotkeys"
         class="pp-hotkey-hint pp-hotkey-hint--corner"
@@ -63,7 +64,7 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
       </span>
     </button>
     <button type="button" class="pp-dpad__btn" @click="moveBy(1, 0, $event)">
-      <span class="pp-dpad__arrow">▶</span>
+      <AppIcon name="arrow-right" :size="13" />
       <span
         v-if="windowState.showHotkeys"
         class="pp-hotkey-hint pp-hotkey-hint--corner"
@@ -74,7 +75,7 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
 
     <div />
     <button type="button" class="pp-dpad__btn" @click="moveBy(0, 1, $event)">
-      <span class="pp-dpad__arrow">▼</span>
+      <AppIcon name="arrow-down" :size="13" />
       <span
         v-if="windowState.showHotkeys"
         class="pp-hotkey-hint pp-hotkey-hint--corner"

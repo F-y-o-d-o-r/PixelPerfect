@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from './AppIcon.vue'
 import MockupDpad from './MockupDpad.vue'
 import {
   SCALE_MODES,
@@ -26,7 +27,7 @@ const {
   <template v-if="activeLayer">
     <div class="pp-quickbar">
       <button type="button" class="pp-quickbar__btn" @click="toggleVisible">
-        <span>{{ activeLayer.visible ? '🙈' : '👁' }}</span>
+        <AppIcon :name="activeLayer.visible ? 'eye-off' : 'eye'" :size="14" />
         <span>{{
           activeLayer.visible ? uiStrings.hiddenMockup : uiStrings.showMockup
         }}</span>
@@ -47,23 +48,10 @@ const {
         :disabled="!activeLayer.visible"
         @click="toggleLock"
       >
-        <span v-if="windowState.vimMode === 'move'">🔒</span>
-        <svg
-          v-else
-          class="pp-move-icon"
-          viewBox="0 0 16 16"
-          width="13"
-          height="13"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path
-            d="M8 1.5v13M1.5 8h13M5 4.5L8 1.5l3 3M5 11.5L8 14.5l3-3M4.5 5L1.5 8l3 3M11.5 5l3 3-3 3"
-          />
-        </svg>
+        <AppIcon
+          :name="windowState.vimMode === 'move' ? 'lock' : 'move'"
+          :size="13"
+        />
         <span>{{
           windowState.vimMode === 'move'
             ? uiStrings.lockMockup
@@ -196,7 +184,7 @@ const {
               "
               @click="toggleInvertMode"
             >
-              <span class="pp-blend-icon">◐</span>
+              <AppIcon name="invert" :size="13" />
               <span
                 v-if="windowState.showHotkeys"
                 class="pp-hotkey-hint pp-hotkey-hint--corner"

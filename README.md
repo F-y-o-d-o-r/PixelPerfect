@@ -27,6 +27,7 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 - **Magnetic Overlay Dragging:** Snap mockup to origin (0, 0), center, or right edge while dragging, with `⌥ / Alt` to disable snapping on the fly.
 - **Smart Retina / DPI Scaling:** Fixes the 0.5x / 2x display bug on high-DPI screens with instant `[ 1x | 2x | Auto ]` toggle.
 - **8 Built-in Locales:** Native multi-language support (`en`, `ru`, `uk`, `el`, `sr`, `bg`, `ro`, `ka`) with browser auto-detection.
+- **Bespoke Unified SVG Icon System:** Zero messy emojis or platform-dependent symbols; 100% custom lightweight vector icons (`AppIcon.vue`) across the entire tool.
 - **Top Layer Web Component:** Complete style isolation via Shadow DOM (`mode: 'open'`) in Chrome's native Top Layer (`popover="manual"`).
 - **Precision Overlay & Invert Mode:** Real-time opacity slider, keyboard adjustments, and 1-click color invert (`[ ◐ ]`) for dark/light theme testing.
 - **Smart Loading & System Pages Handling:** Defaults to a clean grayscale icon while tabs are loading, transitions to the active colored icon as soon as the page is ready, and displays an informative popup on restricted browser pages (`chrome://`, Web Store).
