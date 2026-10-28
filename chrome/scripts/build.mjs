@@ -10,6 +10,7 @@ const isWatchMode = process.argv.includes('--watch')
 async function buildBackgroundServiceWorker() {
   await build({
     root: projectRoot,
+    mode: isWatchMode ? 'development' : 'production',
     configFile: false,
     publicDir: resolve(projectRoot, 'public'),
     resolve: {
@@ -20,6 +21,7 @@ async function buildBackgroundServiceWorker() {
     build: {
       outDir: resolve(projectRoot, 'dist'),
       emptyOutDir: true,
+      sourcemap: isWatchMode ? 'inline' : true,
       watch: isWatchMode ? {} : null,
       rollupOptions: {
         input: {
@@ -37,6 +39,7 @@ async function buildBackgroundServiceWorker() {
 async function buildContentScriptBundle() {
   await build({
     root: projectRoot,
+    mode: isWatchMode ? 'development' : 'production',
     configFile: false,
     publicDir: false,
     plugins: [vue()],
@@ -49,6 +52,7 @@ async function buildContentScriptBundle() {
       'process.env.NODE_ENV': JSON.stringify(
         isWatchMode ? 'development' : 'production'
       ),
+      __DEV__: JSON.stringify(isWatchMode),
       __VUE_OPTIONS_API__: false,
       __VUE_PROD_DEVTOOLS__: false,
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
@@ -56,6 +60,7 @@ async function buildContentScriptBundle() {
     build: {
       outDir: resolve(projectRoot, 'dist'),
       emptyOutDir: false,
+      sourcemap: isWatchMode ? 'inline' : true,
       watch: isWatchMode ? {} : null,
       lib: {
         entry: resolve(projectRoot, 'src/content/index.ts'),

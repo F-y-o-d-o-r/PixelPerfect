@@ -41,6 +41,13 @@ export const en = {
   confirmDeleteMockup: 'Delete this mockup?',
   confirmDeletePage: 'Delete this page and all its mockups?',
   toastCannotDeleteLastFolder: 'Cannot delete the only page',
+  toastUploadFailed: 'Failed to load mockup',
+  toastInvalidFile: 'Supported formats: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'Snapped to top-center (X: {x}, Y: 0)',
+  toastMockupAdded: 'Mockup added ({width}×{height})',
+  toastLimitFolders: 'Free limit: up to {count} pages',
+  toastLimitFolderLayers: 'Free limit: up to {count} mockups per page',
+  toastLimitTotalLayers: 'Free limit reached ({count} mockups)',
 }
 
 export type UiStrings = Record<keyof typeof en, string>

@@ -46,7 +46,8 @@ export type VimMode = 'locked' | 'move'
 export interface FloatingWindowPosition {
   x: number
   y: number
-  dockCorner?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'free'
+  dockCorner?:
+    'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'free'
   dockEdgeX?: 'left' | 'right' | 'center' | 'none'
   dockEdgeY?: 'top' | 'bottom' | 'center' | 'none'
 }

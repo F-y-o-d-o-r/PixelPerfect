@@ -34,7 +34,8 @@ export const el: UiStrings = {
   toastLocked: 'Η μακέτα κλειδώθηκε',
   toastMove: 'Λειτουργία κίνησης: h/j/k/l μετακίνηση • i / Esc κλείδωμα',
   toastOriginReset: 'Συντεταγμένες μηδενίστηκαν (0, 0)',
-  toastNoClipboardImage: 'Δεν βρέθηκε εικόνα στο πρόχειρο (χρησιμοποιήστε Cmd+V)',
+  toastNoClipboardImage:
+    'Δεν βρέθηκε εικόνα στο πρόχειρο (χρησιμοποιήστε Cmd+V)',
   toastUseKeyboardPaste: 'Πατήστε Cmd+V / Ctrl+V στη σελίδα για επικόλληση',
   promptRenamePage: 'Όνομα σελίδας:',
   promptRenameMockup: 'Όνομα μακέτας:',
@@ -42,5 +43,13 @@ export const el: UiStrings = {
   toastLayerMoved: 'Η μακέτα μεταφέρθηκε στη σελίδα',
   confirmDeleteMockup: 'Διαγραφή αυτής της μακέτας;',
   confirmDeletePage: 'Διαγραφή αυτής της σελίδας μαζί με όλες τις μακέτες της;',
-  toastCannotDeleteLastFolder: 'Δεν είναι δυνατή η διαγραφή της μοναδικής σελίδας',
+  toastCannotDeleteLastFolder:
+    'Δεν είναι δυνατή η διαγραφή της μοναδικής σελίδας',
+  toastUploadFailed: 'Αποτυχία φόρτωσης μακέτας',
+  toastInvalidFile: 'Υποστηριζόμενες μορφές: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'Ευθυγράμμιση στο άνω κέντρο (X: {x}, Y: 0)',
+  toastMockupAdded: 'Η μακέτα προστέθηκε ({width}×{height})',
+  toastLimitFolders: 'Όριο Free: έως {count} σελίδες',
+  toastLimitFolderLayers: 'Όριο Free: {count} μακέτες ανά σελίδα',
+  toastLimitTotalLayers: 'Εξαντλήθηκε το όριο Free ({count} μακέτες)',
 }

@@ -43,4 +43,11 @@ export const sr: UiStrings = {
   confirmDeleteMockup: 'Обрисати ову макету?',
   confirmDeletePage: 'Обрисати ову страницу заједно са свим макетама?',
   toastCannotDeleteLastFolder: 'Није могуће обрисати једину страницу',
+  toastUploadFailed: 'Учитавање макете није успело',
+  toastInvalidFile: 'Подржани формати: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'Причвршћено на горњи центар (X: {x}, Y: 0)',
+  toastMockupAdded: 'Макета додата ({width}×{height})',
+  toastLimitFolders: 'Free лимит: до {count} страница',
+  toastLimitFolderLayers: 'Free лимит: {count} макета по страници',
+  toastLimitTotalLayers: 'Достигнут Free лимит ({count} макета)',
 }

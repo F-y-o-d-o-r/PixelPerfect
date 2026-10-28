@@ -27,15 +27,18 @@ export const uk: UiStrings = {
   deleteTitle: 'Видалити',
   originLabel: 'КООРДИНАТИ:',
   resetLabel: 'СКИДАННЯ',
-  snapToTopCenterTitle: 'Притиснути до початку: відцентрувати по X і Y=0 (клавіша 0)',
+  snapToTopCenterTitle:
+    'Притиснути до початку: відцентрувати по X і Y=0 (клавіша 0)',
   opacityLabel: 'ПРОЗОРІСТЬ:',
   movePillMode: 'ЗСУВ',
   movePillNoSnap: 'без прилипання',
   toastLocked: 'Макет закріплено',
   toastMove: 'Режим зсуву: h/j/k/l рухати • i / Esc закріпити',
   toastOriginReset: 'Координати скинуто (0, 0)',
-  toastNoClipboardImage: 'У буфері обміну немає зображення (використовуйте Cmd+V)',
-  toastUseKeyboardPaste: 'Натисніть Cmd+V / Ctrl+V прямо на сторінці для вставки',
+  toastNoClipboardImage:
+    'У буфері обміну немає зображення (використовуйте Cmd+V)',
+  toastUseKeyboardPaste:
+    'Натисніть Cmd+V / Ctrl+V прямо на сторінці для вставки',
   promptRenamePage: 'Назва сторінки:',
   promptRenameMockup: 'Назва макета:',
   toastPageDeleted: 'Сторінку видалено',
@@ -43,4 +46,11 @@ export const uk: UiStrings = {
   confirmDeleteMockup: 'Видалити цей макет?',
   confirmDeletePage: 'Видалити цю сторінку разом з усіма макетами?',
   toastCannotDeleteLastFolder: 'Не можна видалити єдину сторінку',
+  toastUploadFailed: 'Не вдалося завантажити макет',
+  toastInvalidFile: 'Підтримуються формати: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'Притиснуто до верхнього центру (X: {x}, Y: 0)',
+  toastMockupAdded: 'Макет додано ({width}×{height})',
+  toastLimitFolders: 'Ліміт Free: до {count} сторінок',
+  toastLimitFolderLayers: 'Ліміт Free: до {count} макетів на сторінку',
+  toastLimitTotalLayers: 'Досягнуто ліміту Free ({count} макетів)',
 }

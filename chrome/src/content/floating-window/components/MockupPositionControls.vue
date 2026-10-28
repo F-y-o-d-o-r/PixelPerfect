@@ -12,6 +12,7 @@ const {
   snapActiveLayerTopCenter,
   resetActiveLayerOrigin,
   setScaleMode,
+  showToast,
 } = useStorage()
 
 const opacityPercent = computed(() =>
@@ -26,6 +27,9 @@ function toggleVisible(): void {
     windowState.vimMode = 'locked'
     updateLayer(activeLayer.value.id, { locked: true })
   }
+  showToast(
+    nextVisible ? uiStrings.value.showMockup : uiStrings.value.hiddenMockup
+  )
   focusKeyboardReceiverInShadowDom()
 }
 
@@ -34,6 +38,9 @@ function toggleLock(): void {
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
+  showToast(
+    nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
+  )
   focusKeyboardReceiverInShadowDom()
 }
 
@@ -80,12 +87,7 @@ const scaleModes: { value: ScaleMode; label: string }[] = [
 <template>
   <template v-if="activeLayer">
     <div class="pp-quickbar">
-      <button
-        type="button"
-        class="pp-quickbar__btn"
-        :class="{ 'pp-quickbar__btn--active': activeLayer.visible }"
-        @click="toggleVisible"
-      >
+      <button type="button" class="pp-quickbar__btn" @click="toggleVisible">
         <span>{{ activeLayer.visible ? '🙈' : '👁' }}</span>
         <span>{{
           activeLayer.visible ? uiStrings.hiddenMockup : uiStrings.showMockup

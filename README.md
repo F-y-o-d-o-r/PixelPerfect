@@ -15,7 +15,9 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 ## ✨ Key Features
 
 - **No Ads:** Clean, distraction-free interface right next to DevTools.
-- **Strict Page-Based Organization:** Mockups always belong to a specific page (`Page 1`, `Page 2`, etc.) with quick tab navigation, native trackpad horizontal scrolling, gap-free page auto-numbering, drag-and-drop between page tabs, remembering the last active mockup on each page, and zero unorganized clutter.
+- **Strict Page-Based Organization:** Mockups always belong to a specific page (`Page 1`, `Page 2`, etc.) with quick tab navigation, native trackpad horizontal scrolling, gap-free page auto-numbering, drag-and-drop between page tabs, in-page mockup reordering, remembering the last active mockup on each page, and zero unorganized clutter.
+- **Raster & Vector Mockup Support:** Upload PNG, JPEG, WebP, and SVG files, with native project dimension detection from `viewBox` and `width`/`height`.
+- **Centered Floating Toasts:** Real-time feedback for move mode, locking, mockup selection, and uploads in an elegant bottom-center pill capsule with blur.
 - **Safe Deletion:** Localized confirmation before deleting a mockup or a page, plus a duplicate `Upload` button next to the `MOCKUPS` header.
 - **Dark Mode Included:** Full dark theme support out of the box, 100% free (Dark `🌙`, Light `☀️`, System Auto `🌗`).
 - **Keyboard-First Controls:** Full keyboard navigation (`s` Show/Hide, `i` Move/Lock, `m` Minimize, `u` Upload, `0` Top-Center snap, `h/j/k/l` 1px/10px nudge, `- / +` & `1–9` opacity).
@@ -67,6 +69,30 @@ PixelPerfect/
 ```
 
 *(Future support planned for Mozilla Firefox in `firefox/`).*
+
+---
+
+## 🛠️ Development & Tooling
+
+```bash
+cd chrome
+
+# Install dependencies (strictly use Yarn)
+yarn
+
+# Build extension (bundles to dist/)
+yarn build
+
+# Watch mode for rapid development
+yarn dev
+
+# Type check TypeScript definitions
+yarn typecheck
+
+# Code linting & formatting checks (ESLint + Prettier)
+yarn lint
+yarn format
+```
 
 ---
 

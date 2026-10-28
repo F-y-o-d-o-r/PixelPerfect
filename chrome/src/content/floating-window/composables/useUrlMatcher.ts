@@ -39,7 +39,8 @@ export function getEffectiveScaleFactor(layer: LayerMetadata): number {
   if (layer.scaleMode === '1x') return 1
   if (layer.scaleMode === '2x') return 0.5
   const devicePixelRatio = window.devicePixelRatio || 1
-  const viewportWidth = document.documentElement.clientWidth || window.innerWidth
+  const viewportWidth =
+    document.documentElement.clientWidth || window.innerWidth
   if (devicePixelRatio >= 1.5 && layer.naturalWidth >= viewportWidth * 1.4) {
     return 0.5
   }

@@ -84,6 +84,9 @@ function toggleMiniShow(): void {
     windowState.vimMode = 'locked'
     updateLayer(activeLayer.value.id, { locked: true })
   }
+  showToast(
+    nextVisible ? uiStrings.value.showMockup : uiStrings.value.hiddenMockup
+  )
   focusKeyboardReceiverInShadowDom()
 }
 
@@ -92,6 +95,9 @@ function toggleMiniLock(): void {
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
+  showToast(
+    nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
+  )
   focusKeyboardReceiverInShadowDom()
 }
 
@@ -135,8 +141,12 @@ function clampAndSnapWindowToViewport(): void {
 
   let nextX = windowState.position.x
   let nextY = windowState.position.y
-  let nextEdgeX = windowState.position.dockEdgeX ?? (isDockedRight.value ? 'right' : isDockedLeft.value ? 'left' : 'none')
-  let nextEdgeY = windowState.position.dockEdgeY ?? (isDockedTop.value ? 'top' : isDockedBottom.value ? 'bottom' : 'none')
+  let nextEdgeX =
+    windowState.position.dockEdgeX ??
+    (isDockedRight.value ? 'right' : isDockedLeft.value ? 'left' : 'none')
+  let nextEdgeY =
+    windowState.position.dockEdgeY ??
+    (isDockedTop.value ? 'top' : isDockedBottom.value ? 'bottom' : 'none')
   let changed = false
 
   if (nextEdgeY !== 'bottom' && rect.bottom >= viewportHeight - 20) {
@@ -164,8 +174,10 @@ function clampAndSnapWindowToViewport(): void {
   let nextCorner: typeof windowState.position.dockCorner = 'free'
   if (nextEdgeX === 'right' && nextEdgeY === 'top') nextCorner = 'top-right'
   else if (nextEdgeX === 'left' && nextEdgeY === 'top') nextCorner = 'top-left'
-  else if (nextEdgeX === 'right' && nextEdgeY === 'bottom') nextCorner = 'bottom-right'
-  else if (nextEdgeX === 'left' && nextEdgeY === 'bottom') nextCorner = 'bottom-left'
+  else if (nextEdgeX === 'right' && nextEdgeY === 'bottom')
+    nextCorner = 'bottom-right'
+  else if (nextEdgeX === 'left' && nextEdgeY === 'bottom')
+    nextCorner = 'bottom-left'
 
   windowState.position = {
     x: nextX,
@@ -238,7 +250,6 @@ onUnmounted(() => {
         type="button"
         class="pp-minibar__btn"
         :class="{
-          'pp-minibar__btn--active': activeLayer?.visible,
           'pp-minibar__btn--disabled': !activeLayer,
         }"
         @click="toggleMiniShow"

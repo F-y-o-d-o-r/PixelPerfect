@@ -1,15 +1,8 @@
 import { computed, reactive, ref, watch } from 'vue'
-import {
-  DEFAULT_FLOATING_WINDOW_STATE,
-  STORAGE_KEYS,
-} from '@/shared/constants'
+import { DEFAULT_FLOATING_WINDOW_STATE, STORAGE_KEYS } from '@/shared/constants'
 import { getUiStrings } from '@/i18n/locales'
-import type {
-  FloatingWindowState,
-  Folder,
-  LayerMetadata,
-} from '@/shared/types'
-import { getLayerBlob, isExtensionContextValid } from '@/storage/db'
+import type { FloatingWindowState, Folder, LayerMetadata } from '@/shared/types'
+import { getLayerBlob, isExtensionContextValid } from '@/storage/blobStorage'
 import { getNormalizedUrlPath } from './useUrlMatcher'
 
 export const layers = ref<LayerMetadata[]>([])
@@ -139,7 +132,9 @@ function rememberActiveLayerForFolder(folderId: string): void {
 }
 
 function pickLayerIdForFolder(folderId: string): string | null {
-  const folderLayers = layers.value.filter((layer) => layer.folderId === folderId)
+  const folderLayers = layers.value.filter(
+    (layer) => layer.folderId === folderId
+  )
   const currentLayer = folderLayers.find(
     (layer) => layer.id === windowState.activeLayerId
   )
@@ -157,7 +152,8 @@ watch(
   () => windowState.activeFolderId,
   (nextFolderId, previousFolderId) => {
     if (previousFolderId) rememberActiveLayerForFolder(previousFolderId)
-    if (nextFolderId) windowState.activeLayerId = pickLayerIdForFolder(nextFolderId)
+    if (nextFolderId)
+      windowState.activeLayerId = pickLayerIdForFolder(nextFolderId)
   },
   { flush: 'sync' }
 )
@@ -243,7 +239,9 @@ export async function initStorage(): Promise<void> {
         folders.value = [defaultFolder]
         windowState.activeFolderId = defaultFolder.id
         await persistFolders()
-      } else if (!folders.value.some((f) => f.id === windowState.activeFolderId)) {
+      } else if (
+        !folders.value.some((f) => f.id === windowState.activeFolderId)
+      ) {
         windowState.activeFolderId = folders.value[0].id
       }
     } catch {

@@ -43,4 +43,11 @@ export const ka: UiStrings = {
   confirmDeleteMockup: 'წავშალოთ ეს მაკეტი?',
   confirmDeletePage: 'წავშალოთ ეს გვერდი ყველა მაკეტთან ერთად?',
   toastCannotDeleteLastFolder: 'ერთადერთი გვერდის წაშლა შეუძლებელია',
+  toastUploadFailed: 'მაკეტის ჩატვირთვა ვერ მოხერხდა',
+  toastInvalidFile: 'მხარდაჭერილი ფორმატები: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'მიმაგრებულია ზედა ცენტრზე (X: {x}, Y: 0)',
+  toastMockupAdded: 'მაკეტი დამატებულია ({width}×{height})',
+  toastLimitFolders: 'Free ლიმიტი: {count} გვერდამდე',
+  toastLimitFolderLayers: 'Free ლიმიტი: {count} მაკეტი გვერდზე',
+  toastLimitTotalLayers: 'Free ლიმიტი ამოიწურა ({count} მაკეტი)',
 }

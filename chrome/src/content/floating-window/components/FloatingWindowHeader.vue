@@ -186,7 +186,9 @@ onUnmounted(() => {
         @click="selectLocale(code)"
       >
         <span>{{ LANGUAGE_LABELS[code] }}</span>
-        <span>{{ windowState.locale === code ? '✓' : code.toUpperCase() }}</span>
+        <span>{{
+          windowState.locale === code ? '✓' : code.toUpperCase()
+        }}</span>
       </button>
     </div>
 

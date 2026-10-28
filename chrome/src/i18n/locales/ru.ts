@@ -27,7 +27,8 @@ export const ru: UiStrings = {
   deleteTitle: 'Удалить',
   originLabel: 'КООРДИНАТЫ:',
   resetLabel: 'СБРОС',
-  snapToTopCenterTitle: 'Прижать к началу: отцентрировать по X и прижать к верху Y=0 (клавиша 0)',
+  snapToTopCenterTitle:
+    'Прижать к началу: отцентрировать по X и прижать к верху Y=0 (клавиша 0)',
   opacityLabel: 'ПРОЗРАЧНОСТЬ:',
   movePillMode: 'СДВИГ',
   movePillNoSnap: 'без прилипания',
@@ -43,4 +44,11 @@ export const ru: UiStrings = {
   confirmDeleteMockup: 'Удалить этот макет?',
   confirmDeletePage: 'Удалить эту страницу вместе со всеми макетами?',
   toastCannotDeleteLastFolder: 'Нельзя удалить единственную страницу',
+  toastUploadFailed: 'Не удалось загрузить макет',
+  toastInvalidFile: 'Поддерживаются форматы: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'Прижато к верхнему центру (X: {x}, Y: 0)',
+  toastMockupAdded: 'Макет добавлен ({width}×{height})',
+  toastLimitFolders: 'Лимит Free: до {count} страниц',
+  toastLimitFolderLayers: 'Лимит Free: до {count} макетов на страницу',
+  toastLimitTotalLayers: 'Достигнут лимит Free ({count} макетов)',
 }

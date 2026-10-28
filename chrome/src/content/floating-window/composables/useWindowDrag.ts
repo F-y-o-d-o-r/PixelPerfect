@@ -120,7 +120,10 @@ export function useWindowDrag() {
       const deltaX = Math.abs(moveEvent.clientX - startClientX)
       const deltaY = Math.abs(moveEvent.clientY - startClientY)
       if (!hasMovedBeyondThreshold) {
-        if (deltaX < DRAG_START_DISTANCE_PX && deltaY < DRAG_START_DISTANCE_PX) {
+        if (
+          deltaX < DRAG_START_DISTANCE_PX &&
+          deltaY < DRAG_START_DISTANCE_PX
+        ) {
           return
         }
         hasMovedBeyondThreshold = true

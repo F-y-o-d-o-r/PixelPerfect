@@ -34,7 +34,8 @@ export const ro: UiStrings = {
   toastLocked: 'Machetă blocată',
   toastMove: 'Mod mutare: h/j/k/l mișcă • i / Esc blochează',
   toastOriginReset: 'Coordonate resetate (0, 0)',
-  toastNoClipboardImage: 'Nu există nicio imagine în clipboard (utilizați Cmd+V)',
+  toastNoClipboardImage:
+    'Nu există nicio imagine în clipboard (utilizați Cmd+V)',
   toastUseKeyboardPaste: 'Apăsați Cmd+V / Ctrl+V pe pagină pentru a lipi',
   promptRenamePage: 'Numele paginii:',
   promptRenameMockup: 'Numele machetei:',
@@ -43,4 +44,11 @@ export const ro: UiStrings = {
   confirmDeleteMockup: 'Ștergi această machetă?',
   confirmDeletePage: 'Ștergi această pagină împreună cu toate machetele?',
   toastCannotDeleteLastFolder: 'Nu se poate șterge singura pagină',
+  toastUploadFailed: 'Încărcarea machetei a eșuat',
+  toastInvalidFile: 'Formate acceptate: PNG, JPG, WebP, SVG',
+  toastSnappedTopCenter: 'Aliniat în centrul de sus (X: {x}, Y: 0)',
+  toastMockupAdded: 'Machetă adăugată ({width}×{height})',
+  toastLimitFolders: 'Limită Free: până la {count} pagini',
+  toastLimitFolderLayers: 'Limită Free: {count} machete pe pagină',
+  toastLimitTotalLayers: 'Limita Free a fost atinsă ({count} machete)',
 }

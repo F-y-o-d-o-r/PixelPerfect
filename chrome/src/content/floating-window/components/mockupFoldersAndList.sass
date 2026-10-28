@@ -2,7 +2,7 @@
   display: grid
   grid-template-columns: 1fr 1fr
   gap: 6px
-
+  margin-bottom: 6px
 .pp-btn
   display: inline-flex
   align-items: center
@@ -13,20 +13,16 @@
   border-radius: 8px
   background: var(--bg-tertiary)
   border: 1px solid var(--border-subtle)
-  font-size: 12px
-  font-weight: 500
+  font: 500 12px/1 inherit
   color: var(--text-primary)
   transition: all 0.12s ease
-
   &:hover
     background: var(--bg-hover)
     border-color: var(--border-strong)
-
   &--primary
     background: var(--accent-soft)
     border-color: rgba(56, 189, 248, 0.35)
     color: var(--accent)
-
     &:hover
       background: rgba(56, 189, 248, 0.24)
 
@@ -39,40 +35,49 @@
   font-size: 12px
   transition: border-color 0.15s ease, background 0.15s ease
   cursor: pointer
-
   &:hover, &--dragover
     border-color: var(--accent)
     background: var(--accent-soft)
     color: var(--text-primary)
-
-.pp-dropzone__title
-  font-weight: 600
-  color: var(--text-primary)
-  margin-bottom: 3px
-
-.pp-dropzone__hint
-  font-size: 11px
-  color: var(--text-muted)
+  &__title
+    font-weight: 600
+    color: var(--text-primary)
+    margin-bottom: 3px
+  &__hint
+    font-size: 11px
+    color: var(--text-muted)
 
 .pp-section-bar
   display: flex
   align-items: center
   justify-content: space-between
-  font-size: 11px
-  font-weight: 600
-  text-transform: uppercase
-  letter-spacing: 0.04em
-  color: var(--text-secondary)
-
-.pp-section-bar__left
-  display: flex
-  align-items: center
   gap: 6px
-
-.pp-section-bar__actions
-  display: flex
-  align-items: center
-  gap: 3px
+  font: 600 11px/1.2 inherit
+  color: var(--text-secondary)
+  margin-top: 0
+  margin-bottom: 6px
+  &__left
+    display: flex
+    align-items: center
+    gap: 4px
+    min-width: 0
+    flex: 1
+  &__title
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+  &__count
+    flex-shrink: 0
+    color: var(--text-muted)
+  &__actions
+    display: flex
+    align-items: center
+    gap: 2px
+    flex-shrink: 0
+    .pp-icon-btn
+      width: 24px
+      height: 24px
+      font-size: 12px
 
 .pp-pages-bar
   display: flex
@@ -80,7 +85,7 @@
   gap: 5px
   border-bottom: 1px solid var(--border-subtle)
   padding-bottom: 7px
-
+  margin-bottom: 6px
 .pp-pages-tabs
   display: flex
   align-items: center
@@ -89,7 +94,6 @@
   scrollbar-width: none
   flex: 1
   min-width: 0
-
   &::-webkit-scrollbar
     display: none
 
@@ -101,51 +105,48 @@
   border-radius: 6px
   background: var(--bg-tertiary)
   border: 1px solid var(--border-subtle)
-  font-size: 11px
-  font-weight: 500
+  font: 500 11px/1.2 inherit
   color: var(--text-secondary)
   cursor: pointer
   white-space: nowrap
   flex-shrink: 0
   transition: all 0.12s ease
-
   &:hover
     background: var(--bg-hover)
     color: var(--text-primary)
-
   &--active
     background: var(--accent-soft)
     border-color: rgba(56, 189, 248, 0.4)
     color: var(--accent)
     font-weight: 600
-
+    .pp-page-tab__count
+      background: var(--accent)
+      border-color: var(--accent)
+      color: #ffffff
   &--dragover
     background: var(--accent-soft)
     border-color: var(--accent)
     color: var(--accent)
     box-shadow: inset 0 0 0 1px var(--accent)
-
-.pp-page-tab__count
-  display: inline-flex
-  align-items: center
-  justify-content: center
-  min-width: 17px
-  height: 16px
-  padding: 0 4px
-  border-radius: 99px
-  font-size: 10px
-  font-weight: 600
-  line-height: 1
-  background: var(--bg-hover)
-  border: 1px solid var(--border-strong)
-  color: var(--text-primary)
-  box-sizing: border-box
-
-.pp-page-tab--active .pp-page-tab__count
-  background: var(--accent)
-  border-color: var(--accent)
-  color: #ffffff
-
+  &__name
+    max-width: 82px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    display: inline-block
+  &__count
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    min-width: 17px
+    height: 16px
+    padding: 0 4px
+    border-radius: 99px
+    font: 600 10px/1 inherit
+    background: var(--bg-hover)
+    border: 1px solid var(--border-strong)
+    color: var(--text-primary)
+    box-sizing: border-box
 .pp-page-add-btn
   width: 24px
   height: 24px
@@ -153,91 +154,96 @@
   border-radius: 5px
   background: var(--bg-tertiary)
   font-size: 14px
-
 .pp-layers-grid
   display: grid
-  grid-template-columns: repeat(3, 1fr)
-  gap: 7px
-
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: 6px
+  width: 100%
+  box-sizing: border-box
 .pp-layers-list
   display: flex
   flex-direction: column
-  gap: 5px
-
+  gap: 6px
+  width: 100%
+  box-sizing: border-box
 .pp-layer-card
   position: relative
+  min-width: 0
+  width: 100%
+  box-sizing: border-box
   border-radius: 8px
   border: 1.5px solid var(--border-subtle)
-  background: var(--bg-tertiary)
-  overflow: hidden
+  background: var(--bg-secondary)
   cursor: move
-  transition: border-color 0.12s ease, transform 0.12s ease
-
+  transition: border-color 0.12s ease
   &:hover
     border-color: var(--border-strong)
-
     .pp-layer-card__tools
       opacity: 1
-
   &--active
     border-color: var(--accent)
     box-shadow: 0 0 0 2px var(--accent-soft)
-
+    .pp-layer-card__footer
+      background: var(--accent-strong)
+      color: #ffffff
   &--dragging
-    opacity: 0.4
-    transform: scale(0.96)
-
-.pp-layer-card__thumb
-  width: 100%
-  height: 58px
-  object-fit: cover
-  object-position: top center
-  display: block
-  background: rgba(0, 0, 0, 0.2)
-
-.pp-layer-card__footer
-  padding: 4px 6px
-  font-size: 11px
-  font-weight: 500
-  white-space: nowrap
-  overflow: hidden
-  text-overflow: ellipsis
-  background: var(--bg-secondary)
-  color: var(--text-primary)
-
-.pp-layer-card--active .pp-layer-card__footer
-  background: var(--accent-strong)
-  color: #ffffff
-
-.pp-layer-card__tools
-  position: absolute
-  top: 3px
-  right: 3px
-  display: flex
-  gap: 2px
-  opacity: 0
-  transition: opacity 0.12s ease
-  background: rgba(15, 23, 42, 0.78)
-  padding: 2px
-  border-radius: 5px
-
-.pp-layer-card__tool-btn
-  width: 20px
-  height: 20px
-  display: inline-flex
-  align-items: center
-  justify-content: center
-  border-radius: 4px
-  color: #f8fafc
-  font-size: 11px
-
-  &:hover
-    background: rgba(255, 255, 255, 0.2)
-
-  &--danger:hover
-    background: var(--danger)
-
+    opacity: 0.35
+  &--drop-before::before, &--drop-after::before
+    content: ''
+    position: absolute
+    top: 4px
+    bottom: 4px
+    width: 2px
+    border-radius: 99px
+    background: var(--accent)
+    box-shadow: 0 0 4px rgba(56, 189, 248, 0.85)
+    z-index: 25
+    pointer-events: none
+  &--drop-before::before
+    left: -5.5px
+  &--drop-after::before
+    right: -5.5px
+  &__thumb
+    width: 100%
+    height: 58px
+    object-fit: cover
+    object-position: top center
+    display: block
+    border-radius: 6px 6px 0 0
+    background: rgba(0, 0, 0, 0.2)
+  &__footer
+    padding: 4px 6px
+    font: 500 11px/1.2 inherit
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    border-radius: 0 0 6px 6px
+    background: var(--bg-secondary)
+    color: var(--text-primary)
+  &__tools
+    position: absolute
+    top: 3px
+    right: 3px
+    display: flex
+    gap: 2px
+    opacity: 0
+    transition: opacity 0.12s ease
+    background: rgba(15, 23, 42, 0.78)
+    padding: 2px
+    border-radius: 5px
+  &__tool-btn
+    width: 20px
+    height: 20px
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    border-radius: 4px
+    color: #f8fafc
+    font: 11px/1 inherit
+    &:hover
+      background: rgba(255, 255, 255, 0.2)
 .pp-layer-row
+  position: relative
   display: flex
   align-items: center
   justify-content: space-between
@@ -245,38 +251,48 @@
   padding: 6px 8px
   border-radius: 8px
   border: 1.5px solid var(--border-subtle)
-  background: var(--bg-tertiary)
+  background: var(--bg-secondary)
   cursor: move
-
+  transition: border-color 0.12s ease
+  &:hover
+    border-color: var(--border-strong)
   &--active
     border-color: var(--accent)
     background: var(--accent-soft)
-
   &--dragging
-    opacity: 0.4
-    transform: scale(0.98)
-
-.pp-layer-row__left
-  display: flex
-  align-items: center
-  gap: 8px
-  min-width: 0
-  flex: 1
-
-.pp-layer-row__thumb
-  width: 34px
-  height: 26px
-  border-radius: 4px
-  object-fit: cover
-  flex-shrink: 0
-
-.pp-layer-row__title
-  font-size: 12px
-  font-weight: 500
-  white-space: nowrap
-  overflow: hidden
-  text-overflow: ellipsis
-
-.pp-layer-row__meta
-  font-size: 10px
-  color: var(--text-muted)
+    opacity: 0.35
+  &--drop-before::before, &--drop-after::before
+    content: ''
+    position: absolute
+    left: 6px
+    right: 6px
+    height: 2px
+    border-radius: 99px
+    background: var(--accent)
+    box-shadow: 0 0 4px rgba(56, 189, 248, 0.85)
+    z-index: 25
+    pointer-events: none
+  &--drop-before::before
+    top: -5.5px
+  &--drop-after::before
+    bottom: -5.5px
+  &__left
+    display: flex
+    align-items: center
+    gap: 8px
+    min-width: 0
+    flex: 1
+  &__thumb
+    width: 34px
+    height: 26px
+    border-radius: 4px
+    object-fit: cover
+    flex-shrink: 0
+  &__title
+    font: 500 12px/1.2 inherit
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+  &__meta
+    font-size: 10px
+    color: var(--text-muted)

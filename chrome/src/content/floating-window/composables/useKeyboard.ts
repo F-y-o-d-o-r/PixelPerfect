@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 import { DOM_HOST_IDS } from '@/shared/constants'
-import { isExtensionContextValid } from '@/storage/db'
+import { isExtensionContextValid } from '@/storage/blobStorage'
 import { useStorage } from './useStorage'
 
 const KEYBOARD_TRAP_ID = 'pp-keyboard-focus-receiver'
@@ -88,9 +88,10 @@ export function useKeyboard(): void {
     if (!layer) return
     event.preventDefault()
     event.stopImmediatePropagation()
-    const nextOpacity = Math.round(
-      Math.min(1, Math.max(0.05, layer.opacity + deltaOpacity)) * 100
-    ) / 100
+    const nextOpacity =
+      Math.round(
+        Math.min(1, Math.max(0.05, layer.opacity + deltaOpacity)) * 100
+      ) / 100
     updateLayer(layer.id, { opacity: nextOpacity })
   }
 

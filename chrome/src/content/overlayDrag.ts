@@ -1,6 +1,6 @@
 import { DOM_HOST_IDS } from '@/shared/constants'
 import type { LayerMetadata } from '@/shared/types'
-import { isExtensionContextValid } from '@/storage/db'
+import { isExtensionContextValid } from '@/storage/blobStorage'
 import { focusKeyboardReceiverInShadowDom } from './floating-window/composables/useKeyboard'
 import { useStorage } from './floating-window/composables/useStorage'
 import { getLayerCssDimensions } from './floating-window/composables/useUrlMatcher'

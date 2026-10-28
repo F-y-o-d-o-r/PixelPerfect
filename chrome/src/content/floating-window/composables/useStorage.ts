@@ -1,5 +1,6 @@
 import { FREE_LIMITS } from '@/shared/constants'
 import type {
+  BreakpointType,
   Folder,
   LayerMetadata,
   ScaleMode,
@@ -8,8 +9,9 @@ import {
   deleteLayerBlob,
   getLayerBlob,
   inspectImageBlob,
+  normalizeImageBlob,
   saveLayerBlob,
-} from '@/storage/db'
+} from '@/storage/blobStorage'
 import {
   activeLayer,
   autoSelectLayerForUrl,
@@ -31,10 +33,7 @@ import {
   visibleFolders,
   windowState,
 } from './storageState'
-import {
-  getLayerCssDimensions,
-  getNormalizedUrlPath,
-} from './useUrlMatcher'
+import { getLayerCssDimensions, getNormalizedUrlPath } from './useUrlMatcher'
 
 function getNextPageName(existingFolders: Folder[]): string {
   const existingNames = new Set(
@@ -53,7 +52,12 @@ export function getFolderLayerCount(folderId: string): number {
 
 export async function addFolder(name?: string): Promise<Folder | null> {
   if (visibleFolders.value.length >= FREE_LIMITS.maxFolders) {
-    showToast(`Free limit: up to ${FREE_LIMITS.maxFolders} folders`)
+    showToast(
+      uiStrings.value.toastLimitFolders.replace(
+        '{count}',
+        String(FREE_LIMITS.maxFolders)
+      )
+    )
     return null
   }
   const folderName = name?.trim() || getNextPageName(folders.value)
@@ -77,8 +81,8 @@ export async function renameFolder(
 ): Promise<void> {
   const trimmed = newName.trim()
   if (!trimmed) return
-  folders.value = folders.value.map((folder) =>
-    folder.id === folderId ? { ...folder, name: trimmed } : folder
+  folders.value = folders.value.map((f) =>
+    f.id === folderId ? { ...f, name: trimmed } : f
   )
   await persistFolders()
 }
@@ -89,24 +93,22 @@ export async function removeFolder(folderId: string): Promise<void> {
     return
   }
 
-  const layersToRemove = layers.value.filter(
-    (layer) => layer.folderId === folderId
-  )
+  const layersToRemove = layers.value.filter((l) => l.folderId === folderId)
   for (const layer of layersToRemove) {
     revokeLayerObjectUrl(layer.id)
     await deleteLayerBlob(layer.id)
   }
-  layers.value = layers.value.filter((layer) => layer.folderId !== folderId)
-  folders.value = folders.value.filter((folder) => folder.id !== folderId)
+  layers.value = layers.value.filter((l) => l.folderId !== folderId)
+  folders.value = folders.value.filter((f) => f.id !== folderId)
 
   if (
     windowState.activeFolderId === folderId ||
-    !folders.value.some((folder) => folder.id === windowState.activeFolderId)
+    !folders.value.some((f) => f.id === windowState.activeFolderId)
   ) {
-    windowState.activeFolderId = folders.value[0].id
+    windowState.activeFolderId = folders.value[0]?.id ?? ''
   }
 
-  if (layersToRemove.some((layer) => layer.id === windowState.activeLayerId)) {
+  if (layersToRemove.some((l) => l.id === windowState.activeLayerId)) {
     windowState.activeLayerId = currentFolderLayers.value[0]?.id ?? null
   }
   await Promise.all([persistLayers(), persistFolders()])
@@ -127,24 +129,65 @@ export async function moveLayerToFolder(
   showToast(uiStrings.value.toastLayerMoved)
 }
 
+export async function reorderLayers(
+  sourceLayerId: string,
+  targetLayerId: string,
+  position: 'before' | 'after' = 'before'
+): Promise<void> {
+  if (sourceLayerId === targetLayerId) return
+  const current = [...layers.value]
+  const sourceIndex = current.findIndex((l) => l.id === sourceLayerId)
+  if (sourceIndex === -1) return
+  const [moved] = current.splice(sourceIndex, 1)
+
+  const targetIndex = current.findIndex((l) => l.id === targetLayerId)
+  if (targetIndex === -1) return
+
+  const insertIndex = position === 'after' ? targetIndex + 1 : targetIndex
+  current.splice(insertIndex, 0, moved)
+  layers.value = current
+  await persistLayers()
+}
+
 export async function addLayerFromBlob(
-  blob: Blob,
+  rawBlob: Blob,
   rawName?: string
 ): Promise<LayerMetadata | null> {
   const folderLayers = currentFolderLayers.value
   if (folderLayers.length >= FREE_LIMITS.maxLayersPerFolder) {
     showToast(
-      `Free limit: ${FREE_LIMITS.maxLayersPerFolder} mockups per folder (${FREE_LIMITS.maxFolders}×${FREE_LIMITS.maxLayersPerFolder})`
+      uiStrings.value.toastLimitFolderLayers.replace(
+        '{count}',
+        String(FREE_LIMITS.maxLayersPerFolder)
+      )
     )
     return null
   }
   if (layers.value.length >= FREE_LIMITS.maxTotalLayers) {
-    showToast(`Free limit reached (${FREE_LIMITS.maxTotalLayers} mockups)`)
+    showToast(
+      uiStrings.value.toastLimitTotalLayers.replace(
+        '{count}',
+        String(FREE_LIMITS.maxTotalLayers)
+      )
+    )
     return null
   }
 
-  const { naturalWidth, naturalHeight, breakpoint } =
-    await inspectImageBlob(blob)
+  const blob = normalizeImageBlob(rawBlob, rawName)
+  let inspection: {
+    naturalWidth: number
+    naturalHeight: number
+    breakpoint: BreakpointType
+  }
+
+  try {
+    inspection = await inspectImageBlob(blob)
+  } catch {
+    showToast(uiStrings.value.toastUploadFailed)
+    return null
+  }
+
+  const { naturalWidth, naturalHeight, breakpoint } = inspection
 
   const id = `lyr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
   await saveLayerBlob(id, blob)
@@ -179,7 +222,11 @@ export async function addLayerFromBlob(
   layers.value = [...layers.value, layer]
   windowState.activeLayerId = layer.id
   await persistLayers()
-  showToast(`Mockup added (${naturalWidth}×${naturalHeight})`)
+  showToast(
+    uiStrings.value.toastMockupAdded
+      .replace('{width}', String(naturalWidth))
+      .replace('{height}', String(naturalHeight))
+  )
   return layer
 }
 
@@ -210,20 +257,23 @@ export async function snapActiveLayerTopCenter(): Promise<void> {
   const clientWidth = document.documentElement.clientWidth || window.innerWidth
   const x = Math.round((clientWidth - width) / 2)
   await updateLayer(layer.id, { x, y: 0 })
-  showToast(`Snapped to top-center (X: ${x}, Y: 0)`)
+  showToast(uiStrings.value.toastSnappedTopCenter.replace('{x}', String(x)))
 }
 
 export async function resetActiveLayerOrigin(): Promise<void> {
-  const layer = activeLayer.value
-  if (!layer) return
-  await updateLayer(layer.id, { x: 0, y: 0, scaleMode: '1x', opacity: 0.5 })
+  if (!activeLayer.value) return
+  await updateLayer(activeLayer.value.id, {
+    x: 0,
+    y: 0,
+    scaleMode: '1x',
+    opacity: 0.5,
+  })
   showToast(uiStrings.value.toastOriginReset)
 }
 
 export async function setScaleMode(mode: ScaleMode): Promise<void> {
-  const layer = activeLayer.value
-  if (!layer) return
-  await updateLayer(layer.id, { scaleMode: mode })
+  if (activeLayer.value)
+    await updateLayer(activeLayer.value.id, { scaleMode: mode })
 }
 
 export function useStorage() {
@@ -246,6 +296,7 @@ export function useStorage() {
     renameFolder,
     removeFolder,
     moveLayerToFolder,
+    reorderLayers,
     addLayerFromBlob,
     updateLayer,
     removeLayer,

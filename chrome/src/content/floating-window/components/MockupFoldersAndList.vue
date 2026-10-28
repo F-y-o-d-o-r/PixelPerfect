@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { FREE_LIMITS } from '@/shared/constants'
 import { useMockupFoldersAndList } from './mockupFoldersAndList'
 import { useStorage } from '../composables/useStorage'
@@ -13,84 +12,35 @@ const {
   windowState,
   uiStrings,
   getFolderLayerCount,
-  addFolder,
-  renameFolder,
-  moveLayerToFolder,
-  updateLayer,
 } = useStorage()
 
 const {
   fileInputRef,
   isDragOver,
+  draggedLayerId,
+  dragOverFolderId,
+  dragOverLayerId,
+  dropPosition,
   triggerFileUpload,
   onFileSelected,
   onDropFiles,
   pasteFromClipboard,
   confirmRemoveLayer,
   confirmRemoveFolder,
+  onLayerDragStart,
+  onLayerDragEnd,
+  onDragOverFolder,
+  onDragLeaveFolder,
+  onDropOnFolder,
+  onDragOverLayer,
+  onDragLeaveLayer,
+  onDropOnLayer,
+  selectLayer,
+  handleCreateFolder,
+  handleRenameFolder,
+  handleRenameLayer,
+  toggleViewMode,
 } = useMockupFoldersAndList()
-
-const draggedLayerId = ref<string | null>(null)
-const dragOverFolderId = ref<string | null>(null)
-
-async function handleCreateFolder(): Promise<void> {
-  const created = await addFolder()
-  if (created) {
-    windowState.activeFolderId = created.id
-  }
-}
-
-function handleRenameFolder(folderId: string, currentName: string): void {
-  const nextName = window.prompt(uiStrings.value.promptRenamePage, currentName)
-  if (nextName && nextName.trim()) {
-    renameFolder(folderId, nextName.trim())
-  }
-}
-
-function handleRenameLayer(layerId: string, currentName: string): void {
-  const nextName = window.prompt(uiStrings.value.promptRenameMockup, currentName)
-  if (nextName && nextName.trim()) {
-    updateLayer(layerId, { name: nextName.trim() })
-  }
-}
-
-function onLayerDragStart(event: DragEvent, layerId: string): void {
-  draggedLayerId.value = layerId
-  if (event.dataTransfer) {
-    event.dataTransfer.setData('text/plain', layerId)
-    event.dataTransfer.effectAllowed = 'move'
-  }
-}
-
-function onLayerDragEnd(): void {
-  draggedLayerId.value = null
-  dragOverFolderId.value = null
-}
-
-function onDragOverFolder(event: DragEvent, folderId: string): void {
-  event.preventDefault()
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = 'move'
-  }
-  dragOverFolderId.value = folderId
-}
-
-function onDragLeaveFolder(folderId: string): void {
-  if (dragOverFolderId.value === folderId) {
-    dragOverFolderId.value = null
-  }
-}
-
-async function onDropOnFolder(folderId: string): Promise<void> {
-  if (!draggedLayerId.value) return
-  await moveLayerToFolder(draggedLayerId.value, folderId)
-  draggedLayerId.value = null
-  dragOverFolderId.value = null
-}
-
-function toggleViewMode(): void {
-  windowState.viewMode = windowState.viewMode === 'grid' ? 'list' : 'grid'
-}
 </script>
 
 <template>
@@ -99,7 +49,7 @@ function toggleViewMode(): void {
       id="pp-file-upload-input"
       ref="fileInputRef"
       type="file"
-      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+      accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg,.png,.jpg,.jpeg,.webp"
       multiple
       style="display: none"
       @change="onFileSelected"
@@ -134,13 +84,16 @@ function toggleViewMode(): void {
             'pp-page-tab--active': currentFolder?.id === folder.id,
             'pp-page-tab--dragover': dragOverFolderId === folder.id,
           }"
+          :title="folder.name"
           @click="windowState.activeFolderId = folder.id"
           @dragover="onDragOverFolder($event, folder.id)"
           @dragleave="onDragLeaveFolder(folder.id)"
           @drop.prevent="onDropOnFolder(folder.id)"
         >
           <span class="pp-page-tab__name">{{ folder.name }}</span>
-          <span class="pp-page-tab__count">{{ getFolderLayerCount(folder.id) }}</span>
+          <span class="pp-page-tab__count">{{
+            getFolderLayerCount(folder.id)
+          }}</span>
         </button>
       </div>
 
@@ -155,8 +108,18 @@ function toggleViewMode(): void {
     </div>
 
     <div class="pp-section-bar">
-      <div class="pp-section-bar__left">
-        <span>{{ uiStrings.layersHeader }} ({{ currentFolderLayers.length }}/{{ FREE_LIMITS.maxLayersPerFolder }})</span>
+      <div
+        class="pp-section-bar__left"
+        :title="currentFolder?.name || uiStrings.layersHeader"
+      >
+        <span class="pp-section-bar__title">{{
+          currentFolder?.name || uiStrings.layersHeader
+        }}</span>
+        <span class="pp-section-bar__count"
+          >({{ currentFolderLayers.length }}/{{
+            FREE_LIMITS.maxLayersPerFolder
+          }})</span
+        >
       </div>
 
       <div class="pp-section-bar__actions">
@@ -182,7 +145,11 @@ function toggleViewMode(): void {
           type="button"
           class="pp-icon-btn"
           :class="{ 'pp-icon-btn--disabled': folders.length <= 1 }"
-          :title="folders.length <= 1 ? uiStrings.toastCannotDeleteLastFolder : uiStrings.deleteFolderTitle"
+          :title="
+            folders.length <= 1
+              ? uiStrings.toastCannotDeleteLastFolder
+              : uiStrings.deleteFolderTitle
+          "
           @click="confirmRemoveFolder(currentFolder.id)"
         >
           🗑️
@@ -190,7 +157,11 @@ function toggleViewMode(): void {
         <button
           type="button"
           class="pp-icon-btn"
-          :title="windowState.viewMode === 'grid' ? uiStrings.listViewTitle : uiStrings.gridViewTitle"
+          :title="
+            windowState.viewMode === 'grid'
+              ? uiStrings.listViewTitle
+              : uiStrings.gridViewTitle
+          "
           @click="toggleViewMode"
         >
           {{ windowState.viewMode === 'grid' ? '☰' : '⊞' }}
@@ -225,11 +196,18 @@ function toggleViewMode(): void {
         :class="{
           'pp-layer-card--active': activeLayer?.id === layer.id,
           'pp-layer-card--dragging': draggedLayerId === layer.id,
+          'pp-layer-card--drop-before':
+            dragOverLayerId === layer.id && dropPosition === 'before',
+          'pp-layer-card--drop-after':
+            dragOverLayerId === layer.id && dropPosition === 'after',
         }"
         draggable="true"
         @dragstart="onLayerDragStart($event, layer.id)"
         @dragend="onLayerDragEnd"
-        @click="windowState.activeLayerId = layer.id"
+        @dragover="onDragOverLayer($event, layer.id)"
+        @dragleave="onDragLeaveLayer(layer.id)"
+        @drop.prevent="onDropOnLayer(layer.id)"
+        @click="selectLayer(layer)"
       >
         <img
           v-if="layerObjectUrls[layer.id]"
@@ -248,18 +226,26 @@ function toggleViewMode(): void {
           </button>
           <button
             type="button"
-            class="pp-layer-card__tool-btn pp-layer-card__tool-btn--danger"
+            class="pp-layer-card__tool-btn"
             :title="uiStrings.deleteTitle"
             @click="confirmRemoveLayer(layer.id)"
           >
             🗑️
           </button>
         </div>
-        <div class="pp-layer-card__footer" :title="layer.name">{{ layer.name }}</div>
+        <div class="pp-layer-card__footer" :title="layer.name">
+          {{ layer.name }}
+        </div>
       </div>
     </div>
 
-    <div v-else class="pp-layers-list" @dragover.prevent="isDragOver = true" @dragleave.prevent="isDragOver = false" @drop.prevent="onDropFiles">
+    <div
+      v-else
+      class="pp-layers-list"
+      @dragover.prevent="isDragOver = true"
+      @dragleave.prevent="isDragOver = false"
+      @drop.prevent="onDropFiles"
+    >
       <div
         v-for="layer in currentFolderLayers"
         :key="layer.id"
@@ -267,22 +253,51 @@ function toggleViewMode(): void {
         :class="{
           'pp-layer-row--active': activeLayer?.id === layer.id,
           'pp-layer-row--dragging': draggedLayerId === layer.id,
+          'pp-layer-row--drop-before':
+            dragOverLayerId === layer.id && dropPosition === 'before',
+          'pp-layer-row--drop-after':
+            dragOverLayerId === layer.id && dropPosition === 'after',
         }"
         draggable="true"
         @dragstart="onLayerDragStart($event, layer.id)"
         @dragend="onLayerDragEnd"
-        @click="windowState.activeLayerId = layer.id"
+        @dragover="onDragOverLayer($event, layer.id)"
+        @dragleave="onDragLeaveLayer(layer.id)"
+        @drop.prevent="onDropOnLayer(layer.id)"
+        @click="selectLayer(layer)"
       >
         <div class="pp-layer-row__left">
-          <img v-if="layerObjectUrls[layer.id]" :src="layerObjectUrls[layer.id]" :alt="layer.name" class="pp-layer-row__thumb" />
+          <img
+            v-if="layerObjectUrls[layer.id]"
+            :src="layerObjectUrls[layer.id]"
+            :alt="layer.name"
+            class="pp-layer-row__thumb"
+          />
           <div style="min-width: 0">
             <div class="pp-layer-row__title">{{ layer.name }}</div>
-            <div class="pp-layer-row__meta">{{ layer.naturalWidth }}×{{ layer.naturalHeight }} · {{ layer.scaleMode }}</div>
+            <div class="pp-layer-row__meta">
+              {{ layer.naturalWidth }}×{{ layer.naturalHeight }} ·
+              {{ layer.scaleMode }}
+            </div>
           </div>
         </div>
         <div style="display: flex; gap: 3px" @click.stop>
-          <button type="button" class="pp-icon-btn" :title="uiStrings.renameTitle" @click="handleRenameLayer(layer.id, layer.name)">✏️</button>
-          <button type="button" class="pp-icon-btn" :title="uiStrings.deleteTitle" @click="confirmRemoveLayer(layer.id)">🗑️</button>
+          <button
+            type="button"
+            class="pp-icon-btn"
+            :title="uiStrings.renameTitle"
+            @click="handleRenameLayer(layer.id, layer.name)"
+          >
+            ✏️
+          </button>
+          <button
+            type="button"
+            class="pp-icon-btn"
+            :title="uiStrings.deleteTitle"
+            @click="confirmRemoveLayer(layer.id)"
+          >
+            🗑️
+          </button>
         </div>
       </div>
     </div>

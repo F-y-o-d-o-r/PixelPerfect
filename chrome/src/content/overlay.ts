@@ -31,9 +31,7 @@ function getOrCreateOverlayShadowRoot(): ShadowRoot {
   return shadowRoot
 }
 
-function renderMovePillHtml(strings: {
-  movePillNoSnap: string
-}): string {
+function renderMovePillHtml(strings: { movePillNoSnap: string }): string {
   return `<kbd>⌥/Alt</kbd> ${strings.movePillNoSnap}`
 }
 
