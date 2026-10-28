@@ -23,7 +23,7 @@ export const STORAGE_KEYS = {
 } as const
 
 export const DEFAULT_FLOATING_WINDOW_STATE: FloatingWindowState = {
-  visible: true,
+  visible: false,
   minimized: false,
   showHotkeys: false,
   position: {

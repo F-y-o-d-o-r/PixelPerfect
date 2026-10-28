@@ -54,26 +54,30 @@ async function syncTabActionState(
 
   const isRestricted = Boolean(targetUrl && isRestrictedBrowserUrl(targetUrl))
 
-  if (isRestricted) {
-    chrome.action.setIcon({ tabId, path: DISABLED_ICONS })
-    chrome.action.setPopup({ tabId, popup: RESTRICTED_POPUP_PATH })
-    chrome.action.setTitle({
+  try {
+    if (isRestricted) {
+      await chrome.action.setIcon({ tabId, path: DISABLED_ICONS })
+      await chrome.action.setPopup({ tabId, popup: RESTRICTED_POPUP_PATH })
+      await chrome.action.setTitle({
+        tabId,
+        title: 'Pixel Perfect cannot be used on this page',
+      })
+      return
+    }
+
+    await chrome.action.setPopup({ tabId, popup: '' })
+    await chrome.action.setTitle({
       tabId,
-      title: 'Pixel Perfect cannot be used on this page',
+      title: 'Pixel Perfect by ITITI',
     })
-    return
-  }
 
-  chrome.action.setPopup({ tabId, popup: '' })
-  chrome.action.setTitle({
-    tabId,
-    title: 'Pixel Perfect by ITITI',
-  })
-
-  if (targetStatus === 'loading') {
-    chrome.action.setIcon({ tabId, path: DISABLED_ICONS })
-  } else {
-    chrome.action.setIcon({ tabId, path: ACTIVE_ICONS })
+    if (targetStatus === 'loading') {
+      await chrome.action.setIcon({ tabId, path: DISABLED_ICONS })
+    } else {
+      await chrome.action.setIcon({ tabId, path: ACTIVE_ICONS })
+    }
+  } catch {
+    // Ignore if tab was closed, discarded, or inaccessible
   }
 }
 
@@ -117,12 +121,12 @@ async function handleExtensionActionClick(tab: chrome.tabs.Tab): Promise<void> {
   if (!result.ok) {
     const injected = await injectContentScriptIntoTab(tab.id)
     if (injected) {
-      chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS })
+      chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS }).catch(() => {})
       setTimeout(async () => {
         if (tab.id) {
           const retry = await sendToggleFloatingWindowMessage(tab.id)
           if (retry.ok && retry.visible) {
-            chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS })
+            chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS }).catch(() => {})
           }
         }
       }, 60)
