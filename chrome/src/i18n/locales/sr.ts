@@ -71,6 +71,7 @@ export const sr: UiStrings = {
   shortcutsCatNav: 'Навигација и фокус',
   shortcutsFocusToggleWidget: 'Фокус / Затвори Pixel Perfect',
   shortcutsFocusPage: 'Фокус на страници',
+  shortcutsToggleTheme: 'Тема (тамна / светла / ауто)',
   shortcutsCatLayers: 'Макете и фасцикле',
   shortcutsCatMove: 'Померање и поравнање',
   shortcutsCatView: 'Провидност и приказ',

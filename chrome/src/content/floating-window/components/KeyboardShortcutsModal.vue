@@ -83,6 +83,12 @@ function handleBackdropClick(event: MouseEvent): void {
             </div>
           </div>
           <div class="pp-shortcuts-row">
+            <span class="pp-shortcuts-desc">{{ uiStrings.shortcutsToggleTheme }}</span>
+            <div class="pp-shortcuts-keys">
+              <span class="pp-shortcuts-kbd">t</span>
+            </div>
+          </div>
+          <div class="pp-shortcuts-row">
             <span class="pp-shortcuts-desc">{{ uiStrings.shortcutsModalTitle }}</span>
             <div class="pp-shortcuts-keys">
               <span class="pp-shortcuts-kbd">?</span>

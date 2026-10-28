@@ -10,6 +10,7 @@ import {
   closeShortcutsModal,
   cycleFolder,
   cycleMockup,
+  cycleThemeAction,
   enterMoveMode,
   exitMoveModeToLocked,
   focusOrOpenWidget,
@@ -58,6 +59,13 @@ export function useKeyboard(): void {
       event.preventDefault()
       event.stopImmediatePropagation()
       triggerFileUpload()
+      return true
+    }
+
+    if (event.code === 'KeyT' && !event.shiftKey) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      cycleThemeAction()
       return true
     }
 

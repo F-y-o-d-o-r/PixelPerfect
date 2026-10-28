@@ -72,6 +72,7 @@ export const ro: UiStrings = {
   shortcutsCatNav: 'Navigare & Focalizare',
   shortcutsFocusToggleWidget: 'Focalizare / Închidere Pixel Perfect',
   shortcutsFocusPage: 'Focalizare pe pagină',
+  shortcutsToggleTheme: 'Temă (întunecată / luminoasă / auto)',
   shortcutsCatLayers: 'Machete & Dosare',
   shortcutsCatMove: 'Deplasare & Aliniere',
   shortcutsCatView: 'Opacitate & Vizualizare',

@@ -69,6 +69,7 @@ export const en = {
   shortcutsCatNav: 'Navigation & Focus',
   shortcutsFocusToggleWidget: 'Pixel Perfect Focus / Close',
   shortcutsFocusPage: 'Page Focus',
+  shortcutsToggleTheme: 'Theme (dark / light / system)',
   shortcutsCatLayers: 'Mockups & Folders',
   shortcutsCatMove: 'Nudge & Alignment',
   shortcutsCatView: 'Opacity & View',

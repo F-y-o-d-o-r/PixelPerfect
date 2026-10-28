@@ -164,7 +164,6 @@ onUnmounted(() => {
         type="button"
         class="pp-minibar__btn"
         :class="{
-          'pp-minibar__btn--active': windowState.vimMode === 'move',
           'pp-minibar__btn--disabled': !activeLayer || !activeLayer.visible,
         }"
         :disabled="!activeLayer || !activeLayer.visible"

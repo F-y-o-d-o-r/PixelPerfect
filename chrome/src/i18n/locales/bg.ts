@@ -72,6 +72,7 @@ export const bg: UiStrings = {
   shortcutsCatNav: 'Навигация и фокус',
   shortcutsFocusToggleWidget: 'Фокус / Затваряне на Pixel Perfect',
   shortcutsFocusPage: 'Фокус върху страницата',
+  shortcutsToggleTheme: 'Тема (тъмна / светла / авто)',
   shortcutsCatLayers: 'Макети и папки',
   shortcutsCatMove: 'Преместване и подравняване',
   shortcutsCatView: 'Прозрачност и изглед',

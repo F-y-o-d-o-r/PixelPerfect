@@ -73,6 +73,7 @@ export const el: UiStrings = {
   shortcutsCatNav: 'Πλοήγηση & Εστίαση',
   shortcutsFocusToggleWidget: 'Εστίαση / Κλείσιμο Pixel Perfect',
   shortcutsFocusPage: 'Εστίαση στη σελίδα',
+  shortcutsToggleTheme: 'Θέμα (σκοτεινό / φωτεινό / αυτόματο)',
   shortcutsCatLayers: 'Μακέτες & Φάκελοι',
   shortcutsCatMove: 'Μετακίνηση & Στοίχιση',
   shortcutsCatView: 'Διαφάνεια & Προβολή',

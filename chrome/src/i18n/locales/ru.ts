@@ -72,6 +72,7 @@ export const ru: UiStrings = {
   shortcutsCatNav: 'Навигация и фокус',
   shortcutsFocusToggleWidget: 'Фокус / Закрыть Pixel Perfect',
   shortcutsFocusPage: 'Фокус на странице',
+  shortcutsToggleTheme: 'Тема (тёмная / светлая / авто)',
   shortcutsCatLayers: 'Макеты и папки',
   shortcutsCatMove: 'Сдвиг и выравнивание',
   shortcutsCatView: 'Прозрачность и вид',

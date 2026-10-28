@@ -95,6 +95,20 @@ async function sendToggleFloatingWindowMessage(
   }
 }
 
+async function sendShowFloatingWindowMessage(
+  tabId: number
+): Promise<{ ok: boolean; visible?: boolean }> {
+  const showMessage: ExtensionMessage = {
+    type: 'PP_SHOW_FLOATING_WINDOW',
+  }
+  try {
+    const response = await chrome.tabs.sendMessage(tabId, showMessage)
+    return { ok: true, visible: response?.visible }
+  } catch {
+    return { ok: false }
+  }
+}
+
 async function injectContentScriptIntoTab(tabId: number): Promise<boolean> {
   try {
     await chrome.scripting.executeScript({
@@ -124,9 +138,10 @@ async function handleExtensionActionClick(tab: chrome.tabs.Tab): Promise<void> {
       chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS }).catch(() => {})
       setTimeout(async () => {
         if (tab.id) {
-          const retry = await sendToggleFloatingWindowMessage(tab.id)
-          if (retry.ok && retry.visible) {
+          const retry = await sendShowFloatingWindowMessage(tab.id)
+          if (retry.ok) {
             chrome.action.setIcon({ tabId: tab.id, path: ACTIVE_ICONS }).catch(() => {})
+            activeExtensionTabIds.add(tab.id)
           }
         }
       }, 60)

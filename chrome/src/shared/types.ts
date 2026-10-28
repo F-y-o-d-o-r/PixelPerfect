@@ -70,5 +70,6 @@ export interface FloatingWindowState {
 
 export type ExtensionMessage =
   | { type: 'PP_TOGGLE_FLOATING_WINDOW' }
+  | { type: 'PP_SHOW_FLOATING_WINDOW' }
   | { type: 'PP_PING' }
   | { type: 'PP_URL_CHANGED'; url: string }

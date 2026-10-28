@@ -52,6 +52,7 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 | **`s`** | Show / Hide active mockup |
 | **`i`** | Toggle Move mode / Lock mockup |
 | **`m`** | Minimize to compact bar / Expand window |
+| **`t`** | Cycle theme (Dark $\to$ Light $\to$ Auto) |
 | **`u`** | Open file upload dialog |
 | **`⌘V` / `Ctrl+V`** | Paste image from clipboard |
 | **`h` / `j` / `k` / `l`** (or arrows) | Nudge mockup by 1px (Left / Down / Up / Right) |

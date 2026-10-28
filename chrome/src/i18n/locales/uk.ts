@@ -74,6 +74,7 @@ export const uk: UiStrings = {
   shortcutsCatNav: 'Навігація та фокус',
   shortcutsFocusToggleWidget: 'Фокус / Закрити Pixel Perfect',
   shortcutsFocusPage: 'Фокус на сторінці',
+  shortcutsToggleTheme: 'Тема (темна / світла / авто)',
   shortcutsCatLayers: 'Макети та папки',
   shortcutsCatMove: 'Зсув і вирівнювання',
   shortcutsCatView: 'Прозорість і вигляд',

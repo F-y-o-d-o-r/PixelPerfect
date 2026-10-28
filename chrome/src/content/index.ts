@@ -128,10 +128,19 @@ function registerExtensionMessageListener(): void {
 
   chrome.runtime.onMessage.addListener(
     (message: ExtensionMessage, _sender, sendResponse) => {
+      if (message.type === 'PP_SHOW_FLOATING_WINDOW') {
+        windowState.visible = true
+        setTimeout(() => {
+          focusKeyboardReceiverInShadowDom()
+        }, 0)
+        showToast(uiStrings.value.toastWidgetFocused)
+        sendResponse({ visible: true })
+        return false
+      }
+
       if (message.type === 'PP_TOGGLE_FLOATING_WINDOW') {
         windowState.visible = !windowState.visible
         if (windowState.visible) {
-          if (windowState.minimized) windowState.minimized = false
           setTimeout(() => {
             focusKeyboardReceiverInShadowDom()
           }, 0)

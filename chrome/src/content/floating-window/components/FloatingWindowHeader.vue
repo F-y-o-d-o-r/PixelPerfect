@@ -164,6 +164,12 @@ onUnmounted(() => {
         @click="cycleTheme"
       >
         <AppIcon :name="themeIconName" :size="14" />
+        <span
+          v-if="windowState.showHotkeys"
+          class="pp-hotkey-hint pp-hotkey-hint--corner"
+        >
+          t
+        </span>
       </button>
       <button
         type="button"

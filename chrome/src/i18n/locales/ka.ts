@@ -71,6 +71,7 @@ export const ka: UiStrings = {
   shortcutsCatNav: 'ნავიგაცია და ფოკუსი',
   shortcutsFocusToggleWidget: 'Pixel Perfect ფოკუსი / დახურვა',
   shortcutsFocusPage: 'გვერდის ფოკუსი',
+  shortcutsToggleTheme: 'თემა (მუქი / ღია / ავტო)',
   shortcutsCatLayers: 'მაკეტები და საქაღალდეები',
   shortcutsCatMove: 'გადაადგილება და გასწორება',
   shortcutsCatView: 'გამჭვირვალობა და ხედი',

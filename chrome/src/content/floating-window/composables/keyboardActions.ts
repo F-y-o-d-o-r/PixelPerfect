@@ -25,7 +25,6 @@ import {
 export function toggleWidgetFocusOrVisibility(): void {
   if (!windowState.visible) {
     windowState.visible = true
-    if (windowState.minimized) windowState.minimized = false
     isKeyboardControlActive.value = true
     focusKeyboardReceiverInShadowDom()
     showToast(uiStrings.value.toastWidgetFocused)
@@ -42,7 +41,6 @@ export function toggleWidgetFocusOrVisibility(): void {
     return
   }
 
-  if (windowState.minimized) windowState.minimized = false
   isKeyboardControlActive.value = true
   focusKeyboardReceiverInShadowDom()
   showToast(uiStrings.value.toastWidgetFocused)
@@ -201,5 +199,23 @@ export function snapCenterXAction(): void {
 
 export function snapTopYAction(): void {
   snapActiveLayerTopY()
+  focusKeyboardReceiverInShadowDom()
+}
+
+export function cycleThemeAction(): void {
+  if (windowState.theme === 'dark') {
+    windowState.theme = 'light'
+  } else if (windowState.theme === 'light') {
+    windowState.theme = 'system'
+  } else {
+    windowState.theme = 'dark'
+  }
+  const toastMsg =
+    windowState.theme === 'dark'
+      ? uiStrings.value.darkTheme
+      : windowState.theme === 'light'
+        ? uiStrings.value.lightTheme
+        : uiStrings.value.systemThemeAuto
+  showToast(toastMsg)
   focusKeyboardReceiverInShadowDom()
 }
