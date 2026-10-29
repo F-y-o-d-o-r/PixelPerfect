@@ -7,8 +7,7 @@ export function useWindowPosition() {
   const isDockedRight = computed(
     () =>
       windowState.position.dockEdgeX === 'right' ||
-      (windowState.position.dockCorner === 'top-right' &&
-        windowState.position.x === 0) ||
+      windowState.position.dockCorner === 'top-right' ||
       windowState.position.dockCorner === 'bottom-right'
   )
 
@@ -22,16 +21,17 @@ export function useWindowPosition() {
   const isDockedTop = computed(
     () =>
       windowState.position.dockEdgeY === 'top' ||
-      (windowState.position.dockCorner === 'top-right' &&
-        windowState.position.y === 0) ||
-      windowState.position.dockCorner === 'top-left'
+      (windowState.position.dockEdgeY !== 'bottom' &&
+        (windowState.position.dockCorner === 'top-right' ||
+          windowState.position.dockCorner === 'top-left'))
   )
 
   const isDockedBottom = computed(
     () =>
       windowState.position.dockEdgeY === 'bottom' ||
-      windowState.position.dockCorner === 'bottom-right' ||
-      windowState.position.dockCorner === 'bottom-left'
+      (windowState.position.dockEdgeY !== 'top' &&
+        (windowState.position.dockCorner === 'bottom-right' ||
+          windowState.position.dockCorner === 'bottom-left'))
   )
 
   const windowPositionStyle = computed(() => {

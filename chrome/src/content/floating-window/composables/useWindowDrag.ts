@@ -1,17 +1,6 @@
 import { ref } from 'vue'
-import { DOM_HOST_IDS } from '@/shared/constants'
 import type { FloatingWindowPosition } from '@/shared/types'
 import { useStorage } from './useStorage'
-
-function setDragSnapHintVisible(visible: boolean): void {
-  const overlayHost = document.getElementById(DOM_HOST_IDS.OVERLAY)
-  const pill = overlayHost?.shadowRoot?.querySelector(
-    '.pp-move-pill'
-  ) as HTMLElement | null
-  if (pill) {
-    pill.style.display = visible ? 'block' : 'none'
-  }
-}
 
 const WINDOW_SNAP_THRESHOLD_PX = 20
 const DRAG_START_DISTANCE_PX = 4
@@ -20,21 +9,10 @@ function computeSnappedWindowPosition(
   rawLeft: number,
   rawTop: number,
   maxX: number,
-  maxY: number,
-  enableSnap: boolean
+  maxY: number
 ): FloatingWindowPosition {
   let x = Math.min(maxX, Math.max(0, rawLeft))
   let y = Math.min(maxY, Math.max(0, rawTop))
-
-  if (!enableSnap) {
-    return {
-      x,
-      y,
-      dockCorner: 'free',
-      dockEdgeX: 'none',
-      dockEdgeY: 'none',
-    }
-  }
 
   const centerX = Math.round(maxX / 2)
   const centerY = Math.round(maxY / 2)
@@ -97,7 +75,8 @@ export function useWindowDrag() {
   function startDragFloatingWindow(event: PointerEvent): void {
     if (event.button !== 0) return
     const target = event.target as HTMLElement
-    if (target.closest('button')) {
+    const isInsideMinibar = Boolean(target.closest('.pp-minibar'))
+    if (!isInsideMinibar && target.closest('button')) {
       return
     }
 
@@ -112,7 +91,6 @@ export function useWindowDrag() {
     dragOffsetX = event.clientX - rect.left
     dragOffsetY = event.clientY - rect.top
     let hasMovedBeyondThreshold = false
-    let lockedAxis: 'x' | 'y' | null = null
 
     const onPointerMove = (moveEvent: PointerEvent) => {
       const deltaX = moveEvent.clientX - startClientX
@@ -126,23 +104,6 @@ export function useWindowDrag() {
         }
         hasMovedBeyondThreshold = true
         isDraggingWindow.value = true
-        setDragSnapHintVisible(true)
-      }
-
-      let currentClientX = moveEvent.clientX
-      let currentClientY = moveEvent.clientY
-
-      if (moveEvent.shiftKey) {
-        if (!lockedAxis && (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2)) {
-          lockedAxis = Math.abs(deltaX) >= Math.abs(deltaY) ? 'x' : 'y'
-        }
-        if (lockedAxis === 'x') {
-          currentClientY = startClientY
-        } else if (lockedAxis === 'y') {
-          currentClientX = startClientX
-        }
-      } else {
-        lockedAxis = null
       }
 
       const currentRect = windowElement.getBoundingClientRect()
@@ -156,51 +117,24 @@ export function useWindowDrag() {
       )
       const maxX = Math.max(0, viewportWidth - currentRect.width)
       const maxY = Math.max(0, viewportHeight - currentRect.height)
-      const rawLeft = Math.round(currentClientX - dragOffsetX)
-      const rawTop = Math.round(currentClientY - dragOffsetY)
+      const rawLeft = Math.round(moveEvent.clientX - dragOffsetX)
+      const rawTop = Math.round(moveEvent.clientY - dragOffsetY)
 
-      let nextPos = computeSnappedWindowPosition(
+      windowState.position = computeSnappedWindowPosition(
         rawLeft,
         rawTop,
         maxX,
-        maxY,
-        moveEvent.altKey
+        maxY
       )
-
-      if (moveEvent.shiftKey && lockedAxis === 'x') {
-        nextPos = {
-          ...nextPos,
-          y: Math.min(
-            maxY,
-            Math.max(0, Math.round(startClientY - dragOffsetY))
-          ),
-          dockEdgeY: 'none',
-          dockCorner: 'free',
-        }
-      } else if (moveEvent.shiftKey && lockedAxis === 'y') {
-        nextPos = {
-          ...nextPos,
-          x: Math.min(
-            maxX,
-            Math.max(0, Math.round(startClientX - dragOffsetX))
-          ),
-          dockEdgeX: 'none',
-          dockCorner: 'free',
-        }
-      }
-
-      windowState.position = nextPos
     }
 
     const onPointerUp = () => {
       if (hasMovedBeyondThreshold) {
-        setDragSnapHintVisible(false)
         window.addEventListener('click', suppressClickAfterWindowDrag, {
           capture: true,
           once: true,
         })
       }
-      lockedAxis = null
       isDraggingWindow.value = false
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)

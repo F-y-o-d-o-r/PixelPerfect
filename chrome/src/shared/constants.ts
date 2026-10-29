@@ -30,6 +30,8 @@ export const DEFAULT_FLOATING_WINDOW_STATE: FloatingWindowState = {
     x: 0,
     y: 0,
     dockCorner: 'top-right',
+    dockEdgeX: 'right',
+    dockEdgeY: 'top',
   },
   viewMode: 'grid',
   activeFolderId: null,

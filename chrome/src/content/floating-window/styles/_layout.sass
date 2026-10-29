@@ -70,7 +70,11 @@ button
   width: var(--window-width)
   color: var(--text-primary)
   user-select: none
+  outline: none
   transition: box-shadow 0.15s ease
+
+  &:focus, &:focus-visible
+    outline: none
 
   &--edge-top
     .pp-panel, .pp-minibar
@@ -104,6 +108,10 @@ button
   border-radius: 10px
   box-shadow: var(--shadow-window)
   overflow: hidden
+  cursor: grab
+
+  &:active
+    cursor: grabbing
 
 .pp-minibar__expand
   position: relative

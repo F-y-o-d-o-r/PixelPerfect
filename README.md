@@ -66,8 +66,8 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 | **`1` – `9`** | Set opacity to 10% – 90% |
 | **`-` / `+`** | Adjust opacity by ±10% (with `Shift`: ±1%) |
 | **Mouse Wheel** | Adjust opacity by ±5% (in Move mode over overlay) |
-| **`⌥ / Alt`** | Hold while dragging to enable magnetic edge snapping (free movement by default) |
-| **`⇧ / Shift`** | Hold while dragging to lock movement strictly to one axis (X or Y) |
+| **`⌥ / Alt`** | Hold while dragging mockup to enable magnetic edge snapping (free movement by default) |
+| **`⇧ / Shift`** | Hold while dragging mockup to lock movement strictly to one axis (X or Y) |
 
 ---
 
