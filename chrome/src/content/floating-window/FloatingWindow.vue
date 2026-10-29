@@ -117,7 +117,7 @@ onUnmounted(() => {
       type="text"
       readonly
       tabindex="-1"
-      aria-hidden="true"
+      aria-label="Pixel Perfect shortcut receiver"
       class="pp-keyboard-receiver"
     />
     <div

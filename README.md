@@ -1,4 +1,4 @@
-# Pixel Perfect by ITITI
+# Pixel Perfect
 
 > Modern, lightweight, and precise visual comparison & overlay tool for web developers, designers, and QA teams.
 
@@ -6,7 +6,7 @@
 
 ## 🎯 About
 
-**Pixel Perfect by ITITI** is a modern browser extension that helps frontend developers and QA engineers verify that coded web implementations match design mockups down to the single pixel.
+**Pixel Perfect** is a modern browser extension that helps frontend developers and QA engineers verify that coded web implementations match design mockups down to the single pixel.
 
 Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, with direct clipboard integration, smart Retina scaling, and automated visual diffing.
 

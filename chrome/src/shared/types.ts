@@ -19,6 +19,7 @@ export interface Folder {
   urlBinding: UrlBinding
   createdAt: number
   lastActiveLayerId?: string | null
+  defaultScaleMode?: ScaleMode
 }
 
 export interface LayerMetadata {

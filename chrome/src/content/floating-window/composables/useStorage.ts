@@ -9,28 +9,12 @@ import {
   saveLayerBlob,
 } from '@/storage/blobStorage'
 import {
-  activeLayer,
-  autoSelectLayerForUrl,
-  currentFolder,
-  currentFolderLayers,
-  currentUrlPath,
-  ensureLayerObjectUrl,
-  folders,
-  getNextFolderName,
-  initStorage,
-  layerObjectUrls,
-  layers,
-  persistFolders,
-  persistLayers,
-  registerLayerObjectUrl,
-  revokeLayerObjectUrl,
-  showToast,
-  statusToast,
-  isShortcutsModalOpen,
-  isKeyboardControlActive,
-  uiStrings,
-  visibleFolders,
-  windowState,
+  activeLayer, autoSelectLayerForUrl, currentFolder, currentFolderLayers,
+  currentUrlPath, ensureLayerObjectUrl, folders, getNextFolderName,
+  initStorage, layerObjectUrls, layers, persistFolders, persistLayers,
+  persistWindowState, registerLayerObjectUrl, revokeLayerObjectUrl,
+  showToast, statusToast, isShortcutsModalOpen, isKeyboardControlActive,
+  uiStrings, visibleFolders, windowState,
 } from './storageState'
 import { getLayerCssDimensions, getNormalizedUrlPath } from './useUrlMatcher'
 
@@ -77,13 +61,9 @@ export async function removeFolder(folderId: string): Promise<void> {
   layers.value = layers.value.filter((l) => l.folderId !== folderId)
   folders.value = folders.value.filter((f) => f.id !== folderId)
 
-  if (
-    windowState.activeFolderId === folderId ||
-    !folders.value.some((f) => f.id === windowState.activeFolderId)
-  ) {
+  if (windowState.activeFolderId === folderId || !folders.value.some((f) => f.id === windowState.activeFolderId)) {
     windowState.activeFolderId = folders.value[0]?.id ?? ''
   }
-
   if (layersToRemove.some((l) => l.id === windowState.activeLayerId)) {
     windowState.activeLayerId = currentFolderLayers.value[0]?.id ?? null
   }
@@ -126,23 +106,19 @@ export async function addLayerFromBlob(
   rawBlob: Blob,
   rawName?: string
 ): Promise<LayerMetadata | null> {
-  const folderLayers = currentFolderLayers.value
+  const targetFolder = currentFolder.value ?? folders.value[0]
+  if (!targetFolder) return null
+  const targetFolderId = targetFolder.id
+
+  const folderLayers = layers.value.filter(
+    (layer) => layer.folderId === targetFolderId
+  )
   if (folderLayers.length >= FREE_LIMITS.maxLayersPerFolder) {
-    showToast(
-      uiStrings.value.toastLimitFolderLayers.replace(
-        '{count}',
-        String(FREE_LIMITS.maxLayersPerFolder)
-      )
-    )
+    showToast(uiStrings.value.toastLimitFolderLayers.replace('{count}', String(FREE_LIMITS.maxLayersPerFolder)))
     return null
   }
   if (layers.value.length >= FREE_LIMITS.maxTotalLayers) {
-    showToast(
-      uiStrings.value.toastLimitTotalLayers.replace(
-        '{count}',
-        String(FREE_LIMITS.maxTotalLayers)
-      )
-    )
+    showToast(uiStrings.value.toastLimitTotalLayers.replace('{count}', String(FREE_LIMITS.maxTotalLayers)))
     return null
   }
 
@@ -165,12 +141,14 @@ export async function addLayerFromBlob(
   const centeredX = Math.round((clientWidth - naturalWidth) / 2)
   const currentScrollY = Math.round(window.scrollY || 0)
 
+  const initialScaleMode: ScaleMode = targetFolder.defaultScaleMode ?? '1x'
+
   const layer: LayerMetadata = {
     id,
     name:
       rawName?.trim() ||
       `Mockup ${folderLayers.length + 1} (${naturalWidth}×${naturalHeight})`,
-    folderId: windowState.activeFolderId,
+    folderId: targetFolderId,
     urlBinding: {
       type: 'exact',
       value: getNormalizedUrlPath(),
@@ -180,7 +158,7 @@ export async function addLayerFromBlob(
     opacity: 0.5,
     visible: true,
     locked: true,
-    scaleMode: '1x',
+    scaleMode: initialScaleMode,
     blendMode: 'normal',
     naturalWidth,
     naturalHeight,
@@ -189,8 +167,15 @@ export async function addLayerFromBlob(
   }
 
   layers.value = [...layers.value, layer]
+  windowState.activeFolderId = targetFolderId
   windowState.activeLayerId = layer.id
-  await persistLayers()
+
+  folders.value = folders.value.map((f) =>
+    f.id === targetFolderId ? { ...f, lastActiveLayerId: layer.id } : f
+  )
+
+  await Promise.all([persistLayers(), persistFolders(), persistWindowState()])
+
   showToast(
     uiStrings.value.toastMockupAdded
       .replace('{width}', String(naturalWidth))
@@ -225,7 +210,7 @@ function getCenteredLayerX(layer: LayerMetadata): number {
   return Math.round((clientWidth - width) / 2)
 }
 
-export async function snapActiveLayerCenterX(): Promise<void> {
+export async function centerActiveLayerX(): Promise<void> {
   const layer = activeLayer.value
   if (!layer) return
   const x = getCenteredLayerX(layer)
@@ -233,14 +218,14 @@ export async function snapActiveLayerCenterX(): Promise<void> {
   showToast(uiStrings.value.toastSnappedCenterX.replace('{x}', String(x)))
 }
 
-export async function snapActiveLayerTopY(): Promise<void> {
+export async function alignActiveLayerTop(): Promise<void> {
   const layer = activeLayer.value
   if (!layer) return
   await updateLayer(layer.id, { y: 0 })
   showToast(uiStrings.value.toastSnappedTopY)
 }
 
-export async function snapActiveLayerTopCenter(): Promise<void> {
+export async function centerActiveLayerTop(): Promise<void> {
   const layer = activeLayer.value
   if (!layer) return
   const x = getCenteredLayerX(layer)
@@ -248,7 +233,7 @@ export async function snapActiveLayerTopCenter(): Promise<void> {
   showToast(uiStrings.value.toastSnappedTopCenter.replace('{x}', String(x)))
 }
 
-export async function resetActiveLayerOrigin(): Promise<void> {
+export async function resetActiveLayerPosition(): Promise<void> {
   if (!activeLayer.value) return
   await updateLayer(activeLayer.value.id, {
     x: 0,
@@ -260,9 +245,22 @@ export async function resetActiveLayerOrigin(): Promise<void> {
   showToast(uiStrings.value.toastOriginReset)
 }
 
+export const snapActiveLayerCenterX = centerActiveLayerX
+export const snapActiveLayerTopY = alignActiveLayerTop
+export const snapActiveLayerTopCenter = centerActiveLayerTop
+export const resetActiveLayerOrigin = resetActiveLayerPosition
+
 export async function setScaleMode(mode: ScaleMode): Promise<void> {
-  if (activeLayer.value)
+  if (activeLayer.value) {
     await updateLayer(activeLayer.value.id, { scaleMode: mode })
+  }
+  const folder = currentFolder.value
+  if (folder) {
+    folders.value = folders.value.map((f) =>
+      f.id === folder.id ? { ...f, defaultScaleMode: mode } : f
+    )
+    await persistFolders()
+  }
 }
 
 export function useStorage() {
@@ -292,6 +290,10 @@ export function useStorage() {
     addLayerFromBlob,
     updateLayer,
     removeLayer,
+    centerActiveLayerX,
+    alignActiveLayerTop,
+    centerActiveLayerTop,
+    resetActiveLayerPosition,
     snapActiveLayerCenterX,
     snapActiveLayerTopY,
     snapActiveLayerTopCenter,
