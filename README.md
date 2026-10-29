@@ -24,7 +24,7 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 - **On-Demand Hotkeys Guide (`?`):** Clean UI by default; press `?` (`Shift + /`) or click `?` in the header to reveal subtle key badges.
 - **Smart Edge & Corner Snapping:** Window snaps magnetically to all 4 screen corners, 4 edges, and center, automatically flattening docked corners.
 - **Instant Clipboard Paste (`Cmd + V` / `Ctrl + V`):** Paste mockups directly from Figma or the clipboard without saving intermediate PNG files to disk.
-- **Magnetic Overlay Dragging:** Snap mockup to origin (0, 0), center, or right edge while dragging, with `⌥ / Alt` to disable snapping on the fly.
+- **Free & Snap Dragging:** Free, smooth dragging by default; hold `⌥ / Alt` to snap mockup magnetically to origin (0, 0), center, or right edge.
 - **Smart Retina / DPI Scaling:** Fixes the 0.5x / 2x display bug on high-DPI screens with instant `[ 1x | 2x | Auto ]` toggle.
 - **8 Built-in Locales:** Native multi-language support (`en`, `ru`, `uk`, `el`, `sr`, `bg`, `ro`, `ka`) with browser auto-detection.
 - **Bespoke Unified SVG Icon System:** Zero messy emojis or platform-dependent symbols; 100% custom lightweight vector icons (`AppIcon.vue`) across the entire tool.
@@ -49,8 +49,8 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 | **`{` / `}`** (`Shift + [` / `]`) | Cycle folders / pages |
 | **`Alt + 1…3`** | Direct jump to folder 1, 2, or 3 |
 | **`?`** (`Shift + /`) | Open Keyboard Shortcuts cheatsheet modal |
-| **`s`** | Show / Hide active mockup |
-| **`i`** | Toggle Move mode / Lock mockup |
+| **`s`** | Show / Hide active mockup (preserves Move mode) |
+| **`i`** | Toggle Move mode / Lock mockup (new mockups start in Move mode) |
 | **`m`** | Minimize to compact bar / Expand window |
 | **`t`** | Cycle theme (Dark $\to$ Light $\to$ Auto) |
 | **`u`** | Open file upload dialog |
@@ -65,7 +65,7 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 | **`1` – `9`** | Set opacity to 10% – 90% |
 | **`-` / `+`** | Adjust opacity by ±10% (with `Shift`: ±1%) |
 | **Mouse Wheel** | Adjust opacity by ±5% (in Move mode over overlay) |
-| **`⌥ / Alt`** | Hold while dragging to bypass magnetic edge snapping |
+| **`⌥ / Alt`** | Hold while dragging to enable magnetic edge snapping (free movement by default) |
 | **`⇧ / Shift`** | Hold while dragging to lock movement strictly to one axis (X or Y) |
 
 ---

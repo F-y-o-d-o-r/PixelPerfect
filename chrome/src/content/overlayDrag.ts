@@ -1,6 +1,5 @@
 import type { LayerMetadata } from '@/shared/types'
 import { isExtensionContextValid } from '@/storage/blobStorage'
-import { focusKeyboardReceiverInShadowDom } from './floating-window/composables/useKeyboard'
 import { useStorage } from './floating-window/composables/useStorage'
 import { getLayerCssDimensions } from './floating-window/composables/useUrlMatcher'
 
@@ -19,9 +18,9 @@ function calculateSnappedLayerCoordinates(
   rawX: number,
   rawY: number,
   layer: LayerMetadata,
-  disableSnap: boolean
+  enableSnap: boolean
 ): { x: number; y: number } {
-  if (disableSnap) {
+  if (!enableSnap) {
     return { x: rawX, y: rawY }
   }
 
@@ -154,7 +153,6 @@ export function registerOverlayDragHandlers(
     )
     lockedAxisRef.current = null
     updateLayer(layer.id, { x, y })
-    focusKeyboardReceiverInShadowDom()
   })
 
   wrapperElement.addEventListener('pointercancel', () => {

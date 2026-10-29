@@ -30,7 +30,7 @@ export const ro: UiStrings = {
   snapToTopCenterTitle: 'Aliniere sus-centru (X: Centru, Y: 0 — tasta 0)',
   opacityLabel: 'OPACITATE:',
   movePillMode: 'MUTARE',
-  movePillNoSnap: 'fără aliniere',
+  movePillSnap: 'aliniere',
   movePillLockAxis: 'o singură axă',
   toastLocked: 'Machetă blocată',
   toastMove: 'Mod mutare: h/j/k/l mișcă • i / Esc blochează',

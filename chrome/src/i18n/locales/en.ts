@@ -28,7 +28,7 @@ export const en = {
   snapToTopCenterTitle: 'Snap to top-center (X: Center, Y: 0 — key 0)',
   opacityLabel: 'OPACITY:',
   movePillMode: 'MOVE',
-  movePillNoSnap: 'no snap',
+  movePillSnap: 'snap',
   movePillLockAxis: 'lock axis',
   toastLocked: 'Mockup locked',
   toastMove: 'Move mode: h/j/k/l move • i / Esc lock',

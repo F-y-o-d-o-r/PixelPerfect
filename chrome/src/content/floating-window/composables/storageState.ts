@@ -14,7 +14,6 @@ export const windowState = reactive<FloatingWindowState>({
 export const currentUrlPath = ref<string>(getNormalizedUrlPath())
 export const statusToast = ref<string | null>(null)
 export const isShortcutsModalOpen = ref(false)
-export const isKeyboardControlActive = ref(true)
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 let isStorageInitialized = false
@@ -162,22 +161,30 @@ watch(
   (nextFolderId, previousFolderId) => {
     if (previousFolderId) rememberActiveLayerForFolder(previousFolderId)
     if (nextFolderId) {
+      windowState.vimMode = 'locked'
       const nextLayerId = pickLayerIdForFolder(nextFolderId)
       windowState.activeLayerId = nextLayerId
-      if (nextLayerId) {
+      if (nextLayerId && previousFolderId) {
         const targetLayer = layers.value.find((l) => l.id === nextLayerId)
         if (targetLayer) {
-          if (!targetLayer.visible) {
-            layers.value = layers.value.map((l) =>
-              l.id === nextLayerId ? { ...l, visible: true } : l
-            )
-            persistLayers()
-          }
-          if (previousFolderId) {
-            showToast(targetLayer.name)
-          }
+          showToast(targetLayer.name)
         }
       }
+    }
+  },
+  { flush: 'sync' }
+)
+
+watch(
+  () => windowState.activeLayerId,
+  (nextLayerId, prevLayerId) => {
+    if (nextLayerId === prevLayerId) return
+    windowState.vimMode = 'locked'
+    if (nextLayerId) {
+      layers.value = layers.value.map((l) =>
+        l.id === nextLayerId ? { ...l, locked: true, visible: true } : l
+      )
+      persistLayers()
     }
   },
   { flush: 'sync' }
@@ -263,9 +270,7 @@ export async function initStorage(): Promise<void> {
         folders.value = [defaultFolder]
         windowState.activeFolderId = defaultFolder.id
         await persistFolders()
-      } else if (
-        !folders.value.some((f) => f.id === windowState.activeFolderId)
-      ) {
+      } else if (!folders.value.some((f) => f.id === windowState.activeFolderId)) {
         windowState.activeFolderId = folders.value[0].id
       }
     } catch {
@@ -290,8 +295,6 @@ watch(
     theme: windowState.theme,
     locale: windowState.locale,
   }),
-  () => {
-    persistWindowState()
-  },
+  () => persistWindowState(),
   { deep: true }
 )

@@ -31,7 +31,7 @@ export const bg: UiStrings = {
     'Подравняване горе в центъра (X: Център, Y: 0 — клавиш 0)',
   opacityLabel: 'ПРОЗРАЧНОСТ:',
   movePillMode: 'ПРЕМЕСТВАНЕ',
-  movePillNoSnap: 'без прилепване',
+  movePillSnap: 'прилепване',
   movePillLockAxis: 'една ос',
   toastLocked: 'Макетът е заключен',
   toastMove: 'Режим преместване: h/j/k/l движение • i / Esc заключване',

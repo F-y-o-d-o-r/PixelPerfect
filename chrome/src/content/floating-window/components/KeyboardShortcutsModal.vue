@@ -229,7 +229,7 @@ function handleBackdropClick(event: MouseEvent): void {
             {{ uiStrings.shortcutsCatMouse }}
           </div>
           <div class="pp-shortcuts-row">
-            <span class="pp-shortcuts-desc">{{ uiStrings.movePillNoSnap }}</span>
+            <span class="pp-shortcuts-desc">{{ uiStrings.movePillSnap }}</span>
             <div class="pp-shortcuts-keys">
               <span class="pp-shortcuts-kbd">⌥ / Alt</span>
               <span>+ Drag</span>

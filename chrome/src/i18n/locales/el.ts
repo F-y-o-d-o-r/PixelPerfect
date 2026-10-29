@@ -30,7 +30,7 @@ export const el: UiStrings = {
   snapToTopCenterTitle: 'Κεντράρισμα επάνω (X: Κέντρο, Y: 0 — πλήκτρο 0)',
   opacityLabel: 'ΔΙΑΦΑΝΕΙΑ:',
   movePillMode: 'ΚΙΝΗΣΗ',
-  movePillNoSnap: 'χωρίς έλξη',
+  movePillSnap: 'έλξη',
   movePillLockAxis: 'ένας άξονας',
   toastLocked: 'Η μακέτα κλειδώθηκε',
   toastMove: 'Λειτουργία κίνησης: h/j/k/l μετακίνηση • i / Esc κλείδωμα',

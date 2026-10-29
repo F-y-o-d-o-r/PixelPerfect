@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { DOM_HOST_IDS } from '@/shared/constants'
 import type { FloatingWindowPosition } from '@/shared/types'
-import { focusKeyboardReceiverInShadowDom } from './useKeyboard'
 import { useStorage } from './useStorage'
 
 function setDragSnapHintVisible(visible: boolean): void {
@@ -22,12 +21,12 @@ function computeSnappedWindowPosition(
   rawTop: number,
   maxX: number,
   maxY: number,
-  disableSnap: boolean
+  enableSnap: boolean
 ): FloatingWindowPosition {
   let x = Math.min(maxX, Math.max(0, rawLeft))
   let y = Math.min(maxY, Math.max(0, rawTop))
 
-  if (disableSnap) {
+  if (!enableSnap) {
     return {
       x,
       y,
@@ -93,14 +92,12 @@ export function useWindowDrag() {
   function suppressClickAfterWindowDrag(clickEvent: MouseEvent): void {
     clickEvent.stopPropagation()
     clickEvent.preventDefault()
-    focusKeyboardReceiverInShadowDom()
   }
 
   function startDragFloatingWindow(event: PointerEvent): void {
     if (event.button !== 0) return
     const target = event.target as HTMLElement
-    const isInsideMinibar = Boolean(target.closest('.pp-minibar'))
-    if (!isInsideMinibar && target.closest('button')) {
+    if (target.closest('button')) {
       return
     }
 
@@ -207,9 +204,6 @@ export function useWindowDrag() {
       isDraggingWindow.value = false
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
-      setTimeout(() => {
-        focusKeyboardReceiverInShadowDom()
-      }, 0)
     }
 
     window.addEventListener('pointermove', onPointerMove)

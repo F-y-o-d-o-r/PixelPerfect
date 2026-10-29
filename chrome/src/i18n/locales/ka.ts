@@ -30,7 +30,7 @@ export const ka: UiStrings = {
   snapToTopCenterTitle: 'ზედა ცენტრში მიბმა (X: ცენტრი, Y: 0 — ღილაკი 0)',
   opacityLabel: 'გამჭვირვალობა:',
   movePillMode: 'გადაადგილება',
-  movePillNoSnap: 'მიზიდვის გარეშე',
+  movePillSnap: 'მიზიდვა',
   movePillLockAxis: 'ერთი ღერძი',
   toastLocked: 'მაკეტი ჩაკეტილია',
   toastMove: 'გადაადგილების რეჟიმი: h/j/k/l მოძრაობა • i / Esc ჩაკეტვა',

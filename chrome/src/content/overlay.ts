@@ -29,10 +29,10 @@ function getOrCreateOverlayShadowRoot(): ShadowRoot {
 }
 
 function renderMovePillHtml(strings: {
-  movePillNoSnap: string
+  movePillSnap: string
   movePillLockAxis: string
 }): string {
-  return `<kbd>⌥/Alt</kbd> ${strings.movePillNoSnap} <span class="pp-move-pill-sep">·</span> <kbd>⇧/Shift</kbd> ${strings.movePillLockAxis}`
+  return `<kbd>⌥/Alt</kbd> ${strings.movePillSnap} <span class="pp-move-pill-sep">·</span> <kbd>⇧/Shift</kbd> ${strings.movePillLockAxis}`
 }
 
 function createOverlayElements(shadowRoot: ShadowRoot): OverlayElements {
@@ -83,17 +83,21 @@ function applyOverlayPositionAndVisibility(
   const hostElement = document.getElementById(DOM_HOST_IDS.OVERLAY)
   if (hostElement) {
     const docHeight = Math.max(
-      document.documentElement.scrollHeight,
       document.body?.scrollHeight ?? 0,
-      roundedY + height
+      document.documentElement.clientHeight
     )
     hostElement.style.height = `${docHeight}px`
   }
 }
 
 export function initOverlayRenderer(): void {
-  const { activeLayer, windowState, uiStrings, ensureLayerObjectUrl } =
-    useStorage()
+  const {
+    activeLayer,
+    windowState,
+    uiStrings,
+    layerObjectUrls,
+    ensureLayerObjectUrl,
+  } = useStorage()
   const shadowRoot = getOrCreateOverlayShadowRoot()
   const elements = createOverlayElements(shadowRoot)
 
@@ -125,14 +129,19 @@ export function initOverlayRenderer(): void {
       return
     }
 
+    const isMoveActive = windowState.vimMode === 'move'
+    applyOverlayPositionAndVisibility(elements, layer, isMoveActive)
+
+    const syncUrl = layerObjectUrls[layer.id]
+    if (syncUrl && elements.image.src !== syncUrl) {
+      elements.image.src = syncUrl
+    }
+
     const hasValidImage = await updateOverlayImageSource(layer.id)
     if (!hasValidImage) {
       hideOverlayElements()
       return
     }
-
-    const isMoveActive = windowState.vimMode === 'move' || !layer.locked
-    applyOverlayPositionAndVisibility(elements, layer, isMoveActive)
   }
 
   watch(

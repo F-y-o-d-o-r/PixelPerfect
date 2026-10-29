@@ -31,7 +31,7 @@ export const ru: UiStrings = {
     'Прижать к началу: отцентрировать по X и прижать к верху Y=0 (клавиша 0)',
   opacityLabel: 'ПРОЗРАЧНОСТЬ:',
   movePillMode: 'СДВИГ',
-  movePillNoSnap: 'без прилипания',
+  movePillSnap: 'прилипание',
   movePillLockAxis: 'одна ось',
   toastLocked: 'Макет закреплён',
   toastMove: 'Режим сдвига: h/j/k/l двигать • i / Esc закрепить',

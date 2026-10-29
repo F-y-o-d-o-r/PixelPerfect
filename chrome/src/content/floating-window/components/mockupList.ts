@@ -69,6 +69,10 @@ export function useMockupList() {
   }
 
   function selectLayer(layer: LayerMetadata): void {
+    if (windowState.activeLayerId !== layer.id) {
+      windowState.vimMode = 'locked'
+      updateLayer(layer.id, { locked: true })
+    }
     windowState.activeLayerId = layer.id
     if (!layer.visible) {
       updateLayer(layer.id, { visible: true })

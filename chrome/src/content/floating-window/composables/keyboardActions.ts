@@ -4,16 +4,11 @@ import {
   activeLayer,
   currentFolderLayers,
   folders,
-  isKeyboardControlActive,
   isShortcutsModalOpen,
   showToast,
   uiStrings,
   windowState,
 } from './storageState'
-import {
-  focusKeyboardReceiverInShadowDom,
-  releaseFocusToPage,
-} from './keyboardFocus'
 import {
   resetActiveLayerOrigin,
   snapActiveLayerCenterX,
@@ -23,35 +18,31 @@ import {
 } from './useStorage'
 
 export function toggleWidgetFocusOrVisibility(): void {
-  if (!windowState.visible) {
-    windowState.visible = true
-    isKeyboardControlActive.value = true
-    focusKeyboardReceiverInShadowDom()
+  windowState.visible = !windowState.visible
+  if (windowState.visible) {
     showToast(uiStrings.value.toastWidgetFocused)
-    return
   }
-
-  if (isKeyboardControlActive.value) {
-    windowState.visible = false
-    isKeyboardControlActive.value = false
-    if (isShortcutsModalOpen.value) {
-      isShortcutsModalOpen.value = false
-    }
-    releaseFocusToPage()
-    return
-  }
-
-  isKeyboardControlActive.value = true
-  focusKeyboardReceiverInShadowDom()
-  showToast(uiStrings.value.toastWidgetFocused)
 }
 
 export const focusOrOpenWidget = toggleWidgetFocusOrVisibility
 
+export function toggleActiveLayerLock(layerId?: string): void {
+  const targetId = layerId ?? activeLayer.value?.id
+  if (!targetId || !activeLayer.value) return
+  if (!activeLayer.value.visible) {
+    updateLayer(targetId, { visible: true })
+  }
+  const nextLocked = windowState.vimMode === 'move'
+  windowState.vimMode = nextLocked ? 'locked' : 'move'
+  updateLayer(targetId, { locked: nextLocked })
+  showToast(
+    nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
+  )
+}
+
 export function enterMoveMode(layerId: string): void {
   windowState.vimMode = 'move'
-  updateLayer(layerId, { locked: false })
-  focusKeyboardReceiverInShadowDom()
+  updateLayer(layerId, { locked: false, visible: true })
   showToast(uiStrings.value.toastMove)
 }
 
@@ -59,14 +50,20 @@ export function exitMoveModeToLocked(layerId?: string): void {
   const targetId = layerId ?? activeLayer.value?.id
   windowState.vimMode = 'locked'
   if (targetId) updateLayer(targetId, { locked: true })
-  focusKeyboardReceiverInShadowDom()
   showToast(uiStrings.value.toastLocked)
 }
 
 export function moveActiveLayerBy(deltaX: number, deltaY: number): void {
   const layer = activeLayer.value
   if (!layer) return
-  updateLayer(layer.id, { x: layer.x + deltaX, y: layer.y + deltaY })
+  const patch: Partial<Omit<LayerMetadata, 'id' | 'createdAt'>> = {
+    x: layer.x + deltaX,
+    y: layer.y + deltaY,
+  }
+  if (!layer.visible) {
+    patch.visible = true
+  }
+  updateLayer(layer.id, patch)
 }
 
 export function adjustActiveLayerOpacity(deltaOpacity: number): void {
@@ -90,10 +87,9 @@ export function toggleActiveLayerVisible(): void {
   if (!layer) return
   const nextVisible = !layer.visible
   updateLayer(layer.id, { visible: nextVisible })
-  if (!nextVisible && windowState.vimMode === 'move') {
-    windowState.vimMode = 'locked'
-    updateLayer(layer.id, { locked: true })
-  }
+  showToast(
+    nextVisible ? uiStrings.value.showMockup : uiStrings.value.hiddenMockup
+  )
 }
 
 export function toggleActiveLayerInvert(): void {
@@ -106,7 +102,6 @@ export function toggleActiveLayerInvert(): void {
       ? uiStrings.value.blendInvert
       : uiStrings.value.blendNormal
   showToast(`${uiStrings.value.blendModeLabel}: ${label}`)
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function cycleMockup(direction: 1 | -1): boolean {
@@ -119,10 +114,13 @@ export function cycleMockup(direction: 1 | -1): boolean {
     curIdx === -1 ? 0 : (curIdx + direction + list.length) % list.length
   const next = list[nextIdx]
   if (next) {
+    if (windowState.activeLayerId !== next.id) {
+      windowState.vimMode = 'locked'
+      updateLayer(next.id, { locked: true })
+    }
     windowState.activeLayerId = next.id
     if (!next.visible) updateLayer(next.id, { visible: true })
     showToast(next.name)
-    focusKeyboardReceiverInShadowDom()
     return true
   }
   return false
@@ -137,7 +135,6 @@ export function cycleFolder(direction: 1 | -1): boolean {
   const next = list[nextIdx]
   if (next) {
     windowState.activeFolderId = next.id
-    focusKeyboardReceiverInShadowDom()
     return true
   }
   return false
@@ -147,7 +144,6 @@ export function selectFolderByIndex(index: number): boolean {
   const folder = folders.value[index]
   if (folder) {
     windowState.activeFolderId = folder.id
-    focusKeyboardReceiverInShadowDom()
     return true
   }
   return false
@@ -155,23 +151,23 @@ export function selectFolderByIndex(index: number): boolean {
 
 export function toggleShortcutsModal(): void {
   isShortcutsModalOpen.value = !isShortcutsModalOpen.value
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function closeShortcutsModal(): void {
   isShortcutsModalOpen.value = false
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function releaseFocusToPageAction(): void {
-  isKeyboardControlActive.value = false
-  releaseFocusToPage()
   showToast(uiStrings.value.toastPageFocused)
 }
 
 export function toggleWindowMinimized(): void {
   windowState.minimized = !windowState.minimized
-  focusKeyboardReceiverInShadowDom()
+  showToast(
+    windowState.minimized
+      ? uiStrings.value.collapseWindowTitle
+      : uiStrings.value.expandWindowTitle
+  )
 }
 
 export function triggerFileUpload(): void {
@@ -184,22 +180,18 @@ export function triggerFileUpload(): void {
 
 export function snapTopCenterAction(): void {
   snapActiveLayerTopCenter()
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function resetOriginAction(): void {
   resetActiveLayerOrigin()
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function snapCenterXAction(): void {
   snapActiveLayerCenterX()
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function snapTopYAction(): void {
   snapActiveLayerTopY()
-  focusKeyboardReceiverInShadowDom()
 }
 
 export function cycleThemeAction(): void {
@@ -217,5 +209,4 @@ export function cycleThemeAction(): void {
         ? uiStrings.value.lightTheme
         : uiStrings.value.systemThemeAuto
   showToast(toastMsg)
-  focusKeyboardReceiverInShadowDom()
 }

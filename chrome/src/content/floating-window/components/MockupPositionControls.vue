@@ -42,10 +42,6 @@ const {
       <button
         type="button"
         class="pp-quickbar__btn"
-        :class="{
-          'pp-quickbar__btn--disabled': !activeLayer.visible,
-        }"
-        :disabled="!activeLayer.visible"
         @click="toggleLock"
       >
         <AppIcon
@@ -117,6 +113,8 @@ const {
                 class="pp-coord-field__input"
                 :value="activeLayer.x"
                 @input="onCoordInput('x', $event)"
+                @keydown.enter="($event.target as HTMLElement).blur()"
+                @keydown.escape="($event.target as HTMLElement).blur()"
               />
               <button
                 type="button"
@@ -158,6 +156,8 @@ const {
                 class="pp-coord-field__input"
                 :value="activeLayer.y"
                 @input="onCoordInput('y', $event)"
+                @keydown.enter="($event.target as HTMLElement).blur()"
+                @keydown.escape="($event.target as HTMLElement).blur()"
               />
               <button
                 type="button"

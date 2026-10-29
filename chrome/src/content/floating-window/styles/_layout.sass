@@ -33,19 +33,6 @@ button
   cursor: pointer
   user-select: none
 
-.pp-keyboard-receiver
-  position: fixed
-  top: 0
-  right: 0
-  width: 1px
-  height: 1px
-  opacity: 0
-  pointer-events: none
-  border: none
-  padding: 0
-  margin: 0
-  z-index: -1
-
 :host, .pp-floating-window, .pp-shortcuts-backdrop
   --window-width: 312px
   --bg-primary: rgba(24, 26, 32, 0.94)
@@ -132,13 +119,10 @@ button
   border-right: 1px solid var(--border-subtle)
   border-top-left-radius: inherit
   border-bottom-left-radius: inherit
-  cursor: grab
+  cursor: pointer
 
   &:hover
     background: var(--bg-hover)
-
-  &:active
-    cursor: grabbing
 
 .pp-minibar__btn
   position: relative

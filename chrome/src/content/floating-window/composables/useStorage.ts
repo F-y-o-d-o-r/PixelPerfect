@@ -13,7 +13,7 @@ import {
   currentUrlPath, ensureLayerObjectUrl, folders, getNextFolderName,
   initStorage, layerObjectUrls, layers, persistFolders, persistLayers,
   persistWindowState, registerLayerObjectUrl, revokeLayerObjectUrl,
-  showToast, statusToast, isShortcutsModalOpen, isKeyboardControlActive,
+  showToast, statusToast, isShortcutsModalOpen,
   uiStrings, visibleFolders, windowState,
 } from './storageState'
 import { getLayerCssDimensions, getNormalizedUrlPath } from './useUrlMatcher'
@@ -149,15 +149,12 @@ export async function addLayerFromBlob(
       rawName?.trim() ||
       `Mockup ${folderLayers.length + 1} (${naturalWidth}×${naturalHeight})`,
     folderId: targetFolderId,
-    urlBinding: {
-      type: 'exact',
-      value: getNormalizedUrlPath(),
-    },
+    urlBinding: { type: 'exact', value: getNormalizedUrlPath() },
     x: centeredX,
     y: currentScrollY,
     opacity: 0.5,
     visible: true,
-    locked: true,
+    locked: false,
     scaleMode: initialScaleMode,
     blendMode: 'normal',
     naturalWidth,
@@ -169,6 +166,7 @@ export async function addLayerFromBlob(
   layers.value = [...layers.value, layer]
   windowState.activeFolderId = targetFolderId
   windowState.activeLayerId = layer.id
+  windowState.vimMode = 'move'
 
   folders.value = folders.value.map((f) =>
     f.id === targetFolderId ? { ...f, lastActiveLayerId: layer.id } : f
@@ -236,11 +234,7 @@ export async function centerActiveLayerTop(): Promise<void> {
 export async function resetActiveLayerPosition(): Promise<void> {
   if (!activeLayer.value) return
   await updateLayer(activeLayer.value.id, {
-    x: 0,
-    y: 0,
-    scaleMode: '1x',
-    blendMode: 'normal',
-    opacity: 0.5,
+    x: 0, y: 0, scaleMode: '1x', blendMode: 'normal', opacity: 0.5,
   })
   showToast(uiStrings.value.toastOriginReset)
 }
@@ -277,7 +271,6 @@ export function useStorage() {
     currentUrlPath,
     statusToast,
     isShortcutsModalOpen,
-    isKeyboardControlActive,
     initStorage,
     autoSelectLayerForUrl,
     getFolderLayerCount,

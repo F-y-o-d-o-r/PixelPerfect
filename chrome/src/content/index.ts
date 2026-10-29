@@ -2,10 +2,6 @@ import { createApp } from 'vue'
 import { DOM_HOST_IDS } from '@/shared/constants'
 import type { ExtensionMessage } from '@/shared/types'
 import FloatingWindow from './floating-window/FloatingWindow.vue'
-import {
-  focusKeyboardReceiverInShadowDom,
-  releaseFocusToPage,
-} from './floating-window/composables/keyboardFocus'
 import { useStorage } from './floating-window/composables/useStorage'
 import floatingWindowStyles from './floating-window/styles/floating-window.sass?inline'
 import { initOverlayRenderer } from './overlay'
@@ -130,9 +126,6 @@ function registerExtensionMessageListener(): void {
     (message: ExtensionMessage, _sender, sendResponse) => {
       if (message.type === 'PP_SHOW_FLOATING_WINDOW') {
         windowState.visible = true
-        setTimeout(() => {
-          focusKeyboardReceiverInShadowDom()
-        }, 0)
         showToast(uiStrings.value.toastWidgetFocused)
         sendResponse({ visible: true })
         return false
@@ -141,12 +134,7 @@ function registerExtensionMessageListener(): void {
       if (message.type === 'PP_TOGGLE_FLOATING_WINDOW') {
         windowState.visible = !windowState.visible
         if (windowState.visible) {
-          setTimeout(() => {
-            focusKeyboardReceiverInShadowDom()
-          }, 0)
           showToast(uiStrings.value.toastWidgetFocused)
-        } else {
-          releaseFocusToPage()
         }
         sendResponse({ visible: windowState.visible })
       }

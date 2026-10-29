@@ -31,7 +31,7 @@ export const uk: UiStrings = {
     'Притиснути до початку: відцентрувати по X і Y=0 (клавіша 0)',
   opacityLabel: 'ПРОЗОРІСТЬ:',
   movePillMode: 'ЗСУВ',
-  movePillNoSnap: 'без прилипання',
+  movePillSnap: 'прилипання',
   movePillLockAxis: 'одна вісь',
   toastLocked: 'Макет закріплено',
   toastMove: 'Режим зсуву: h/j/k/l рухати • i / Esc закріпити',

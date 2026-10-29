@@ -7,10 +7,8 @@ import FolderTabs from './components/FolderTabs.vue'
 import MockupList from './components/MockupList.vue'
 import MockupPositionControls from './components/MockupPositionControls.vue'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal.vue'
-import {
-  focusKeyboardReceiverInShadowDom,
-  useKeyboard,
-} from './composables/useKeyboard'
+import { useKeyboard } from './composables/useKeyboard'
+import { toggleWindowMinimized } from './composables/keyboardActions'
 import { useStorage } from './composables/useStorage'
 import { useTheme } from './composables/useTheme'
 import { useWindowDrag } from './composables/useWindowDrag'
@@ -23,7 +21,6 @@ const {
   uiStrings,
   statusToast,
   isShortcutsModalOpen,
-  isKeyboardControlActive,
   initStorage,
   updateLayer,
   showToast,
@@ -45,41 +42,29 @@ const {
 useKeyboard()
 
 function toggleMinimized(): void {
-  windowState.minimized = !windowState.minimized
+  toggleWindowMinimized()
 }
 
 function toggleMiniShow(): void {
   if (!activeLayer.value) return
   const nextVisible = !activeLayer.value.visible
   updateLayer(activeLayer.value.id, { visible: nextVisible })
-  if (!nextVisible && windowState.vimMode === 'move') {
-    windowState.vimMode = 'locked'
-    updateLayer(activeLayer.value.id, { locked: true })
-  }
   showToast(
     nextVisible ? uiStrings.value.showMockup : uiStrings.value.hiddenMockup
   )
-  focusKeyboardReceiverInShadowDom()
 }
 
 function toggleMiniLock(): void {
-  if (!activeLayer.value || !activeLayer.value.visible) return
+  if (!activeLayer.value) return
+  if (!activeLayer.value.visible) {
+    updateLayer(activeLayer.value.id, { visible: true })
+  }
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
   showToast(
     nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
   )
-  focusKeyboardReceiverInShadowDom()
-}
-
-function handleWindowClick(event: MouseEvent): void {
-  isKeyboardControlActive.value = true
-  const target = event.target as HTMLElement | null
-  if (target && (target.tagName === 'INPUT' || target.tagName === 'SELECT')) {
-    return
-  }
-  focusKeyboardReceiverInShadowDom()
 }
 
 watch(
@@ -110,16 +95,7 @@ onUnmounted(() => {
     }"
     :data-theme="resolvedTheme"
     :style="windowPositionStyle"
-    @click="handleWindowClick"
   >
-    <input
-      id="pp-keyboard-focus-receiver"
-      type="text"
-      readonly
-      tabindex="-1"
-      aria-label="Pixel Perfect shortcut receiver"
-      class="pp-keyboard-receiver"
-    />
     <div
       v-if="windowState.minimized"
       class="pp-minibar"
@@ -164,9 +140,9 @@ onUnmounted(() => {
         type="button"
         class="pp-minibar__btn"
         :class="{
-          'pp-minibar__btn--disabled': !activeLayer || !activeLayer.visible,
+          'pp-minibar__btn--disabled': !activeLayer,
         }"
-        :disabled="!activeLayer || !activeLayer.visible"
+        :disabled="!activeLayer"
         @click="toggleMiniLock"
       >
         <AppIcon

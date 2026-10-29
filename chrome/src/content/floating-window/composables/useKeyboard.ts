@@ -1,21 +1,15 @@
-import { onMounted, onUnmounted, watch } from 'vue'
-import { DOM_HOST_IDS } from '@/shared/constants'
+import { onMounted, onUnmounted } from 'vue'
 import { isExtensionContextValid } from '@/storage/blobStorage'
-import {
-  focusKeyboardReceiverInShadowDom,
-  isUserTypingInRealInput,
-} from './keyboardFocus'
+import { isUserTypingInRealInput } from './keyboardFocus'
 import {
   adjustActiveLayerOpacity,
   closeShortcutsModal,
   cycleFolder,
   cycleMockup,
   cycleThemeAction,
-  enterMoveMode,
   exitMoveModeToLocked,
   focusOrOpenWidget,
   moveActiveLayerBy,
-  releaseFocusToPageAction,
   resetOriginAction,
   selectFolderByIndex,
   setActiveLayerOpacity,
@@ -23,6 +17,7 @@ import {
   snapTopCenterAction,
   snapTopYAction,
   toggleActiveLayerInvert,
+  toggleActiveLayerLock,
   toggleActiveLayerVisible,
   toggleShortcutsModal,
   toggleWindowMinimized,
@@ -30,161 +25,15 @@ import {
 } from './keyboardActions'
 import { useStorage } from './useStorage'
 
-export { focusKeyboardReceiverInShadowDom } from './keyboardFocus'
+function consumeEvent(event: KeyboardEvent, action: () => void): boolean {
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  action()
+  return true
+}
 
 export function useKeyboard(): void {
-  const {
-    activeLayer,
-    windowState,
-    isShortcutsModalOpen,
-    isKeyboardControlActive,
-  } = useStorage()
-
-  function handleSharedHotkeys(event: KeyboardEvent): boolean {
-    if (event.key === '?' || (event.code === 'Slash' && event.shiftKey)) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      toggleShortcutsModal()
-      return true
-    }
-
-    if (event.code === 'KeyM' && !event.shiftKey) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      toggleWindowMinimized()
-      return true
-    }
-
-    if (event.code === 'KeyU' && !event.shiftKey) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      triggerFileUpload()
-      return true
-    }
-
-    if (event.code === 'KeyT' && !event.shiftKey) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      cycleThemeAction()
-      return true
-    }
-
-    if (event.code === 'BracketLeft' || event.code === 'BracketRight') {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      const dir = event.code === 'BracketRight' ? 1 : -1
-      return event.shiftKey ? cycleFolder(dir) : cycleMockup(dir)
-    }
-
-    const layer = activeLayer.value
-    if (!layer) return false
-
-    if (event.code === 'KeyS' && !event.shiftKey) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      toggleActiveLayerVisible()
-      return true
-    }
-
-    if (event.code === 'Minus' || event.code === 'Equal') {
-      const step = event.shiftKey ? 0.01 : 0.1
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      adjustActiveLayerOpacity(event.code === 'Equal' ? step : -step)
-      return true
-    }
-
-    if (!event.shiftKey && /^Digit[1-9]$/.test(event.code)) {
-      const digit = Number.parseInt(event.code.replace('Digit', ''), 10)
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      setActiveLayerOpacity(digit / 10)
-      return true
-    }
-
-    const runAction = (fn: () => void): boolean => {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      fn()
-      return true
-    }
-
-    if (
-      !event.shiftKey &&
-      (event.code === 'Digit0' ||
-        event.code === 'Numpad0' ||
-        event.key === '0' ||
-        event.code === 'Home')
-    ) {
-      return runAction(snapTopCenterAction)
-    }
-    if (event.code === 'KeyR' && !event.shiftKey) {
-      return runAction(resetOriginAction)
-    }
-    if (event.code === 'KeyX' && !event.shiftKey) {
-      return runAction(snapCenterXAction)
-    }
-    if (event.code === 'KeyY' && !event.shiftKey) {
-      return runAction(snapTopYAction)
-    }
-    if (event.code === 'KeyV' && !event.shiftKey) {
-      return runAction(toggleActiveLayerInvert)
-    }
-
-    return false
-  }
-
-  function handleLockedModeKey(event: KeyboardEvent, layerId: string): void {
-    if (handleSharedHotkeys(event)) return
-    if (event.code === 'KeyI' && !event.shiftKey) {
-      if (!activeLayer.value?.visible) return
-      enterMoveMode(layerId)
-    }
-  }
-
-  function handleMoveModeKey(event: KeyboardEvent, layerId: string): void {
-    if (handleSharedHotkeys(event)) return
-    const step = event.shiftKey ? 10 : 1
-
-    switch (event.code) {
-      case 'KeyI':
-      case 'Escape':
-        if (event.code === 'KeyI' && event.shiftKey) break
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        exitMoveModeToLocked(layerId)
-        break
-      case 'KeyH':
-      case 'ArrowLeft':
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        moveActiveLayerBy(-step, 0)
-        break
-      case 'KeyL':
-      case 'ArrowRight':
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        moveActiveLayerBy(step, 0)
-        break
-      case 'KeyK':
-      case 'ArrowUp':
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        moveActiveLayerBy(0, -step)
-        break
-      case 'KeyJ':
-      case 'ArrowDown':
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        moveActiveLayerBy(0, step)
-        break
-      case 'Space':
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        toggleActiveLayerVisible()
-        break
-    }
-  }
+  const { activeLayer, windowState, isShortcutsModalOpen } = useStorage()
 
   function onKeyDown(event: KeyboardEvent): void {
     if (!isExtensionContextValid()) {
@@ -192,7 +41,7 @@ export function useKeyboard(): void {
       return
     }
 
-    // Alt+S, Alt+` or Alt+W: Focus or Open Pixel Perfect from anywhere
+    // Alt+S, Alt+` or Alt+W: Open / Close Pixel Perfect from anywhere
     const isAltTrigger =
       event.altKey &&
       !event.ctrlKey &&
@@ -201,9 +50,7 @@ export function useKeyboard(): void {
         event.code === 'Backquote' ||
         event.code === 'KeyW')
     if (isAltTrigger) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      focusOrOpenWidget()
+      consumeEvent(event, focusOrOpenWidget)
       return
     }
 
@@ -216,80 +63,210 @@ export function useKeyboard(): void {
     ) {
       const digit = Number.parseInt(event.code.replace('Digit', ''), 10)
       if (selectFolderByIndex(digit - 1)) {
-        event.preventDefault()
-        event.stopImmediatePropagation()
+        consumeEvent(event, () => {})
         return
       }
     }
 
+    // If widget is hidden, don't intercept any other keys
     if (!windowState.visible) return
-    if (!isKeyboardControlActive.value) return
-    if (event.metaKey || event.ctrlKey || event.altKey) return
-    if (isUserTypingInRealInput(event)) return
 
-    // Escape handling: modal -> locked exit to page
-    if (event.code === 'Escape') {
+    // If user is typing in a real text input, let them type
+    if (isUserTypingInRealInput(event)) {
+      if (event.code === 'Escape') {
+        const active = document.activeElement as HTMLElement | null
+        active?.blur()
+      }
+      return
+    }
+
+    // Ignore browser system shortcuts with Ctrl / Meta
+    if (event.metaKey || event.ctrlKey) return
+
+    const code = event.code
+    const key = event.key?.toLowerCase()
+
+    // Escape handling
+    if (code === 'Escape') {
       if (isShortcutsModalOpen.value) {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        closeShortcutsModal()
+        consumeEvent(event, closeShortcutsModal)
         return
       }
       if (windowState.vimMode === 'move') {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        exitMoveModeToLocked()
+        consumeEvent(event, exitMoveModeToLocked)
         return
       }
-      if (windowState.vimMode === 'locked') {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        releaseFocusToPageAction()
-        return
-      }
-    }
-
-    if (!activeLayer.value) {
-      handleSharedHotkeys(event)
+      consumeEvent(event, toggleWindowMinimized)
       return
     }
 
-    const layerId = activeLayer.value.id
-    if (windowState.vimMode === 'locked') {
-      handleLockedModeKey(event, layerId)
+    // Shortcuts modal (?)
+    if (key === '?' || (code === 'Slash' && event.shiftKey)) {
+      consumeEvent(event, toggleShortcutsModal)
       return
     }
-    handleMoveModeKey(event, layerId)
-  }
 
-  function onWindowPointerDown(event: PointerEvent): void {
-    const host = document.getElementById(DOM_HOST_IDS.FLOATING_WINDOW)
-    if (!host) return
-    isKeyboardControlActive.value = event.composedPath().includes(host)
-  }
+    // Minimize window (m)
+    if ((code === 'KeyM' || key === 'm' || key === 'ь') && !event.shiftKey) {
+      consumeEvent(event, toggleWindowMinimized)
+      return
+    }
 
-  watch(
-    () => [windowState.visible, windowState.vimMode, windowState.activeLayerId],
-    ([isVisible]) => {
-      if (isVisible) {
-        setTimeout(() => {
-          focusKeyboardReceiverInShadowDom()
-        }, 0)
+    // Trigger upload (u)
+    if ((code === 'KeyU' || key === 'u' || key === 'г') && !event.shiftKey) {
+      consumeEvent(event, triggerFileUpload)
+      return
+    }
+
+    // Cycle theme (t)
+    if ((code === 'KeyT' || key === 't' || key === 'е') && !event.shiftKey) {
+      consumeEvent(event, cycleThemeAction)
+      return
+    }
+
+    // Cycle folders: { / } (Shift + [ / ])
+    if (
+      event.shiftKey &&
+      (code === 'BracketLeft' ||
+        code === 'BracketRight' ||
+        key === '{' ||
+        key === '}' ||
+        key === 'х' ||
+        key === 'ъ')
+    ) {
+      const dir =
+        code === 'BracketRight' || key === '}' || key === 'ъ' ? 1 : -1
+      consumeEvent(event, () => cycleFolder(dir))
+      return
+    }
+
+    // Cycle mockups: [ / ]
+    if (
+      !event.shiftKey &&
+      (code === 'BracketLeft' ||
+        code === 'BracketRight' ||
+        key === '[' ||
+        key === ']' ||
+        key === 'х' ||
+        key === 'ъ')
+    ) {
+      const dir =
+        code === 'BracketRight' || key === ']' || key === 'ъ' ? 1 : -1
+      consumeEvent(event, () => cycleMockup(dir))
+      return
+    }
+
+    // Layer-specific actions require activeLayer
+    const layer = activeLayer.value
+    if (!layer) return
+
+    // Show / Hide (s or Space)
+    if (
+      (!event.shiftKey && (code === 'KeyS' || key === 's' || key === 'ы')) ||
+      code === 'Space' ||
+      key === ' '
+    ) {
+      consumeEvent(event, toggleActiveLayerVisible)
+      return
+    }
+
+    // Move / Lock toggle (i)
+    if ((code === 'KeyI' || key === 'i' || key === 'ш') && !event.shiftKey) {
+      consumeEvent(event, () => toggleActiveLayerLock(layer.id))
+      return
+    }
+
+    // Nudge: Arrows or h/j/k/l (ALWAYS works when layer exists)
+    const step = event.shiftKey ? 10 : 1
+    if (code === 'KeyH' || key === 'h' || key === 'р' || code === 'ArrowLeft') {
+      consumeEvent(event, () => moveActiveLayerBy(-step, 0))
+      return
+    }
+    if (
+      code === 'KeyL' ||
+      key === 'l' ||
+      key === 'д' ||
+      code === 'ArrowRight'
+    ) {
+      consumeEvent(event, () => moveActiveLayerBy(step, 0))
+      return
+    }
+    if (code === 'KeyK' || key === 'k' || key === 'л' || code === 'ArrowUp') {
+      consumeEvent(event, () => moveActiveLayerBy(0, -step))
+      return
+    }
+    if (
+      code === 'KeyJ' ||
+      key === 'j' ||
+      key === 'о' ||
+      code === 'ArrowDown'
+    ) {
+      consumeEvent(event, () => moveActiveLayerBy(0, step))
+      return
+    }
+
+    // Opacity adjustments: - / + (or =)
+    if (code === 'Minus' || code === 'Equal' || key === '-' || key === '=') {
+      const opacityStep = event.shiftKey ? 0.01 : 0.1
+      consumeEvent(event, () =>
+        adjustActiveLayerOpacity(
+          code === 'Equal' || key === '=' ? opacityStep : -opacityStep
+        )
+      )
+      return
+    }
+
+    // Opacity numbers: 1–9
+    if (!event.shiftKey && (/^Digit[1-9]$/.test(code) || /^[1-9]$/.test(key))) {
+      const digit = Number.parseInt(key || code.replace('Digit', ''), 10)
+      if (!Number.isNaN(digit)) {
+        consumeEvent(event, () => setActiveLayerOpacity(digit / 10))
+        return
       }
-    },
-    { immediate: true }
-  )
+    }
+
+    // Snap to top-center (0 / Home)
+    if (
+      !event.shiftKey &&
+      (code === 'Digit0' ||
+        code === 'Numpad0' ||
+        key === '0' ||
+        code === 'Home')
+    ) {
+      consumeEvent(event, snapTopCenterAction)
+      return
+    }
+
+    // Reset origin (r)
+    if ((code === 'KeyR' || key === 'r' || key === 'к') && !event.shiftKey) {
+      consumeEvent(event, resetOriginAction)
+      return
+    }
+
+    // Center X (x)
+    if ((code === 'KeyX' || key === 'x' || key === 'ч') && !event.shiftKey) {
+      consumeEvent(event, snapCenterXAction)
+      return
+    }
+
+    // Top Y (y)
+    if ((code === 'KeyY' || key === 'y' || key === 'н') && !event.shiftKey) {
+      consumeEvent(event, snapTopYAction)
+      return
+    }
+
+    // Color invert (v)
+    if ((code === 'KeyV' || key === 'v' || key === 'м') && !event.shiftKey) {
+      consumeEvent(event, toggleActiveLayerInvert)
+      return
+    }
+  }
 
   onMounted(() => {
     window.addEventListener('keydown', onKeyDown, { capture: true })
-    window.addEventListener('pointerdown', onWindowPointerDown, { capture: true })
-    setTimeout(() => {
-      focusKeyboardReceiverInShadowDom()
-    }, 0)
   })
 
   onUnmounted(() => {
     window.removeEventListener('keydown', onKeyDown, { capture: true })
-    window.removeEventListener('pointerdown', onWindowPointerDown, { capture: true })
   })
 }

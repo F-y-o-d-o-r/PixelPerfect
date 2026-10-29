@@ -7,6 +7,7 @@ import {
   type SupportedLocale,
 } from '@/i18n/config'
 import { DOM_HOST_IDS, EXTENSION_VERSION } from '@/shared/constants'
+import { toggleWindowMinimized } from '../composables/keyboardActions'
 import { useStorage } from '../composables/useStorage'
 import { useWindowDrag } from '../composables/useWindowDrag'
 
@@ -39,7 +40,7 @@ function closeDropdownMenu(): void {
 }
 
 function toggleMinimized(): void {
-  windowState.minimized = !windowState.minimized
+  toggleWindowMinimized()
   closeDropdownMenu()
 }
 

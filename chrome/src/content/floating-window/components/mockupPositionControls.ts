@@ -1,6 +1,5 @@
 import { computed } from 'vue'
 import type { ScaleMode } from '@/shared/types'
-import { focusKeyboardReceiverInShadowDom } from '../composables/useKeyboard'
 import { useStorage } from '../composables/useStorage'
 
 export const SCALE_MODES: { value: ScaleMode; label: string }[] = [
@@ -31,21 +30,22 @@ export function useMockupPositionControls() {
     if (!activeLayer.value) return
     const nextVisible = !activeLayer.value.visible
     updateLayer(activeLayer.value.id, { visible: nextVisible })
-    if (!nextVisible && windowState.vimMode === 'move') {
-      windowState.vimMode = 'locked'
-      updateLayer(activeLayer.value.id, { locked: true })
-    }
+    showToast(
+      nextVisible ? uiStrings.value.showMockup : uiStrings.value.hiddenMockup
+    )
   }
 
   function toggleLock(): void {
     if (!activeLayer.value) return
+    if (!activeLayer.value.visible) {
+      updateLayer(activeLayer.value.id, { visible: true })
+    }
     const nextLocked = windowState.vimMode === 'move'
     windowState.vimMode = nextLocked ? 'locked' : 'move'
     updateLayer(activeLayer.value.id, { locked: nextLocked })
     showToast(
       nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
     )
-    focusKeyboardReceiverInShadowDom()
   }
 
   function toggleInvertMode(): void {
@@ -58,27 +58,22 @@ export function useMockupPositionControls() {
         ? uiStrings.value.blendInvert
         : uiStrings.value.blendNormal
     showToast(`${uiStrings.value.blendModeLabel}: ${label}`)
-    focusKeyboardReceiverInShadowDom()
   }
 
   function snapCenterX(): void {
     snapActiveLayerCenterX()
-    focusKeyboardReceiverInShadowDom()
   }
 
   function snapTopY(): void {
     snapActiveLayerTopY()
-    focusKeyboardReceiverInShadowDom()
   }
 
   function snapTopCenter(): void {
     snapActiveLayerTopCenter()
-    focusKeyboardReceiverInShadowDom()
   }
 
   function resetOrigin(): void {
     resetActiveLayerOrigin()
-    focusKeyboardReceiverInShadowDom()
   }
 
   function moveBy(deltaX: number, deltaY: number, event?: MouseEvent): void {

@@ -30,7 +30,7 @@ export const sr: UiStrings = {
   snapToTopCenterTitle: 'Постави на врх и центар (X: Центар, Y: 0 — тастер 0)',
   opacityLabel: 'ПРОВИДНОСТ:',
   movePillMode: 'ПОМЕРАЊЕ',
-  movePillNoSnap: 'без магнета',
+  movePillSnap: 'магнет',
   movePillLockAxis: 'једна оса',
   toastLocked: 'Макета је закључана',
   toastMove: 'Режим померања: h/j/k/l помери • i / Esc закључај',

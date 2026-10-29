@@ -6,7 +6,7 @@ export const OVERLAY_SHADOW_STYLES = `
   left: 0;
   width: 100%;
   height: 0;
-  overflow-x: clip;
+  overflow: clip;
   z-index: 2147483645;
   pointer-events: none;
 }
