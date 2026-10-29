@@ -74,6 +74,8 @@ export const en = {
   shortcutsCatMove: 'Nudge & Alignment',
   shortcutsCatView: 'Opacity & View',
   shortcutsCatMouse: 'Mouse & Drag',
+  scaleModeLabel: 'Scale',
+  shortcutsCycleScale: 'Cycle scale (1x, 2x, Auto)',
 }
 
 export type UiStrings = Record<keyof typeof en, string>

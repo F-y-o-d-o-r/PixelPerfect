@@ -77,4 +77,6 @@ export const bg: UiStrings = {
   shortcutsCatMove: 'Преместване и подравняване',
   shortcutsCatView: 'Прозрачност и изглед',
   shortcutsCatMouse: 'Мишка и Drag & Drop',
+  scaleModeLabel: 'Мащаб',
+  shortcutsCycleScale: 'Превключване на мащаба (1x, 2x, Auto)',
 }

@@ -101,7 +101,7 @@ export async function persistFolders(): Promise<void> {
 }
 
 export async function persistWindowState(): Promise<void> {
-  if (!isExtensionContextValid()) return
+  if (!isStorageInitialized || !isExtensionContextValid()) return
   try {
     const raw = JSON.parse(JSON.stringify(windowState))
     await chrome.storage.local.set({ [STORAGE_KEYS.FLOATING_WINDOW]: raw })
@@ -109,15 +109,10 @@ export async function persistWindowState(): Promise<void> {
 }
 
 function rememberActiveLayerForFolder(folderId: string): void {
-  const activeLayerId = windowState.activeLayerId
-  const layerBelongsToFolder = layers.value.some(
-    (layer) => layer.id === activeLayerId && layer.folderId === folderId
-  )
-  if (!layerBelongsToFolder) return
-  folders.value = folders.value.map((folder) =>
-    folder.id === folderId
-      ? { ...folder, lastActiveLayerId: activeLayerId }
-      : folder
+  const activeId = windowState.activeLayerId
+  if (!layers.value.some((l) => l.id === activeId && l.folderId === folderId)) return
+  folders.value = folders.value.map((f) =>
+    f.id === folderId ? { ...f, lastActiveLayerId: activeId } : f
   )
   persistFolders()
 }
@@ -226,12 +221,18 @@ function registerCrossTabStorageSyncListener(): void {
         folders.value = updatedFolders
       }
     }
+
+    if (changes[STORAGE_KEYS.FLOATING_WINDOW]?.newValue) {
+      const updatedWin = changes[STORAGE_KEYS.FLOATING_WINDOW].newValue
+      if (updatedWin?.viewMode && updatedWin.viewMode !== windowState.viewMode) {
+        windowState.viewMode = updatedWin.viewMode
+      }
+    }
   })
 }
 
 export async function initStorage(): Promise<void> {
   if (isStorageInitialized) return
-  isStorageInitialized = true
   currentUrlPath.value = getNormalizedUrlPath()
 
   if (isExtensionContextValid()) {
@@ -243,9 +244,9 @@ export async function initStorage(): Promise<void> {
       ])
 
       if (Array.isArray(storedData[STORAGE_KEYS.LAYERS])) {
-        layers.value = (
-          storedData[STORAGE_KEYS.LAYERS] as LayerMetadata[]
-        ).map(sanitizeLayer)
+        layers.value = (storedData[STORAGE_KEYS.LAYERS] as LayerMetadata[]).map(
+          sanitizeLayer
+        )
       }
       if (Array.isArray(storedData[STORAGE_KEYS.FOLDERS])) {
         folders.value = storedData[STORAGE_KEYS.FOLDERS]
@@ -264,16 +265,15 @@ export async function initStorage(): Promise<void> {
         const defaultFolder: Folder = {
           id: `fld_${Date.now()}_default`,
           name: 'Folder 1',
-          urlBinding: {
-            type: 'exact',
-            value: currentUrlPath.value,
-          },
+          urlBinding: { type: 'exact', value: currentUrlPath.value },
           createdAt: Date.now(),
         }
         folders.value = [defaultFolder]
         windowState.activeFolderId = defaultFolder.id
         await persistFolders()
-      } else if (!folders.value.some((f) => f.id === windowState.activeFolderId)) {
+      } else if (
+        !folders.value.some((f) => f.id === windowState.activeFolderId)
+      ) {
         windowState.activeFolderId = folders.value[0].id
       }
     } catch {
@@ -281,6 +281,7 @@ export async function initStorage(): Promise<void> {
     }
   }
 
+  isStorageInitialized = true
   await hydrateAllLayerObjectUrls()
   autoSelectLayerForUrl()
   registerCrossTabStorageSyncListener()

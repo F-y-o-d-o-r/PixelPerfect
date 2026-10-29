@@ -76,4 +76,6 @@ export const sr: UiStrings = {
   shortcutsCatMove: 'Померање и поравнање',
   shortcutsCatView: 'Провидност и приказ',
   shortcutsCatMouse: 'Миш и Drag & Drop',
+  scaleModeLabel: 'Размера',
+  shortcutsCycleScale: 'Промена размере (1x, 2x, Auto)',
 }

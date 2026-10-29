@@ -78,4 +78,6 @@ export const el: UiStrings = {
   shortcutsCatMove: 'Μετακίνηση & Στοίχιση',
   shortcutsCatView: 'Διαφάνεια & Προβολή',
   shortcutsCatMouse: 'Ποντίκι & Σύρσιμο',
+  scaleModeLabel: 'Κλίμακα',
+  shortcutsCycleScale: 'Εναλλαγή κλίμακας (1x, 2x, Auto)',
 }

@@ -195,6 +195,12 @@ function handleBackdropClick(event: MouseEvent): void {
             </div>
           </div>
           <div class="pp-shortcuts-row">
+            <span class="pp-shortcuts-desc">{{ uiStrings.shortcutsCycleScale }}</span>
+            <div class="pp-shortcuts-keys">
+              <span class="pp-shortcuts-kbd">z</span>
+            </div>
+          </div>
+          <div class="pp-shortcuts-row">
             <span class="pp-shortcuts-desc">{{ uiStrings.opacityLabel }} 10% – 90%</span>
             <div class="pp-shortcuts-keys">
               <span class="pp-shortcuts-kbd">1..9</span>

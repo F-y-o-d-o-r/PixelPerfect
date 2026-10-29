@@ -79,4 +79,6 @@ export const uk: UiStrings = {
   shortcutsCatMove: 'Зсув і вирівнювання',
   shortcutsCatView: 'Прозорість і вигляд',
   shortcutsCatMouse: 'Миша та Drag & Drop',
+  scaleModeLabel: 'Масштаб',
+  shortcutsCycleScale: 'Перемикання масштабу (1x, 2x, Auto)',
 }

@@ -7,6 +7,7 @@ import {
   layerDropPosition,
   resetLayerDragState,
 } from '../composables/reorder'
+import { persistWindowState } from '../composables/storageState'
 import { useStorage } from '../composables/useStorage'
 import { useMockupImport } from './mockupImport'
 
@@ -66,6 +67,7 @@ export function useMockupList() {
 
   function toggleViewMode(): void {
     windowState.viewMode = windowState.viewMode === 'grid' ? 'list' : 'grid'
+    persistWindowState()
   }
 
   function selectLayer(layer: LayerMetadata): void {

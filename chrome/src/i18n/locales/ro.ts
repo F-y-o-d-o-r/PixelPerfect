@@ -77,4 +77,6 @@ export const ro: UiStrings = {
   shortcutsCatMove: 'Deplasare & Aliniere',
   shortcutsCatView: 'Opacitate & Vizualizare',
   shortcutsCatMouse: 'Mouse & Drag',
+  scaleModeLabel: 'Scală',
+  shortcutsCycleScale: 'Comutare scală (1x, 2x, Auto)',
 }

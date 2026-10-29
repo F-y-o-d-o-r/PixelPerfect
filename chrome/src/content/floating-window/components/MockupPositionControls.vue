@@ -220,6 +220,12 @@ const {
               >
                 {{ mode.label }}
               </button>
+              <span
+                v-if="windowState.showHotkeys"
+                class="pp-hotkey-hint pp-hotkey-hint--corner"
+              >
+                z
+              </span>
             </div>
           </div>
         </div>

@@ -62,6 +62,7 @@ Built as an ad-free, fast, and privacy-respecting alternative to legacy tools, w
 | **`y`** | Snap mockup vertically to Top (Y: 0) |
 | **`r`** | Reset mockup to origin (X: 0, Y: 0, 1x, Normal, 50%) |
 | **`v`** | Toggle color inversion (Normal / Invert) |
+| **`z`** | Cycle scale mode (`1x` $\to$ `2x` $\to$ `Auto`) |
 | **`1` – `9`** | Set opacity to 10% – 90% |
 | **`-` / `+`** | Adjust opacity by ±10% (with `Shift`: ±1%) |
 | **Mouse Wheel** | Adjust opacity by ±5% (in Move mode over overlay) |

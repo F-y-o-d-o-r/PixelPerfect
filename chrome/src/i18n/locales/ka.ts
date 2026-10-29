@@ -76,4 +76,6 @@ export const ka: UiStrings = {
   shortcutsCatMove: 'გადაადგილება და გასწორება',
   shortcutsCatView: 'გამჭვირვალობა და ხედი',
   shortcutsCatMouse: 'მაუსი და Drag & Drop',
+  scaleModeLabel: 'მასშტაბი',
+  shortcutsCycleScale: 'მასშტაბის გადართვა (1x, 2x, Auto)',
 }

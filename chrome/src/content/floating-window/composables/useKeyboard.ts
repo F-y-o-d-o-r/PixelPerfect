@@ -6,6 +6,7 @@ import {
   closeShortcutsModal,
   cycleFolder,
   cycleMockup,
+  cycleScaleModeAction,
   cycleThemeAction,
   exitMoveModeToLocked,
   focusOrOpenWidget,
@@ -260,6 +261,12 @@ export function useKeyboard(): void {
     // Color invert (v)
     if ((code === 'KeyV' || key === 'v' || key === 'м') && !event.shiftKey) {
       consumeEvent(event, toggleActiveLayerInvert)
+      return
+    }
+
+    // Cycle scale: 1x -> 2x -> Auto (z)
+    if ((code === 'KeyZ' || key === 'z' || key === 'я') && !event.shiftKey) {
+      consumeEvent(event, cycleScaleModeAction)
       return
     }
   }

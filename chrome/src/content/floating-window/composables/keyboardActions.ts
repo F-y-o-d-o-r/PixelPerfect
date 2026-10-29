@@ -1,5 +1,5 @@
 import { DOM_HOST_IDS } from '@/shared/constants'
-import type { LayerMetadata } from '@/shared/types'
+import type { LayerMetadata, ScaleMode } from '@/shared/types'
 import {
   activeLayer,
   currentFolderLayers,
@@ -11,6 +11,7 @@ import {
 } from './storageState'
 import {
   resetActiveLayerOrigin,
+  setScaleMode,
   snapActiveLayerCenterX,
   snapActiveLayerTopCenter,
   snapActiveLayerTopY,
@@ -209,4 +210,14 @@ export function cycleThemeAction(): void {
         ? uiStrings.value.lightTheme
         : uiStrings.value.systemThemeAuto
   showToast(toastMsg)
+}
+
+export function cycleScaleModeAction(): void {
+  const layer = activeLayer.value
+  if (!layer || !layer.visible) return
+  const modes: ScaleMode[] = ['1x', '2x', 'auto']
+  const curIdx = modes.indexOf(layer.scaleMode)
+  const nextMode = modes[(curIdx + 1) % modes.length]
+  setScaleMode(nextMode)
+  showToast(`${uiStrings.value.scaleModeLabel}: ${nextMode.toUpperCase()}`)
 }

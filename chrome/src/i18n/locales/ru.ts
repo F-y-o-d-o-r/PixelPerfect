@@ -77,4 +77,6 @@ export const ru: UiStrings = {
   shortcutsCatMove: 'Сдвиг и выравнивание',
   shortcutsCatView: 'Прозрачность и вид',
   shortcutsCatMouse: 'Мышь и Drag & Drop',
+  scaleModeLabel: 'Масштаб',
+  shortcutsCycleScale: 'Переключение масштаба (1x, 2x, Auto)',
 }
