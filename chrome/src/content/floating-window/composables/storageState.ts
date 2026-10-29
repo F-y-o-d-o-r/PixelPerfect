@@ -87,35 +87,25 @@ export function showToast(message: string, durationMs = 2400): void {
 export async function persistLayers(): Promise<void> {
   if (!isExtensionContextValid()) return
   try {
-    const rawLayers: LayerMetadata[] = JSON.parse(JSON.stringify(layers.value))
-    await chrome.storage.local.set({ [STORAGE_KEYS.LAYERS]: rawLayers })
-  } catch {
-    return
-  }
+    const raw = JSON.parse(JSON.stringify(layers.value))
+    await chrome.storage.local.set({ [STORAGE_KEYS.LAYERS]: raw })
+  } catch { /* ignore */ }
 }
 
 export async function persistFolders(): Promise<void> {
   if (!isExtensionContextValid()) return
   try {
-    const rawFolders: Folder[] = JSON.parse(JSON.stringify(folders.value))
-    await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: rawFolders })
-  } catch {
-    return
-  }
+    const raw = JSON.parse(JSON.stringify(folders.value))
+    await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: raw })
+  } catch { /* ignore */ }
 }
 
 export async function persistWindowState(): Promise<void> {
   if (!isExtensionContextValid()) return
   try {
-    const serializedState: FloatingWindowState = JSON.parse(
-      JSON.stringify(windowState)
-    )
-    await chrome.storage.local.set({
-      [STORAGE_KEYS.FLOATING_WINDOW]: serializedState,
-    })
-  } catch {
-    return
-  }
+    const raw = JSON.parse(JSON.stringify(windowState))
+    await chrome.storage.local.set({ [STORAGE_KEYS.FLOATING_WINDOW]: raw })
+  } catch { /* ignore */ }
 }
 
 function rememberActiveLayerForFolder(folderId: string): void {
@@ -205,6 +195,17 @@ export function autoSelectLayerForUrl(): void {
   }
 }
 
+function sanitizeLayer(layer: LayerMetadata): LayerMetadata {
+  return {
+    ...layer,
+    x: Number.isFinite(layer.x) ? Math.round(layer.x) : 0,
+    y: Number.isFinite(layer.y) ? Math.round(layer.y) : 0,
+    opacity: Number.isFinite(layer.opacity)
+      ? Math.max(0.05, Math.min(1, layer.opacity))
+      : 0.5,
+  }
+}
+
 function registerCrossTabStorageSyncListener(): void {
   if (!isExtensionContextValid() || !chrome.storage?.onChanged) return
 
@@ -214,7 +215,7 @@ function registerCrossTabStorageSyncListener(): void {
     if (changes[STORAGE_KEYS.LAYERS]?.newValue) {
       const updatedLayers = changes[STORAGE_KEYS.LAYERS].newValue
       if (Array.isArray(updatedLayers)) {
-        layers.value = updatedLayers
+        layers.value = (updatedLayers as LayerMetadata[]).map(sanitizeLayer)
         hydrateAllLayerObjectUrls()
       }
     }
@@ -242,7 +243,9 @@ export async function initStorage(): Promise<void> {
       ])
 
       if (Array.isArray(storedData[STORAGE_KEYS.LAYERS])) {
-        layers.value = storedData[STORAGE_KEYS.LAYERS]
+        layers.value = (
+          storedData[STORAGE_KEYS.LAYERS] as LayerMetadata[]
+        ).map(sanitizeLayer)
       }
       if (Array.isArray(storedData[STORAGE_KEYS.FOLDERS])) {
         folders.value = storedData[STORAGE_KEYS.FOLDERS]

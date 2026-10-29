@@ -37,9 +37,6 @@ export function useMockupPositionControls() {
 
   function toggleLock(): void {
     if (!activeLayer.value) return
-    if (!activeLayer.value.visible) {
-      updateLayer(activeLayer.value.id, { visible: true })
-    }
     const nextLocked = windowState.vimMode === 'move'
     windowState.vimMode = nextLocked ? 'locked' : 'move'
     updateLayer(activeLayer.value.id, { locked: nextLocked })
@@ -79,9 +76,15 @@ export function useMockupPositionControls() {
   function moveBy(deltaX: number, deltaY: number, event?: MouseEvent): void {
     if (!activeLayer.value) return
     const stepMultiplier = event?.shiftKey ? 10 : 1
+    const currentX = Number.isFinite(activeLayer.value.x)
+      ? activeLayer.value.x
+      : 0
+    const currentY = Number.isFinite(activeLayer.value.y)
+      ? activeLayer.value.y
+      : 0
     updateLayer(activeLayer.value.id, {
-      x: activeLayer.value.x + deltaX * stepMultiplier,
-      y: activeLayer.value.y + deltaY * stepMultiplier,
+      x: Math.round(currentX + deltaX * stepMultiplier),
+      y: Math.round(currentY + deltaY * stepMultiplier),
     })
   }
 

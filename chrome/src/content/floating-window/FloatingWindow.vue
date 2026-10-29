@@ -8,6 +8,7 @@ import MockupList from './components/MockupList.vue'
 import MockupPositionControls from './components/MockupPositionControls.vue'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal.vue'
 import { useKeyboard } from './composables/useKeyboard'
+import { releaseHostPageFocus } from './composables/keyboardFocus'
 import { toggleWindowMinimized } from './composables/keyboardActions'
 import { useStorage } from './composables/useStorage'
 import { useTheme } from './composables/useTheme'
@@ -56,15 +57,22 @@ function toggleMiniShow(): void {
 
 function toggleMiniLock(): void {
   if (!activeLayer.value) return
-  if (!activeLayer.value.visible) {
-    updateLayer(activeLayer.value.id, { visible: true })
-  }
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(activeLayer.value.id, { locked: nextLocked })
   showToast(
     nextLocked ? uiStrings.value.toastLocked : uiStrings.value.toastMove
   )
+}
+
+function handleWidgetPointerDown(event: PointerEvent): void {
+  const target = event.composedPath()[0]
+  const isInput =
+    target instanceof HTMLElement && target.tagName === 'INPUT'
+  if (!isInput) {
+    releaseHostPageFocus()
+    floatingWindowRef.value?.focus()
+  }
 }
 
 watch(
@@ -86,6 +94,7 @@ onUnmounted(() => {
   <div
     v-if="windowState.visible"
     ref="floatingWindowRef"
+    tabindex="-1"
     class="pp-floating-window"
     :class="{
       'pp-floating-window--edge-top': isDockedTop,
@@ -95,6 +104,7 @@ onUnmounted(() => {
     }"
     :data-theme="resolvedTheme"
     :style="windowPositionStyle"
+    @pointerdown="handleWidgetPointerDown"
   >
     <div
       v-if="windowState.minimized"
@@ -140,9 +150,9 @@ onUnmounted(() => {
         type="button"
         class="pp-minibar__btn"
         :class="{
-          'pp-minibar__btn--disabled': !activeLayer,
+          'pp-minibar__btn--disabled': !activeLayer || !activeLayer.visible,
         }"
-        :disabled="!activeLayer"
+        :disabled="!activeLayer || !activeLayer.visible"
         @click="toggleMiniLock"
       >
         <AppIcon

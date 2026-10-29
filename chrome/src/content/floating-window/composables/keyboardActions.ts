@@ -29,9 +29,6 @@ export const focusOrOpenWidget = toggleWidgetFocusOrVisibility
 export function toggleActiveLayerLock(layerId?: string): void {
   const targetId = layerId ?? activeLayer.value?.id
   if (!targetId || !activeLayer.value) return
-  if (!activeLayer.value.visible) {
-    updateLayer(targetId, { visible: true })
-  }
   const nextLocked = windowState.vimMode === 'move'
   windowState.vimMode = nextLocked ? 'locked' : 'move'
   updateLayer(targetId, { locked: nextLocked })
@@ -42,7 +39,7 @@ export function toggleActiveLayerLock(layerId?: string): void {
 
 export function enterMoveMode(layerId: string): void {
   windowState.vimMode = 'move'
-  updateLayer(layerId, { locked: false, visible: true })
+  updateLayer(layerId, { locked: false })
   showToast(uiStrings.value.toastMove)
 }
 
@@ -56,12 +53,11 @@ export function exitMoveModeToLocked(layerId?: string): void {
 export function moveActiveLayerBy(deltaX: number, deltaY: number): void {
   const layer = activeLayer.value
   if (!layer) return
+  const currentX = Number.isFinite(layer.x) ? layer.x : 0
+  const currentY = Number.isFinite(layer.y) ? layer.y : 0
   const patch: Partial<Omit<LayerMetadata, 'id' | 'createdAt'>> = {
-    x: layer.x + deltaX,
-    y: layer.y + deltaY,
-  }
-  if (!layer.visible) {
-    patch.visible = true
+    x: Math.round(currentX + deltaX),
+    y: Math.round(currentY + deltaY),
   }
   updateLayer(layer.id, patch)
 }
@@ -69,9 +65,10 @@ export function moveActiveLayerBy(deltaX: number, deltaY: number): void {
 export function adjustActiveLayerOpacity(deltaOpacity: number): void {
   const layer = activeLayer.value
   if (!layer) return
+  const currentOpacity = Number.isFinite(layer.opacity) ? layer.opacity : 0.5
   const nextOpacity =
     Math.round(
-      Math.min(1, Math.max(0.05, layer.opacity + deltaOpacity)) * 100
+      Math.min(1, Math.max(0.05, currentOpacity + deltaOpacity)) * 100
     ) / 100
   updateLayer(layer.id, { opacity: nextOpacity })
 }
@@ -79,7 +76,10 @@ export function adjustActiveLayerOpacity(deltaOpacity: number): void {
 export function setActiveLayerOpacity(opacity: number): void {
   const layer = activeLayer.value
   if (!layer) return
-  updateLayer(layer.id, { opacity })
+  const validOpacity = Number.isFinite(opacity)
+    ? Math.max(0.05, Math.min(1, opacity))
+    : 0.5
+  updateLayer(layer.id, { opacity: validOpacity })
 }
 
 export function toggleActiveLayerVisible(): void {

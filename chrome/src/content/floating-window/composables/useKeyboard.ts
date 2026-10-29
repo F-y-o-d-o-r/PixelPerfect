@@ -86,7 +86,7 @@ export function useKeyboard(): void {
     const code = event.code
     const key = event.key?.toLowerCase()
 
-    // Escape handling
+    // Escape handling: modal -> exit move mode to locked
     if (code === 'Escape') {
       if (isShortcutsModalOpen.value) {
         consumeEvent(event, closeShortcutsModal)
@@ -96,7 +96,6 @@ export function useKeyboard(): void {
         consumeEvent(event, exitMoveModeToLocked)
         return
       }
-      consumeEvent(event, toggleWindowMinimized)
       return
     }
 
@@ -169,6 +168,9 @@ export function useKeyboard(): void {
       consumeEvent(event, toggleActiveLayerVisible)
       return
     }
+
+    // When layer is hidden, do not apply nudge, mode or opacity adjustments
+    if (!layer.visible) return
 
     // Move / Lock toggle (i)
     if ((code === 'KeyI' || key === 'i' || key === 'ш') && !event.shiftKey) {

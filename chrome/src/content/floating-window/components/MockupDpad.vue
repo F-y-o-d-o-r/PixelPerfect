@@ -2,14 +2,24 @@
 import AppIcon from './AppIcon.vue'
 import { useMockupPositionControls } from './mockupPositionControls'
 
-const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
-  useMockupPositionControls()
+const {
+  activeLayer,
+  windowState,
+  uiStrings,
+  moveBy,
+  snapActiveLayerTopCenter,
+} = useMockupPositionControls()
 </script>
 
 <template>
   <div class="pp-dpad">
     <div />
-    <button type="button" class="pp-dpad__btn" @click="moveBy(0, -1, $event)">
+    <button
+      type="button"
+      class="pp-dpad__btn"
+      :disabled="!activeLayer?.visible"
+      @click="moveBy(0, -1, $event)"
+    >
       <AppIcon name="arrow-up" :size="13" />
       <span
         v-if="windowState.showHotkeys"
@@ -20,7 +30,12 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
     </button>
     <div />
 
-    <button type="button" class="pp-dpad__btn" @click="moveBy(-1, 0, $event)">
+    <button
+      type="button"
+      class="pp-dpad__btn"
+      :disabled="!activeLayer?.visible"
+      @click="moveBy(-1, 0, $event)"
+    >
       <AppIcon name="arrow-left" :size="13" />
       <span
         v-if="windowState.showHotkeys"
@@ -32,6 +47,7 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
     <button
       type="button"
       class="pp-dpad__btn pp-dpad__btn--center"
+      :disabled="!activeLayer?.visible"
       :title="uiStrings.snapToTopCenterTitle"
       @click="snapActiveLayerTopCenter"
     >
@@ -63,7 +79,12 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
         0
       </span>
     </button>
-    <button type="button" class="pp-dpad__btn" @click="moveBy(1, 0, $event)">
+    <button
+      type="button"
+      class="pp-dpad__btn"
+      :disabled="!activeLayer?.visible"
+      @click="moveBy(1, 0, $event)"
+    >
       <AppIcon name="arrow-right" :size="13" />
       <span
         v-if="windowState.showHotkeys"
@@ -74,7 +95,12 @@ const { windowState, uiStrings, moveBy, snapActiveLayerTopCenter } =
     </button>
 
     <div />
-    <button type="button" class="pp-dpad__btn" @click="moveBy(0, 1, $event)">
+    <button
+      type="button"
+      class="pp-dpad__btn"
+      :disabled="!activeLayer?.visible"
+      @click="moveBy(0, 1, $event)"
+    >
       <AppIcon name="arrow-down" :size="13" />
       <span
         v-if="windowState.showHotkeys"

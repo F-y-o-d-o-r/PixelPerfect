@@ -42,6 +42,8 @@ const {
       <button
         type="button"
         class="pp-quickbar__btn"
+        :class="{ 'pp-quickbar__btn--disabled': !activeLayer.visible }"
+        :disabled="!activeLayer.visible"
         @click="toggleLock"
       >
         <AppIcon
@@ -62,7 +64,10 @@ const {
       </button>
     </div>
 
-    <div class="pp-card">
+    <div
+      class="pp-card"
+      :class="{ 'pp-card--disabled': !activeLayer.visible }"
+    >
       <div class="pp-origin-header">
         <span class="pp-opacity__label-group">
           <span>{{ uiStrings.originLabel }}</span>
@@ -73,6 +78,7 @@ const {
         <button
           type="button"
           class="pp-origin-reset"
+          :disabled="!activeLayer.visible"
           @click="resetActiveLayerOrigin"
         >
           <span>{{ uiStrings.resetLabel }}</span>
@@ -88,6 +94,7 @@ const {
             <button
               type="button"
               class="pp-coord-snap-btn"
+              :disabled="!activeLayer.visible"
               :title="uiStrings.snapCenterXTitle"
               @click="snapActiveLayerCenterX"
             >
@@ -111,6 +118,7 @@ const {
               <input
                 type="number"
                 class="pp-coord-field__input"
+                :disabled="!activeLayer.visible"
                 :value="activeLayer.x"
                 @input="onCoordInput('x', $event)"
                 @keydown.enter="($event.target as HTMLElement).blur()"
@@ -119,6 +127,7 @@ const {
               <button
                 type="button"
                 class="pp-coord-field__label-btn"
+                :disabled="!activeLayer.visible"
                 :title="uiStrings.snapCenterXTitle"
                 @click.prevent="snapActiveLayerCenterX"
               >
@@ -131,6 +140,7 @@ const {
             <button
               type="button"
               class="pp-coord-snap-btn"
+              :disabled="!activeLayer.visible"
               :title="uiStrings.snapTopYTitle"
               @click="snapActiveLayerTopY"
             >
@@ -154,6 +164,7 @@ const {
               <input
                 type="number"
                 class="pp-coord-field__input"
+                :disabled="!activeLayer.visible"
                 :value="activeLayer.y"
                 @input="onCoordInput('y', $event)"
                 @keydown.enter="($event.target as HTMLElement).blur()"
@@ -162,6 +173,7 @@ const {
               <button
                 type="button"
                 class="pp-coord-field__label-btn"
+                :disabled="!activeLayer.visible"
                 :title="uiStrings.snapTopYTitle"
                 @click.prevent="snapActiveLayerTopY"
               >
@@ -174,6 +186,7 @@ const {
             <button
               type="button"
               class="pp-coord-snap-btn"
+              :disabled="!activeLayer.visible"
               :class="{
                 'pp-coord-snap-btn--active': activeLayer.blendMode === 'invert',
               }"
@@ -199,6 +212,7 @@ const {
                 :key="mode.value"
                 type="button"
                 class="pp-scale-btn"
+                :disabled="!activeLayer.visible"
                 :class="{
                   'pp-scale-btn--active': activeLayer.scaleMode === mode.value,
                 }"
@@ -225,6 +239,7 @@ const {
           type="range"
           min="0"
           max="100"
+          :disabled="!activeLayer.visible"
           :value="opacityPercent"
           class="pp-opacity__slider"
           @input="onOpacityInput"

@@ -107,8 +107,8 @@ export function registerOverlayDragHandlers(
     isDragging = true
     dragStartX = event.clientX
     dragStartY = event.clientY
-    startLayerX = layer.x
-    startLayerY = layer.y
+    startLayerX = Number.isFinite(layer.x) ? layer.x : 0
+    startLayerY = Number.isFinite(layer.y) ? layer.y : 0
     lockedAxisRef.current = null
     movePillElement.style.display = 'block'
     wrapperElement.setPointerCapture(event.pointerId)

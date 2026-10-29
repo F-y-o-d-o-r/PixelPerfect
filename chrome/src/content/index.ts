@@ -6,11 +6,6 @@ import { useStorage } from './floating-window/composables/useStorage'
 import floatingWindowStyles from './floating-window/styles/floating-window.sass?inline'
 import { initOverlayRenderer } from './overlay'
 
-function removeStaleHostElementsIfPresent(): void {
-  document.getElementById(DOM_HOST_IDS.FLOATING_WINDOW)?.remove()
-  document.getElementById(DOM_HOST_IDS.OVERLAY)?.remove()
-}
-
 function attachCompiledStylesToShadowRoot(shadowRoot: ShadowRoot): void {
   const styleSheet = new CSSStyleSheet()
   styleSheet.replaceSync(floatingWindowStyles)
@@ -144,7 +139,14 @@ function registerExtensionMessageListener(): void {
 }
 
 function initializePixelPerfectContentScript(): void {
-  removeStaleHostElementsIfPresent()
+  const existingHost = document.getElementById(DOM_HOST_IDS.FLOATING_WINDOW)
+  if (existingHost) {
+    const { windowState, uiStrings, showToast } = useStorage()
+    windowState.visible = true
+    showToast(uiStrings.value.toastWidgetFocused)
+    return
+  }
+
   mountFloatingWindowInShadowDom()
   initOverlayRenderer()
   registerClipboardPasteListener()
